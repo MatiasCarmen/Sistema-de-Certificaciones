@@ -1,3 +1,7 @@
+using System.Data.Common;
+using Inkillay.Certificados.Web.Data;
+using Microsoft.Data.SqlClient;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -7,6 +11,9 @@ builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add(new Microsoft.AspNetCore.Mvc.AutoValidateAntiforgeryTokenAttribute());
 });
+
+DbProviderFactories.RegisterFactory("Microsoft.Data.SqlClient", SqlClientFactory.Instance);
+builder.Services.AddSingleton<DbConnectionFactory>();
 
 var app = builder.Build();
 
