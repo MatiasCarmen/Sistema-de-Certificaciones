@@ -1,0 +1,85 @@
+@model IEnumerable<Inkillay.Certificados.Web.Models.Entities.Plantilla>
+@{
+    ViewData["Title"] = "Maestro de Plantillas";
+}
+
+<div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-200 shadow-sm">
+    <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold text-slate-800 dark:text-slate-100">Gestion de Fondos</h3>
+        <button onclick="document.getElementById('modalPlantilla').showModal()" class="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
+            + Nueva Plantilla
+        </button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="gridPlantillas">
+        @foreach (var item in Model)
+        {
+            <div class="bg-white border border-slate-200 rounded-lg overflow-hidden group hover:shadow-md transition-shadow">
+                <div class="h-48 bg-slate-100 flex items-center justify-center overflow-hidden">
+                    <img src="~/uploads/@item.RutaImagen" alt="@item.Nombre" class="w-full h-full object-cover">
+                </div>
+                <div class="p-4 flex justify-between items-center">
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-800">@item.Nombre</h4>
+                        <p class="text-[10px] text-slate-400 uppercase">ID: #@item.IdPlantilla</p>
+                    </div>
+                    <button class="text-primary text-xs font-bold hover:underline">Configurar</button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<dialog id="modalPlantilla" class="rounded-xl shadow-2xl p-0 w-full max-w-md bg-white overflow-hidden">
+    <div class="p-6">
+        <h3 class="text-lg font-bold mb-4">Nueva Plantilla de Diploma</h3>
+        <form id="formPlantilla" asp-controller="Plantillas" asp-action="Crear" method="post" enctype="multipart/form-data" class="space-y-4">
+            @Html.AntiForgeryToken()
+            <div>
+                <label class="block text-xs font-bold uppercase mb-1">Nombre de la Plantilla</label>
+                <input type="text" name="nombre" required class="w-full border-slate-300 rounded-lg text-sm" placeholder="Ej: Certificado de Excel Avanzado">
+            </div>
+            <div>
+                <label class="block text-xs font-bold uppercase mb-1">Imagen de Fondo (JPG/PNG)</label>
+                <input type="file" name="imagen" accept="image/*" required class="w-full text-sm">
+            </div>
+            <div class="flex justify-end gap-2 mt-6">
+                <button type="button" onclick="document.getElementById('modalPlantilla').close()" class="px-4 py-2 text-sm font-medium text-slate-600">Cancelar</button>
+                <button type="submit" id="btnGuardarPlantilla" class="px-4 py-2 bg-primary text-white text-sm font-bold rounded-lg">Guardar Plantilla</button>
+            </div>
+        </form>
+    </div>
+</dialog>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $('#formPlantilla').on('submit', function(e) {
+            e.preventDefault(); // <--- ESTO evita la pantalla negra
+
+            let formData = new FormData(this);
+            const $btn = $('#btnGuardarPlantilla');
+            $btn.prop('disabled', true).text('Subiendo...');
+
+            $.ajax({
+                url: '@Url.Action("Crear", "Plantillas")',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(res) {
+                    if (res.success) {
+                        location.reload();
+                    } else {
+                        alert(res.mensaje);
+                        $btn.prop('disabled', false).text('Guardar Plantilla');
+                    }
+                },
+                error: function() {
+                    alert("Error critico al subir la imagen.");
+                    $btn.prop('disabled', false).text('Guardar Plantilla');
+                }
+            });
+        });
+    </script>
+}

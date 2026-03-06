@@ -1,4 +1,5 @@
 using Dapper;
+using Inkillay.Certificados.Web.Models;
 using Inkillay.Certificados.Web.Models.Entities;
 using System.Data;
 
@@ -15,13 +16,9 @@ public class SeguridadRepository : ISeguridadRepository
 
     public async Task<IEnumerable<Seg_Modulo>> ListarModulosAsync()
     {
-        // 1. Abrimos la conexion usando nuestra factory
         using var connection = _connectionFactory.CreateConnection();
-
-        // 2. Definimos el nombre del procedimiento almacenado
         string procedure = "USP_Seg_Modulo_Listar";
 
-        // 3. Ejecutamos con Dapper indicando que es un StoredProcedure
         return await connection.QueryAsync<Seg_Modulo>(
             procedure,
             commandType: CommandType.StoredProcedure
@@ -31,16 +28,43 @@ public class SeguridadRepository : ISeguridadRepository
     public async Task<Usuarios?> ValidarUsuarioAsync(string correo)
     {
         using var connection = _connectionFactory.CreateConnection();
-
-        // Nombre del procedimiento que creamos en SQL
         string procedure = "USP_Usuarios_ValidarAcceso";
-
-        // Pasamos el parametro que espera el procedimiento
         var parametros = new { Correo = correo };
 
         return await connection.QueryFirstOrDefaultAsync<Usuarios>(
             procedure,
             parametros,
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
+    public async Task<IEnumerable<RecentActivityViewModel>> ListarActividadRecienteAsync()
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        return await connection.QueryAsync<RecentActivityViewModel>(
+            "USP_Diplomas_ListarRecientes",
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
+    public async Task<int> InsertarPlantillaAsync(Plantilla plantilla)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var procedure = "USP_Plantillas_Insertar";
+        var parametros = new
+        {
+            Nombre = plantilla.Nombre,
+            RutaImagen = plantilla.RutaImagen
+        };
+
+        return await connection.ExecuteAsync(procedure, parametros, commandType: CommandType.StoredProcedure);
+    }
+
+    public async Task<IEnumerable<Plantilla>> ListarPlantillasAsync()
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        return await connection.QueryAsync<Plantilla>(
+            "USP_Plantillas_ListarTodos",
             commandType: CommandType.StoredProcedure
         );
     }
