@@ -17,10 +17,8 @@ public class SeguridadRepository : ISeguridadRepository
     public async Task<IEnumerable<Seg_Modulo>> ListarModulosAsync()
     {
         using var connection = _connectionFactory.CreateConnection();
-        string procedure = "USP_Seg_Modulo_Listar";
-
         return await connection.QueryAsync<Seg_Modulo>(
-            procedure,
+            "USP_Seg_Modulo_Listar",
             commandType: CommandType.StoredProcedure
         );
     }
@@ -28,12 +26,9 @@ public class SeguridadRepository : ISeguridadRepository
     public async Task<Usuarios?> ValidarUsuarioAsync(string correo)
     {
         using var connection = _connectionFactory.CreateConnection();
-        string procedure = "USP_Usuarios_ValidarAcceso";
-        var parametros = new { Correo = correo };
-
         return await connection.QueryFirstOrDefaultAsync<Usuarios>(
-            procedure,
-            parametros,
+            "USP_Usuarios_ValidarAcceso",
+            new { Correo = correo },
             commandType: CommandType.StoredProcedure
         );
     }
@@ -47,19 +42,6 @@ public class SeguridadRepository : ISeguridadRepository
         );
     }
 
-    public async Task<int> InsertarPlantillaAsync(Plantilla plantilla)
-    {
-        using var connection = _connectionFactory.CreateConnection();
-        var procedure = "USP_Plantillas_Insertar";
-        var parametros = new
-        {
-            Nombre = plantilla.Nombre,
-            RutaImagen = plantilla.RutaImagen
-        };
-
-        return await connection.ExecuteAsync(procedure, parametros, commandType: CommandType.StoredProcedure);
-    }
-
     public async Task<IEnumerable<Plantilla>> ListarPlantillasAsync()
     {
         using var connection = _connectionFactory.CreateConnection();
@@ -67,5 +49,41 @@ public class SeguridadRepository : ISeguridadRepository
             "USP_Plantillas_ListarTodos",
             commandType: CommandType.StoredProcedure
         );
+    }
+
+    public async Task<int> InsertarPlantillaAsync(Plantilla plantilla)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        return await connection.ExecuteAsync(
+            "USP_Plantillas_Insertar",
+            new
+            {
+                Nombre = plantilla.Nombre,
+                RutaImagen = plantilla.RutaImagen
+            },
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
+    public async Task<int> ActualizarCoordenadasAsync(int id, int x, int y)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        return await connection.ExecuteAsync(
+            "USP_Plantillas_ActualizarCoordenadas",
+            new { IdPlantilla = id, EjeX = x, EjeY = y },
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
+    public async Task<int> CambiarEstadoPlantillaAsync(int id)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        const string sql = """
+            UPDATE Plantillas
+            SET Estado = CASE WHEN Estado = 1 THEN 0 ELSE 1 END
+            WHERE IdPlantilla = @IdPlantilla;
+            """;
+
+        return await connection.ExecuteAsync(sql, new { IdPlantilla = id });
     }
 }

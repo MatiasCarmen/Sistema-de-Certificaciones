@@ -15,10 +15,20 @@ public class PlantillasController : Controller
         _seguridadRepository = seguridadRepository;
     }
 
+    [HttpGet]
     public async Task<IActionResult> Index()
     {
         var lista = await _seguridadRepository.ListarPlantillasAsync();
         return View(lista);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Editor(int id)
+    {
+        var lista = await _seguridadRepository.ListarPlantillasAsync();
+        var plantilla = lista.FirstOrDefault(p => p.IdPlantilla == id);
+        if (plantilla == null) return NotFound();
+        return View(plantilla);
     }
 
     [HttpPost]
@@ -26,9 +36,7 @@ public class PlantillasController : Controller
     public async Task<IActionResult> Crear(string nombre, IFormFile imagen)
     {
         if (imagen == null || string.IsNullOrWhiteSpace(nombre))
-        {
             return Json(new { success = false, mensaje = "Datos incompletos" });
-        }
 
         try
         {
@@ -38,16 +46,14 @@ public class PlantillasController : Controller
                 Directory.CreateDirectory(carpeta);
             }
 
-            // 1. Guardar archivo fisico
-            string nombreArchivo = Guid.NewGuid().ToString() + Path.GetExtension(imagen.FileName);
+            string nombreArchivo = Guid.NewGuid() + Path.GetExtension(imagen.FileName);
             string ruta = Path.Combine(carpeta, nombreArchivo);
 
-            using (var stream = new FileStream(ruta, FileMode.Create))
+            await using (var stream = new FileStream(ruta, FileMode.Create))
             {
                 await imagen.CopyToAsync(stream);
             }
 
-            // 2. Guardar en BD
             var plantilla = new Plantilla
             {
                 Nombre = nombre,
@@ -55,11 +61,27 @@ public class PlantillasController : Controller
             };
 
             await _seguridadRepository.InsertarPlantillaAsync(plantilla);
-            return Json(new { success = true, mensaje = "Plantilla subida con exito" });
+            return Json(new { success = true });
         }
         catch (Exception ex)
         {
             return Json(new { success = false, mensaje = ex.Message });
         }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> GuardarEjes(int id, int x, int y)
+    {
+        var filas = await _seguridadRepository.ActualizarCoordenadasAsync(id, x, y);
+        return Json(new { success = filas > 0 });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CambiarEstado(int id)
+    {
+        var filas = await _seguridadRepository.CambiarEstadoPlantillaAsync(id);
+        return Json(new { success = filas > 0 });
     }
 }
