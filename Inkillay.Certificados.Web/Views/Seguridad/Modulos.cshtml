@@ -1,0 +1,36 @@
+@model IEnumerable<Inkillay.Certificados.Web.Models.Entities.Seg_Modulo>
+
+@{
+    ViewData["Title"] = "Modulos";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+@if (!Model.Any())
+{
+    <p>No se encontraron modulos.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Nombre</th>
+                <th>Icono</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var modulo in Model)
+        {
+            <tr>
+                <td>@modulo.IdModulo</td>
+                <td>@modulo.Nombre</td>
+                <td>@modulo.Icono</td>
+                <td>@(modulo.Estado ? "Activo" : "Inactivo")</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

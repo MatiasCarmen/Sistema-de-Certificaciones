@@ -1,50 +1,74 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html class="light" lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Inkillay.Certificados.Web</title>
-    <script type="importmap"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Inkillay.Certificados.Web.styles.css" asp-append-version="true" />
+    <title>@ViewData["Title"] - SDG Diplomas</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&display=swap" rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#0b6fda",
+                        "background-light": "#f5f7f8",
+                        "background-dark": "#101922",
+                        "sidebar-bg": "#002d5e",
+                        "sidebar-hover": "#004085"
+                    },
+                    fontFamily: { "display": ["Inter", "sans-serif"] }
+                },
+            },
+        }
+    </script>
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Inkillay.Certificados.Web</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+<body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col overflow-x-hidden">
+    <div class="flex h-screen w-full">
+        <aside class="w-64 bg-sidebar-bg flex-shrink-0 flex flex-col text-slate-100">
+            <div class="h-16 flex items-center px-6 border-b border-sidebar-hover">
+                <span class="material-symbols-outlined text-2xl mr-3">school</span>
+                <h1 class="text-lg font-bold tracking-tight">SDG Diplomas</h1>
+            </div>
+            <div class="flex flex-col flex-1 py-4 overflow-y-auto">
+                <nav class="flex-1 space-y-1 px-3">
+                    <a class="flex items-center px-3 py-2.5 bg-sidebar-hover rounded-lg text-sm font-medium" asp-controller="Home" asp-action="Index">
+                        <span class="material-symbols-outlined mr-3 text-[20px]">dashboard</span> Dashboard
+                    </a>
+                    <a class="flex items-center px-3 py-2.5 hover:bg-sidebar-hover/50 rounded-lg text-sm font-medium transition-colors" href="#">
+                        <span class="material-symbols-outlined mr-3 text-[20px]">view_module</span> Módulos
+                    </a>
+                </nav>
+            </div>
+            <div class="p-4 border-t border-sidebar-hover">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-sidebar-hover flex items-center justify-center border border-slate-500/30">
+                        <span class="material-symbols-outlined text-[20px]">person</span>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-sm font-medium">@User.Identity?.Name</span>
+                        <span class="text-xs text-slate-400">Administrador</span>
+                    </div>
                 </div>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
+        </aside>
+
+        <main class="flex-1 flex flex-col overflow-hidden">
+            <header class="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 flex items-center justify-between px-6 flex-shrink-0 z-10">
+                <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">@ViewData["Title"]</h2>
+                <div class="flex items-center gap-4">
+                    <form asp-controller="Account" asp-action="Logout" method="post">
+                        <button type="submit" class="text-sm text-red-500 hover:text-red-700 font-medium">Cerrar Sesión</button>
+                    </form>
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-auto p-6">
+                @RenderBody()
+            </div>
         </main>
     </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - Inkillay.Certificados.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

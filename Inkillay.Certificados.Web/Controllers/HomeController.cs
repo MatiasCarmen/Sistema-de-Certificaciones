@@ -1,10 +1,12 @@
 using Inkillay.Certificados.Web.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
 namespace Inkillay.Certificados.Web.Controllers
 {
-    public class HomeController : Controller
+[Authorize]
+public class HomeController : Controller
     {
         public IActionResult Index()
         {
