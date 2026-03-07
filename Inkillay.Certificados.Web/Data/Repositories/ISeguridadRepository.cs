@@ -12,5 +12,6 @@ public interface ISeguridadRepository
     Task<IEnumerable<Plantilla>> ListarPlantillasAsync();
     Task<int> InsertarPlantillaAsync(Plantilla plantilla);
     Task<int> ActualizarCoordenadasAsync(int id, int x, int y);
+    Task<int> ActualizarDisenoPlantillaAsync(int id, int x, int y, int fontSize, string fontColor);
     Task<int> CambiarEstadoPlantillaAsync(int id);
 }

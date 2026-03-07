@@ -4,13 +4,14 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>754faa4a-784a-4b86-bd56-69353f65b273</UserSecretsId>
+    <UserSecretsId>1a1c3068-2f41-42ab-839d-bb2003f064cf</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BCrypt.Net-Next" Version="4.1.0" />
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="Dapper" Version="2.1.35" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.1" />
+    <PackageReference Include="SkiaSharp" Version="2.88.8" />
   </ItemGroup>
 
 </Project>

@@ -1,5 +1,6 @@
 using Inkillay.Certificados.Web.Data.Repositories;
 using Inkillay.Certificados.Web.Models.Entities;
+using Inkillay.Certificados.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Inkillay.Certificados.Web.Controllers;
@@ -8,11 +9,16 @@ public class PlantillasController : Controller
 {
     private readonly IWebHostEnvironment _hostEnvironment;
     private readonly ISeguridadRepository _seguridadRepository;
+    private readonly ICertificadoService _certificadoService;
 
-    public PlantillasController(IWebHostEnvironment hostEnvironment, ISeguridadRepository seguridadRepository)
+    public PlantillasController(
+        IWebHostEnvironment hostEnvironment,
+        ISeguridadRepository seguridadRepository,
+        ICertificadoService certificadoService)
     {
         _hostEnvironment = hostEnvironment;
         _seguridadRepository = seguridadRepository;
+        _certificadoService = certificadoService;
     }
 
     [HttpGet]
@@ -25,10 +31,34 @@ public class PlantillasController : Controller
     [HttpGet]
     public async Task<IActionResult> Editor(int id)
     {
-        var lista = await _seguridadRepository.ListarPlantillasAsync();
-        var plantilla = lista.FirstOrDefault(p => p.IdPlantilla == id);
+        var plantillas = await _seguridadRepository.ListarPlantillasAsync();
+        var plantilla = plantillas.FirstOrDefault(p => p.IdPlantilla == id);
         if (plantilla == null) return NotFound();
         return View(plantilla);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Previsualizar(int id)
+    {
+
+        var plantillas = await _seguridadRepository.ListarPlantillasAsync();
+        var plantilla = plantillas.FirstOrDefault(p => p.IdPlantilla == id);
+
+        if (plantilla == null) return NotFound();
+
+
+        string rutaImagen = Path.Combine(_hostEnvironment.WebRootPath, "uploads", plantilla.RutaImagen);
+
+
+        var imagenBytes = _certificadoService.GenerarImagenCertificado(
+            rutaImagen,
+            "MATIAS ADMINISTRADOR",
+            plantilla.EjeX,
+            plantilla.EjeY
+        );
+
+
+        return File(imagenBytes, "image/jpeg");
     }
 
     [HttpPost]

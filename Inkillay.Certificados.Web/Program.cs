@@ -1,6 +1,7 @@
 using System.Data.Common;
 using Inkillay.Certificados.Web.Data;
 using Inkillay.Certificados.Web.Data.Repositories;
+using Inkillay.Certificados.Web.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Data.SqlClient;
 
@@ -17,6 +18,7 @@ builder.Services.AddControllersWithViews(options =>
 DbProviderFactories.RegisterFactory("Microsoft.Data.SqlClient", SqlClientFactory.Instance);
 builder.Services.AddSingleton<DbConnectionFactory>();
 builder.Services.AddScoped<ISeguridadRepository, SeguridadRepository>();
+builder.Services.AddScoped<ICertificadoService, CertificadoService>();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {

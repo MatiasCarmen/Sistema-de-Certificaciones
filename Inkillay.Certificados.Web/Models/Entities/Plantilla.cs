@@ -7,5 +7,7 @@ public class Plantilla
     public string RutaImagen { get; set; } = string.Empty;
     public int EjeX { get; set; }
     public int EjeY { get; set; }
+    public int FontSize { get; set; } = 60;
+    public string FontColor { get; set; } = "#000000";
     public bool Estado { get; set; }
 }

@@ -88,6 +88,23 @@ public class SeguridadRepository : ISeguridadRepository
         );
     }
 
+    public async Task<int> ActualizarDisenoPlantillaAsync(int id, int x, int y, int fontSize, string fontColor)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        return await connection.ExecuteAsync(
+            "USP_Plantillas_ActualizarDiseno",
+            new
+            {
+                IdPlantilla = id,
+                EjeX = x,
+                EjeY = y,
+                FontSize = fontSize,
+                FontColor = fontColor
+            },
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
     public async Task<int> CambiarEstadoPlantillaAsync(int id)
     {
         using var connection = _connectionFactory.CreateConnection();
