@@ -16,6 +16,9 @@ builder.Services.AddControllersWithViews(options =>
 DbProviderFactories.RegisterFactory("Microsoft.Data.SqlClient", SqlClientFactory.Instance);
 builder.Services.AddSingleton<DbConnectionFactory>();
 builder.Services.AddScoped<ISeguridadRepository, SeguridadRepository>();
+builder.Services.AddScoped<ICursoRepository, CursoRepository>();
+builder.Services.AddScoped<IMatriculaRepository, MatriculaRepository>();
+builder.Services.AddScoped<IPagoRepository, PagoRepository>();
 builder.Services.AddScoped<ICertificadoService, CertificadoService>();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>

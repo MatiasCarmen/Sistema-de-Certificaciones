@@ -1,0 +1,32 @@
+using Dapper;
+using System.Data;
+
+namespace Inkillay.Certificados.Web.Data.Repositories;
+
+public class PagoRepository : IPagoRepository
+{
+    private readonly DbConnectionFactory _connectionFactory;
+
+    public PagoRepository(DbConnectionFactory connectionFactory)
+    {
+        _connectionFactory = connectionFactory;
+    }
+
+    public async Task<bool> RegistrarPagoAsync(int idMatricula, decimal monto, string referencia)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+
+        var resultado = await connection.QueryFirstOrDefaultAsync<bool>(
+            "USP_Pagos_Registrar",
+            new
+            {
+                IdMatricula = idMatricula,
+                Monto = monto,
+                Referencia = referencia
+            },
+            commandType: CommandType.StoredProcedure
+        );
+
+        return resultado;
+    }
+}

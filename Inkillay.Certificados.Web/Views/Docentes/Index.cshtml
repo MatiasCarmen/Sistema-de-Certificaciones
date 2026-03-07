@@ -1,0 +1,56 @@
+@model IEnumerable<Inkillay.Certificados.Web.Models.ViewModels.ReporteCursoViewModel>
+
+<div class="p-6">
+    <h2 class="text-2xl font-bold text-slate-800 mb-6">Panel del Docente</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        @foreach (var curso in Model)
+        {
+            <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 border-primary">
+                <h4 class="text-xs font-bold text-slate-400 uppercase">@curso.NombreCurso</h4>
+                <div class="flex justify-between items-end mt-2">
+                    <div>
+                        <p class="text-2xl font-black text-slate-800">@curso.TotalMatriculados</p>
+                        <p class="text-[10px] text-slate-500">Alumnos Inscritos</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-bold text-primary">@curso.TotalDescargas Descargas</p>
+                        <p class="text-[10px] text-slate-500">Certificados emitidos</p>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <table class="w-full text-left">
+            <thead class="bg-slate-50 text-slate-500 text-xs uppercase">
+                <tr>
+                    <th class="px-6 py-4">Curso</th>
+                    <th class="px-6 py-4">Matriculados</th>
+                    <th class="px-6 py-4">Al dia / Pendientes</th>
+                    <th class="px-6 py-4">Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                @foreach (var item in Model)
+                {
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4 font-medium text-slate-800">@item.NombreCurso</td>
+                        <td class="px-6 py-4 text-slate-600">@item.TotalMatriculados</td>
+                        <td class="px-6 py-4">
+                            <span class="text-green-600 font-bold">@item.TotalPagados</span> /
+                            <span class="text-red-400">@(item.TotalMatriculados - item.TotalPagados)</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <a href="@Url.Action("Index", "Emision", new { idCurso = item.IdCurso })"
+                               class="text-primary font-bold text-sm hover:underline">
+                                Gestionar Emision ->
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -45,7 +45,6 @@
 
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         (() => {
             const $contenedor = $('#contenedorDiploma');
@@ -54,15 +53,7 @@
             const $inputSize = $('#inputSize');
             const $inputColor = $('#inputColor');
             const $textColor = $('#textColor');
-            const $btnGuardar = $('#btnGuardarTodo');
             const token = $('#csrfEditor input[name="__RequestVerificationToken"]').val();
-
-            function getEscalas() {
-                const img = $img[0];
-                const escalaX = img.naturalWidth / img.clientWidth;
-                const escalaY = img.naturalHeight / img.clientHeight;
-                return { escalaX, escalaY };
-            }
 
             function applyFromRealToView() {
                 const img = $img[0];
@@ -75,18 +66,17 @@
                 const realY = parseInt($movible.data('real-y'), 10) || 0;
                 const realSize = parseInt($movible.data('real-size'), 10) || 60;
 
-                const viewX = Math.round(realX * escalaXView);
-                const viewY = Math.round(realY * escalaYView);
-                const viewSize = Math.max(8, Math.round(realSize * escalaXView));
+                $movible.css({
+                    left: Math.round(realX * escalaXView) + 'px',
+                    top: Math.round(realY * escalaYView) + 'px',
+                    fontSize: Math.max(8, Math.round(realSize * escalaXView)) + 'px'
+                });
 
-                $movible.css({ left: viewX + 'px', top: viewY + 'px', fontSize: viewSize + 'px' });
-                $inputSize.val(viewSize);
+                $inputSize.val(parseInt($movible.css('font-size'), 10));
             }
 
-            // Actualizacion en tiempo real
             $inputSize.on('input', function() {
-                const size = parseInt($(this).val(), 10) || 1;
-                $movible.css('font-size', size + 'px');
+                $movible.css('font-size', ($(this).val() || 1) + 'px');
             });
 
             $inputColor.on('input', function() {
@@ -104,7 +94,6 @@
                 }
             });
 
-            // Drag basico para ajustar ejes X/Y
             let dragging = false;
             let startOffsetX = 0;
             let startOffsetY = 0;
@@ -137,12 +126,11 @@
                 dragging = false;
             });
 
-            // Guardado maestro con factor de escala real
             $('#btnGuardarTodo').click(function() {
                 const img = document.getElementById('imgDiploma');
                 const nombre = $('#nombreMovible');
 
-                // Factor de escala: relacion entre tamano real vs tamano en pantalla
+                // Calculamos la proporcion: Tamano Real / Tamano en Pantalla
                 const escalaX = img.naturalWidth / img.clientWidth;
                 const escalaY = img.naturalHeight / img.clientHeight;
 
@@ -150,8 +138,10 @@
 
                 const data = {
                     id: @Model.IdPlantilla,
+                    // Traducimos coordenadas de pantalla a pixeles reales de la imagen
                     x: Math.round(pos.left * escalaX),
                     y: Math.round(pos.top * escalaY),
+                    // Escalamos tambien el tamano de la letra
                     fontSize: Math.round((parseInt($('#inputSize').val(), 10) || 60) * escalaX),
                     fontColor: $('#inputColor').val(),
                     __RequestVerificationToken: token
@@ -159,13 +149,12 @@
 
                 $.post('/Plantillas/ActualizarDiseno', data, function(res) {
                     if (res.success) {
-                        Swal.fire('Listo', 'Diseno guardado a escala real', 'success');
+                        alert('Diseno guardado a escala real');
                     } else {
-                        Swal.fire('Error', res.mensaje || 'No se pudo guardar el diseno', 'error');
+                        alert('Error al guardar el diseno.');
                     }
-                }).fail(function(xhr) {
-                    console.error('Error:', xhr.status, xhr.responseText);
-                    Swal.fire('Error', 'Error ' + xhr.status + ': ' + (xhr.responseText || 'No se pudo guardar el diseno'), 'error');
+                }).fail(function() {
+                    alert('Error al guardar el diseno.');
                 });
             });
 

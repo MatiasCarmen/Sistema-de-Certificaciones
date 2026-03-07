@@ -1,0 +1,37 @@
+@model IEnumerable<Inkillay.Certificados.Web.Models.Entities.Matricula>
+@{
+    ViewData["Title"] = "Mis Cursos";
+}
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+    @foreach (var item in Model)
+    {
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="p-5">
+                <h3 class="font-bold text-lg text-slate-800">@item.NombreCurso</h3>
+                <p class="text-xs text-slate-500 mt-1">@item.Sumilla</p>
+
+                <div class="mt-4 flex justify-between items-center text-sm">
+                    <span class="text-slate-600">Estado de Pago:</span>
+                    <span class="@(item.TotalPagado >= item.CostoCurso ? "text-green-600" : "text-red-500") font-bold">
+                        S/ @item.TotalPagado / S/ @item.CostoCurso
+                    </span>
+                </div>
+
+                @if (item.Aprobado && item.TotalPagado >= item.CostoCurso)
+                {
+                    <a href="@Url.Action("Descargar", "Certificados", new { id = item.IdMatricula })"
+                       class="block w-full mt-6 bg-primary text-white text-center py-3 rounded-xl font-bold hover:bg-opacity-90 transition-all">
+                        Descargar Certificado
+                    </a>
+                }
+                else
+                {
+                    <button disabled class="block w-full mt-6 bg-slate-100 text-slate-400 py-3 rounded-xl font-bold cursor-not-allowed">
+                        Pendiente de Pago/Aprobacion
+                    </button>
+                }
+            </div>
+        </div>
+    }
+</div>

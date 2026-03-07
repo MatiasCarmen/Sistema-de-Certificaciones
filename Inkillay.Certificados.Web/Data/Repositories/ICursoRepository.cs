@@ -1,0 +1,11 @@
+using Inkillay.Certificados.Web.Models.ViewModels;
+using Inkillay.Certificados.Web.Models.Entities;
+
+namespace Inkillay.Certificados.Web.Data.Repositories;
+
+public interface ICursoRepository
+{
+    Task<IEnumerable<Curso>> ListarCursosActivosAsync();
+    Task<Curso?> ObtenerPorIdAsync(int idCurso);
+    Task<IEnumerable<ReporteCursoViewModel>> ObtenerReporteDocenteAsync(int idProfesor);
+}

@@ -1,0 +1,95 @@
+@model Inkillay.Certificados.Web.Models.ViewModels.EmisionIndexViewModel
+@{
+    ViewData["Title"] = "Emision de Certificados";
+}
+
+<div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-200 shadow-sm">
+    <div class="flex flex-col md:flex-row gap-4 md:items-end md:justify-between mb-6">
+        <form method="get" asp-controller="Emision" asp-action="Index" class="flex flex-col md:flex-row gap-3 md:items-end">
+            <div>
+                <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Curso</label>
+                <select name="idCurso" class="min-w-[280px] border-slate-300 rounded-lg text-sm">
+                    <option value="">Seleccionar curso...</option>
+                    @foreach (var curso in Model.Cursos)
+                    {
+                        <option value="@curso.IdCurso" selected="@(Model.IdCursoSeleccionado == curso.IdCurso)">
+                            @curso.Nombre
+                        </option>
+                    }
+                </select>
+            </div>
+            <button type="submit" class="px-4 py-2 bg-primary text-white text-sm font-bold rounded-lg">Ver Alumnos</button>
+        </form>
+
+        <form id="formGenerar" asp-controller="Emision" asp-action="GenerarCertificados" method="post" class="flex flex-col md:flex-row gap-3 md:items-end">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="idCurso" value="@(Model.IdCursoSeleccionado ?? 0)" />
+            <div>
+                <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Id Plantilla</label>
+                <input type="number" min="1" name="idPlantilla" required class="w-36 border-slate-300 rounded-lg text-sm" />
+            </div>
+            <button type="submit" class="px-4 py-2 bg-emerald-600 text-white text-sm font-bold rounded-lg">
+                Generar Certificados
+            </button>
+        </form>
+    </div>
+
+    <div class="overflow-x-auto border border-slate-200 rounded-lg">
+        <table class="w-full text-left">
+            <thead class="bg-slate-50">
+                <tr>
+                    <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Id Matricula</th>
+                    <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Alumno</th>
+                    <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Curso</th>
+                    <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Fecha Matricula</th>
+                    <th class="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Aprobado</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                @if (!Model.Alumnos.Any())
+                {
+                    <tr>
+                        <td colspan="5" class="px-4 py-6 text-sm text-slate-500">No hay alumnos para el curso seleccionado.</td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var item in Model.Alumnos)
+                    {
+                        <tr>
+                            <td class="px-4 py-3 text-sm text-slate-600">#@item.IdMatricula</td>
+                            <td class="px-4 py-3 text-sm font-medium text-slate-800">@item.NombreAlumno</td>
+                            <td class="px-4 py-3 text-sm text-slate-600">@item.NombreCurso</td>
+                            <td class="px-4 py-3 text-sm text-slate-600">@item.FechaMatricula.ToString("dd/MM/yyyy")</td>
+                            <td class="px-4 py-3 text-sm">
+                                <span class="@(item.Aprobado ? "text-emerald-700" : "text-amber-700") font-semibold">
+                                    @(item.Aprobado ? "Si" : "No")
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $('#formGenerar').on('submit', function(e) {
+            e.preventDefault();
+            const $form = $(this);
+
+            $.post($form.attr('action'), $form.serialize(), function(res) {
+                if (res.success) {
+                    alert('Certificados generados: ' + res.totalGenerados);
+                } else {
+                    alert(res.message || 'No se pudo generar.');
+                }
+            }).fail(function() {
+                alert('Error al generar certificados.');
+            });
+        });
+    </script>
+}

@@ -36,12 +36,14 @@ public class AccountController : Controller
 
         if (usuario != null && HashHelper.VerifyPassword(model.Clave, usuario.Clave))
         {
+            var roleName = ResolveRoleName(usuario.IdRol);
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, usuario.Nombre),
                 new Claim(ClaimTypes.Email, usuario.Correo),
                 new Claim("IdUsuario", usuario.IdUsuario.ToString()),
-                new Claim(ClaimTypes.Role, usuario.IdRol.ToString())
+                new Claim("IdRol", usuario.IdRol.ToString()),
+                new Claim(ClaimTypes.Role, roleName)
             };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -49,7 +51,15 @@ public class AccountController : Controller
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(claimsIdentity));
 
-            return Json(new { success = true, redirectUrl = Url.Action("Index", "Home") });
+            var redirectUrl = roleName switch
+            {
+                "Admin" => Url.Action("Index", "Plantillas"),
+                "Docente" => Url.Action("Index", "Docentes"),
+                "Alumno" => Url.Action("MisCursos", "Alumnos"),
+                _ => Url.Action("Index", "Home")
+            };
+
+            return Json(new { success = true, redirectUrl });
         }
 
         return Json(new { success = false, message = "Correo o contrasena incorrectos" });
@@ -61,5 +71,16 @@ public class AccountController : Controller
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return RedirectToAction(nameof(Login));
+    }
+
+    private static string ResolveRoleName(int idRol)
+    {
+        return idRol switch
+        {
+            1 => "Admin",
+            2 => "Docente",
+            3 => "Alumno",
+            _ => "Alumno"
+        };
     }
 }

@@ -1,0 +1,45 @@
+using Dapper;
+using Inkillay.Certificados.Web.Models.Entities;
+using Inkillay.Certificados.Web.Models.ViewModels;
+using System.Data;
+
+namespace Inkillay.Certificados.Web.Data.Repositories;
+
+public class CursoRepository : ICursoRepository
+{
+    private readonly DbConnectionFactory _connectionFactory;
+
+    public CursoRepository(DbConnectionFactory connectionFactory)
+    {
+        _connectionFactory = connectionFactory;
+    }
+
+    public async Task<IEnumerable<Curso>> ListarCursosActivosAsync()
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        return await connection.QueryAsync<Curso>(
+            "USP_Cursos_ListarActivos",
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
+    public async Task<Curso?> ObtenerPorIdAsync(int idCurso)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        return await connection.QueryFirstOrDefaultAsync<Curso>(
+            "USP_Cursos_ObtenerPorId",
+            new { IdCurso = idCurso },
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
+    public async Task<IEnumerable<ReporteCursoViewModel>> ObtenerReporteDocenteAsync(int idProfesor)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        return await connection.QueryAsync<ReporteCursoViewModel>(
+            "USP_Profesor_ReporteGeneral",
+            new { IdProfesor = idProfesor },
+            commandType: CommandType.StoredProcedure
+        );
+    }
+}
