@@ -7,6 +7,7 @@ public interface ISeguridadRepository
 {
     Task<IEnumerable<Seg_Modulo>> ListarModulosAsync();
     Task<Usuarios?> ValidarUsuarioAsync(string correo);
+    Task<Usuarios> ObtenerUsuarioPorCorreoAsync(string correo);
     Task<IEnumerable<RecentActivityViewModel>> ListarActividadRecienteAsync();
     Task<IEnumerable<Plantilla>> ListarPlantillasAsync();
     Task<int> InsertarPlantillaAsync(Plantilla plantilla);

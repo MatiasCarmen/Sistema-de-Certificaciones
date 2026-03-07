@@ -33,6 +33,19 @@ public class SeguridadRepository : ISeguridadRepository
         );
     }
 
+    public async Task<Usuarios> ObtenerUsuarioPorCorreoAsync(string correo)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var parametros = new { Correo = correo };
+
+        // Invocamos el SP que ya creamos en Grape
+        return await connection.QueryFirstOrDefaultAsync<Usuarios>(
+            "USP_Usuarios_ObtenerPorCorreo",
+            parametros,
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
     public async Task<IEnumerable<RecentActivityViewModel>> ListarActividadRecienteAsync()
     {
         using var connection = _connectionFactory.CreateConnection();
@@ -78,12 +91,10 @@ public class SeguridadRepository : ISeguridadRepository
     public async Task<int> CambiarEstadoPlantillaAsync(int id)
     {
         using var connection = _connectionFactory.CreateConnection();
-        const string sql = """
-            UPDATE Plantillas
-            SET Estado = CASE WHEN Estado = 1 THEN 0 ELSE 1 END
-            WHERE IdPlantilla = @IdPlantilla;
-            """;
-
-        return await connection.ExecuteAsync(sql, new { IdPlantilla = id });
+        return await connection.ExecuteAsync(
+            "USP_Plantillas_CambiarEstado",
+            new { IdPlantilla = id },
+            commandType: CommandType.StoredProcedure
+        );
     }
 }

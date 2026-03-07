@@ -1,5 +1,6 @@
 using Inkillay.Certificados.Web.Data.Repositories;
 using Inkillay.Certificados.Web.Models;
+using Inkillay.Certificados.Web.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
@@ -26,15 +27,15 @@ public class AccountController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(LoginViewModel model)
     {
-        if (!ModelState.IsValid) return Json(new { success = false, message = "Datos inválidos" });
-
-        // 1. Buscamos al usuario en la DB
-        // Nota: Necesitaremos agregar este método a nuestro repositorio
-        var usuario = await _seguridadRepository.ValidarUsuarioAsync(model.Correo);
-
-        if (usuario != null && usuario.Clave == model.Clave) // ¡Aquí compararemos el Hash luego!
+        if (!ModelState.IsValid)
         {
-            // 2. Si es correcto, creamos la identidad del usuario
+            return Json(new { success = false, message = "Datos invalidos" });
+        }
+
+        var usuario = await _seguridadRepository.ObtenerUsuarioPorCorreoAsync(model.Correo);
+
+        if (usuario != null && HashHelper.VerifyPassword(model.Clave, usuario.Clave))
+        {
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, usuario.Nombre),
@@ -44,13 +45,14 @@ public class AccountController : Controller
             };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(claimsIdentity));
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity));
 
             return Json(new { success = true, redirectUrl = Url.Action("Index", "Home") });
         }
 
-        return Json(new { success = false, message = "Correo o contraseña incorrectos" });
+        return Json(new { success = false, message = "Correo o contrasena incorrectos" });
     }
 
     [HttpPost]
