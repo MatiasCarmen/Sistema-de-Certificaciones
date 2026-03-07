@@ -1,147 +1,181 @@
 @model IEnumerable<Inkillay.Certificados.Web.Models.Entities.Plantilla>
 @{
-    ViewData["Title"] = "Catálogo de Plantillas";
+    ViewData["Title"] = "Catalogo de Plantillas";
 }
 
-<div class="flex flex-wrap items-center justify-between gap-4 p-4 mb-6">
-    <h1 class="text-slate-900 dark:text-slate-100 text-[28px] md:text-[32px] font-bold leading-tight min-w-72">Catálogo
-        de Plantillas</h1>
-        <button onclick="document.getElementById('modalPlantilla').showModal()"
-                class="flex min-w-[84px] cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-xl h-10 px-6 bg-primary text-white text-sm font-bold leading-normal hover:bg-primary/90 transition-colors shadow-md">
-            <span class="material-symbols-outlined text-[20px]">add</span>
-            <span class="truncate">Nueva Plantilla</span>
-        </button>
-    </div>
+<main class="max-w-7xl mx-auto">
+    <header
+        class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-slate-200 dark:border-slate-800">
+        <div>
+            <h1 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Catalogo de
+                Plantillas</h1>
+                <p class="text-sm text-slate-500 mt-1">Gestiona y configura los disenos base para tus certificados.</p>
+            </div>
+            <button onclick="document.getElementById('modalPlantilla').showModal()"
+                    class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary/90 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-slate-900">
+                <span class="material-symbols-outlined text-[20px]">add</span>
+                Nueva Plantilla
+            </button>
+        </header>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-4">
-        @foreach (var item in Model)
-        {
-            <div
-                class="bg-white dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col border border-primary/5 dark:border-primary/10 @(item.Estado ? "" : "opacity-75")">
-                <div class="h-44 relative group bg-slate-100 @(item.Estado ? "" : "grayscale")">
-                    <img src="~/uploads/@item.RutaImagen" alt="@item.Nombre" class="w-full h-full object-contain">
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            @foreach (var item in Model)
+            {
+                <article
+                    class="group flex flex-col bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-200 dark:border-slate-700 @(item.Estado ? "" : "opacity-75")">
+                    <div class="relative aspect-[4/3] bg-slate-100 dark:bg-slate-900 overflow-hidden flex items-center justify-center p-4 @(item.Estado ? "" : "grayscale")">
+                        <img src="~/uploads/@item.RutaImagen" alt="@item.Nombre"
+                             class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500">
 
-                        <div
-                            class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                            <a href="@Url.Action("Previsualizar", "Plantillas", new { id = item.IdPlantilla })"                       target="_blank"
-                                   class="bg-white text-blue-500 rounded-full p-2 shadow-lg hover:bg-slate-100"
-                                   title="Vista Previa Real">
-                                <span class="material-symbols-outlined text-xl">visibility</span>
-                            </a>
-                            <a href="@Url.Action("Editor", "Plantillas", new { id = item.IdPlantilla })"
-                                   class="bg-white text-primary rounded-full p-2 shadow-lg hover:bg-slate-100" title="Configurar Ejes">
-                                <span class="material-symbols-outlined text-xl">straighten</span>
-                            </a>
-                            <button class="bg-white text-red-500 rounded-full p-2 shadow-lg hover:bg-slate-100" title="Eliminar">
-                                <span class="material-symbols-outlined text-xl">delete</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="p-4 flex flex-col gap-3 flex-1">
-                        <h3 class="text-slate-900 dark:text-slate-100 text-lg font-bold leading-tight line-clamp-1">@item.Nombre
-                        </h3>
-
-                        <div class="flex items-center justify-between mt-auto pt-2 border-t border-slate-100 dark:border-slate-700">
-                            <span class="text-sm text-slate-500 dark:text-slate-400 font-medium">Estado</span>
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" @(item.Estado ? "checked" : "") class="sr-only peer"
-                                       onchange="cambiarEstado(@item.IdPlantilla, this)">
-                                <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-slate-600 peer-checked:bg-primary">
-                                </div>
-                                <span class="ml-3 text-sm font-medium text-slate-900 dark:text-slate-300 estado-texto">@(item.Estado
-                                                            ? "Activo" : "Inactivo")</span>
-                                </label>
+                            <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
+                                <a href="@Url.Action("Previsualizar", "Plantillas", new { id = item.IdPlantilla })" target="_blank"
+                                       aria-label="Vista Previa"
+                                       class="bg-white text-slate-700 hover:text-primary rounded-full p-2.5 shadow-lg hover:scale-110 transition-transform duration-200"
+                                       title="Vista Previa">
+                                    <span class="material-symbols-outlined text-xl block">visibility</span>
+                                </a>
+                                <a href="@Url.Action("Editor", "Plantillas", new { id = item.IdPlantilla })"
+                                       aria-label="Configurar Ejes"
+                                       class="bg-white text-slate-700 hover:text-primary rounded-full p-2.5 shadow-lg hover:scale-110 transition-transform duration-200"
+                                       title="Configurar Ejes">
+                                    <span class="material-symbols-outlined text-xl block">straighten</span>
+                                </a>
+                                <button type="button" aria-label="Eliminar"
+                                        class="bg-white text-slate-700 hover:text-red-600 rounded-full p-2.5 shadow-lg hover:scale-110 transition-transform duration-200"
+                                        title="Eliminar">
+                                    <span class="material-symbols-outlined text-xl block">delete</span>
+                                </button>
                             </div>
                         </div>
-                    </div>
-                }
-            </div>
 
-            <dialog id="modalPlantilla"
-                    class="rounded-xl shadow-2xl p-0 w-full max-w-md bg-white dark:bg-slate-900 overflow-hidden border-none backdrop:bg-black/40">
-                <div class="p-6">
-                    <div class="flex items-center gap-3 mb-4 text-primary">
-                        <span class="material-symbols-outlined">upload_file</span>
-                        <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">Nueva Plantilla</h3>
+                        <div class="p-5 flex flex-col flex-1">
+                            <h3 class="text-slate-900 dark:text-white font-bold text-lg mb-4 line-clamp-1" title="@item.Nombre">
+                                @item.Nombre</h3>
+
+                                <div    class="mt-auto pt-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                                    <span class="text-sm font-medium text-slate-500">Estado</span>
+
+                                    <label class="relative inline-flex items-center cursor-pointer group/toggle">
+                                        <input type="checkbox" @(item.Estado ? "checked" : "") class="sr-only peer"
+                                               onchange="cambiarEstado(@item.IdPlantilla, this)">
+                                        <div      class="w-11 h-6 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/30 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary group-hover/toggle:shadow-sm">
+                                        </div>
+                                        <span
+                                            class="ml-3 text-sm font-semibold @(item.Estado ? "text-primary" : "text-slate-500 dark:text-slate-400") estado-texto">@(item.Estado
+                                                                                                                                                                ? "Activo" : "Inactivo")</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </article>
+                        }
+                    </section>
+                </main>
+
+                <dialog id="modalPlantilla"
+                        class="rounded-2xl shadow-2xl p-0 w-full max-w-md bg-white dark:bg-slate-900 overflow-hidden border border-slate-200 dark:border-slate-700 backdrop:bg-slate-900/60 backdrop:backdrop-blur-sm">
+                    <div
+                        class="bg-slate-50 dark:bg-slate-800/50 px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                        <div class="flex items-center gap-3 text-primary">
+                            <span class="material-symbols-outlined bg-primary/10 p-1.5 rounded-lg">upload_file</span>
+                            <h3 class="text-lg font-bold text-slate-900 dark:text-white">Nueva Plantilla</h3>
+                        </div>
+                        <button type="button" onclick="document.getElementById('modalPlantilla').close()"
+                                class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                            <span class="material-symbols-outlined">close</span>
+                        </button>
                     </div>
-                    <form id="formPlantilla" asp-controller="Plantillas" asp-action="Crear" method="post"
-                          enctype="multipart/form-data" class="space-y-4">
+
+                    <form id="formPlantilla" asp-controller="Plantillas" asp-action="Crear" method="post" enctype="multipart/form-data"
+                          class="p-6 space-y-5">
                         @Html.AntiForgeryToken()
                         <div>
-                            <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Nombre Descriptivo</label>
-                            <input type="text" name="nombre" required
-                                   class="w-full border-slate-200 dark:border-slate-700 dark:bg-slate-800 rounded-xl text-sm focus:ring-primary focus:border-primary">
+                            <label for="nombrePlantilla"
+                                   class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Nombre Descriptivo</label>
+                            <input type="text" id="nombrePlantilla" name="nombre" required placeholder="Ej. Diploma Excel Avanzado"
+                                   class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:bg-white dark:focus:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all">
                         </div>
+
                         <div>
-                            <label class="block text-xs font-bold uppercase text-slate-500 mb-1">Archivo de Imagen</label>
-                            <input type="file" name="imagen" accept="image/*" required
-                                   class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20">
-                        </div>
-                        <div class="flex justify-end gap-3 mt-6">
-                            <button type="button" onclick="document.getElementById('modalPlantilla').close()"
-                                    class="px-4 py-2 text-sm font-bold text-slate-400 hover:text-slate-600">Cancelar</button>
-                            <button type="submit" id="btnGuardarPlantilla"
-                                    class="px-6 py-2 bg-primary text-white text-sm font-bold rounded-xl shadow-md hover:bg-primary/90 transition-all">Guardar</button>
-                        </div>
-                    </form>
-                </div>
-            </dialog>
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Archivo de
+                                Imagen</label>
+                                <div
+                                    class="relative w-full border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-4 text-center hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:border-primary transition-colors cursor-pointer group">
+                                    <input type="file" name="imagen" accept="image/*" required
+                                           class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                                    <span
+                                    class="material-symbols-outlined text-slate-400 group-hover:text-primary mb-2 block text-3xl">cloud_upload</span>
+                                    <p class="text-sm text-slate-600 dark:text-slate-400 font-medium">Arrastra tu imagen o <span
+                                        class="text-primary font-semibold">haz clic para explorar</span></p>
+                                        <p class="text-xs text-slate-400 mt-1">PNG, JPG hasta 5MB</p>
+                                    </div>
+                                </div>
 
-            @section Scripts {
-                <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-                <script>
-                    // 1. Manejo del Modal y Envio de Formulario
-                    $('#formPlantilla').on('submit', function (e) {
-                    e.preventDefault();
-                    let formData = new FormData(this);
-                    const $btn = $('#btnGuardarPlantilla');
+                                <div class="flex justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-700 mt-6">
+                                    <button type="button" onclick="document.getElementById('modalPlantilla').close()"
+                                            class="px-5 py-2.5 text-sm font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                                        Cancelar
+                                    </button>
+                                    <button type="submit" id="btnGuardarPlantilla"
+                                            class="px-5 py-2.5 bg-primary text-white text-sm font-semibold rounded-lg shadow-sm hover:bg-primary/90 hover:shadow transition-all focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                                        Guardar Plantilla
+                                    </button>
+                                </div>
+                            </form>
+                        </dialog>
 
-                    $btn.prop('disabled', true).text('Procesando...');
+                        @section Scripts {
+                            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                            <script>
+                                $('#formPlantilla').on('submit', function (e) {
+                                e.preventDefault();
+                                const formData = new FormData(this);
+                                const $btn = $('#btnGuardarPlantilla');
+                                $btn.prop('disabled', true).text('Procesando...');
 
-                    $.ajax({
-                    url: '@Url.Action("Crear", "Plantillas")',
-                    type: 'POST',
-                    data: formData,
-                    contentType: false,
-                    processData: false,
-                    success: function (res) {
-                    if (res.success) {
-                    location.reload();
-                    } else {
-                    alert(res.mensaje || 'No se pudo guardar la plantilla.');
-                    $btn.prop('disabled', false).text('Guardar');
-                    }
-                    },
-                    error: function () {
-                    alert("Error al conectar con el servidor.");
-                    $btn.prop('disabled', false).text('Guardar');
-                    }
-                    });
-                    });
+                                $.ajax({
+                                url: '@Url.Action("Crear", "Plantillas")',
+                                type: 'POST',
+                                data: formData,
+                                contentType: false,
+                                processData: false,
+                                success: function (res) {
+                                if (res.success) {
+                                location.reload();
+                                } else {
+                                alert(res.mensaje || 'No se pudo guardar la plantilla.');
+                                $btn.prop('disabled', false).text('Guardar Plantilla');
+                                }
+                                },
+                                error: function () {
+                                alert('Error al conectar con el servidor.');
+                                $btn.prop('disabled', false).text('Guardar Plantilla');
+                                }
+                                });
+                                });
 
+                                function cambiarEstado(id, el) {
+                                const token = $('#formPlantilla input[name="__RequestVerificationToken"]').val();
+                                const $label = $(el).closest('label').find('.estado-texto');
+                                const valorOriginal = !el.checked;
 
-                    function cambiarEstado(id, el) {
-                    const token = $('#formPlantilla input[name="__RequestVerificationToken"]').val();
-                    const $label = $(el).closest('label').find('.estado-texto');
-                    const wasChecked = !el.checked;
-
-                    $.post('@Url.Action("CambiarEstado", "Plantillas")', {
-                    id: id,
-                    __RequestVerificationToken: token
-                    }, function (res) {
-                    if (res.success) {
-                    $label.text(el.checked ? 'Activo' : 'Inactivo');
-                    } else {
-                    el.checked = wasChecked;
-                    $label.text(el.checked ? 'Activo' : 'Inactivo');
-                    alert("No se pudo cambiar el estado.");
-                    }
-                    }).fail(function () {
-                    el.checked = wasChecked;
-                    $label.text(el.checked ? 'Activo' : 'Inactivo');
-                    alert("No se pudo cambiar el estado.");
-                    });
-                    }
-                </script>
-            }
+                                $.post('@Url.Action("CambiarEstado", "Plantillas")', {
+                                id: id,
+                                __RequestVerificationToken: token
+                                }, function (res) {
+                                if (res.success) {
+                                if (el.checked) {
+                                $label.text('Activo').removeClass('text-slate-500 dark:text-slate-400').addClass('text-primary');
+                                } else {
+                                $label.text('Inactivo').removeClass('text-primary').addClass('text-slate-500 dark:text-slate-400');
+                                }
+                                } else {
+                                el.checked = valorOriginal;
+                                alert('No se pudo cambiar el estado.');
+                                }
+                                }).fail(function () {
+                                el.checked = valorOriginal;
+                                alert('No se pudo cambiar el estado.');
+                                });
+                                }
+                            </script>
+                        }

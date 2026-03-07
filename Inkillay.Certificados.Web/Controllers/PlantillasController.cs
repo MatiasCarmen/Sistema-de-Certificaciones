@@ -40,23 +40,21 @@ public class PlantillasController : Controller
     [HttpGet]
     public async Task<IActionResult> Previsualizar(int id)
     {
-
         var plantillas = await _seguridadRepository.ListarPlantillasAsync();
         var plantilla = plantillas.FirstOrDefault(p => p.IdPlantilla == id);
 
         if (plantilla == null) return NotFound();
 
-
         string rutaImagen = Path.Combine(_hostEnvironment.WebRootPath, "uploads", plantilla.RutaImagen);
-
 
         var imagenBytes = _certificadoService.GenerarImagenCertificado(
             rutaImagen,
             "MATIAS ADMINISTRADOR",
             plantilla.EjeX,
-            plantilla.EjeY
+            plantilla.EjeY,
+            plantilla.FontSize,
+            plantilla.FontColor
         );
-
 
         return File(imagenBytes, "image/jpeg");
     }
@@ -105,6 +103,21 @@ public class PlantillasController : Controller
     {
         var filas = await _seguridadRepository.ActualizarCoordenadasAsync(id, x, y);
         return Json(new { success = filas > 0 });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ActualizarDiseno(int id, int x, int y, int fontSize, string fontColor)
+    {
+        try
+        {
+            var filas = await _seguridadRepository.ActualizarDisenoPlantillaAsync(id, x, y, fontSize, fontColor);
+            return Json(new { success = filas > 0 });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, mensaje = ex.Message });
+        }
     }
 
     [HttpPost]

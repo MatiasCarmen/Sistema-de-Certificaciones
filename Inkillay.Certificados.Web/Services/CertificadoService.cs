@@ -10,24 +10,18 @@ public class CertificadoService : ICertificadoService
         using var bitmap = SKBitmap.Decode(input);
         using var canvas = new SKCanvas(bitmap);
 
-        // Configuracion del texto
         var paint = new SKPaint
         {
             Color = SKColor.Parse(string.IsNullOrWhiteSpace(fontColor) ? "#000000" : fontColor),
             IsAntialias = true,
             Style = SKPaintStyle.Fill,
+            TextAlign = SKTextAlign.Left,
             TextSize = fontSize,
-            Typeface = SKTypeface.FromFamilyName(
-                "Arial",
-                SKFontStyleWeight.Bold,
-                SKFontStyleWidth.Normal,
-                SKFontStyleSlant.Upright)
+            Typeface = SKTypeface.FromFamilyName("Arial", SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright)
         };
 
-        // Dibujar el nombre en las coordenadas guardadas
         canvas.DrawText(nombreAlumno, ejeX, ejeY, paint);
 
-        // Convertir el resultado a bytes
         using var image = SKImage.FromBitmap(bitmap);
         using var data = image.Encode(SKEncodedImageFormat.Jpeg, 100);
         return data.ToArray();

@@ -31,9 +31,12 @@
     </div>
 
     <div class="relative overflow-auto border-4 border-white shadow-2xl rounded-sm" id="contenedorDiploma">
-        <img src="~/uploads/@Model.RutaImagen" id="imgDiploma" class="max-w-none" alt="@Model.Nombre">
+        <img src="~/uploads/@Model.RutaImagen" id="imgDiploma" class="max-w-full h-auto" alt="@Model.Nombre">
         <div id="nombreMovible"
-             style="left: @(Model.EjeX)px; top: @(Model.EjeY)px; font-size: @(Model.FontSize)px; color: @Model.FontColor;"
+             data-real-x="@Model.EjeX"
+             data-real-y="@Model.EjeY"
+             data-real-size="@Model.FontSize"
+             style="left: 0px; top: 0px; font-size: 24px; color: @Model.FontColor;"
              class="absolute cursor-move font-bold whitespace-nowrap px-2 outline-dashed outline-1 outline-primary/30">
             MATIAS ADMINISTRADOR
         </div>
@@ -42,15 +45,43 @@
 
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         (() => {
             const $contenedor = $('#contenedorDiploma');
+            const $img = $('#imgDiploma');
             const $movible = $('#nombreMovible');
             const $inputSize = $('#inputSize');
             const $inputColor = $('#inputColor');
             const $textColor = $('#textColor');
             const $btnGuardar = $('#btnGuardarTodo');
             const token = $('#csrfEditor input[name="__RequestVerificationToken"]').val();
+
+            function getEscalas() {
+                const img = $img[0];
+                const escalaX = img.naturalWidth / img.clientWidth;
+                const escalaY = img.naturalHeight / img.clientHeight;
+                return { escalaX, escalaY };
+            }
+
+            function applyFromRealToView() {
+                const img = $img[0];
+                if (!img.complete || img.naturalWidth === 0 || img.clientWidth === 0) return;
+
+                const escalaXView = img.clientWidth / img.naturalWidth;
+                const escalaYView = img.clientHeight / img.naturalHeight;
+
+                const realX = parseInt($movible.data('real-x'), 10) || 0;
+                const realY = parseInt($movible.data('real-y'), 10) || 0;
+                const realSize = parseInt($movible.data('real-size'), 10) || 60;
+
+                const viewX = Math.round(realX * escalaXView);
+                const viewY = Math.round(realY * escalaYView);
+                const viewSize = Math.max(8, Math.round(realSize * escalaXView));
+
+                $movible.css({ left: viewX + 'px', top: viewY + 'px', fontSize: viewSize + 'px' });
+                $inputSize.val(viewSize);
+            }
 
             // Actualizacion en tiempo real
             $inputSize.on('input', function() {
@@ -90,8 +121,8 @@
                 if (!dragging) return;
 
                 const containerOffset = $contenedor.offset();
-                const maxX = $contenedor.width() - $movible.outerWidth();
-                const maxY = $contenedor.height() - $movible.outerHeight();
+                const maxX = $img.width() - $movible.outerWidth();
+                const maxY = $img.height() - $movible.outerHeight();
 
                 let x = Math.round(e.pageX - containerOffset.left - startOffsetX);
                 let y = Math.round(e.pageY - containerOffset.top - startOffsetY);
@@ -106,28 +137,45 @@
                 dragging = false;
             });
 
-            // Guardado maestro
-            $btnGuardar.on('click', function() {
-                const pos = $movible.position();
+            // Guardado maestro con factor de escala real
+            $('#btnGuardarTodo').click(function() {
+                const img = document.getElementById('imgDiploma');
+                const nombre = $('#nombreMovible');
+
+                // Factor de escala: relacion entre tamano real vs tamano en pantalla
+                const escalaX = img.naturalWidth / img.clientWidth;
+                const escalaY = img.naturalHeight / img.clientHeight;
+
+                const pos = nombre.position();
+
                 const data = {
                     id: @Model.IdPlantilla,
-                    x: Math.round(pos.left),
-                    y: Math.round(pos.top),
-                    fontSize: parseInt($inputSize.val(), 10) || 60,
-                    fontColor: $inputColor.val(),
+                    x: Math.round(pos.left * escalaX),
+                    y: Math.round(pos.top * escalaY),
+                    fontSize: Math.round((parseInt($('#inputSize').val(), 10) || 60) * escalaX),
+                    fontColor: $('#inputColor').val(),
                     __RequestVerificationToken: token
                 };
 
                 $.post('/Plantillas/ActualizarDiseno', data, function(res) {
                     if (res.success) {
-                        alert('Diseno guardado con exito.');
+                        Swal.fire('Listo', 'Diseno guardado a escala real', 'success');
                     } else {
-                        alert('No se pudo guardar el diseno.');
+                        Swal.fire('Error', res.mensaje || 'No se pudo guardar el diseno', 'error');
                     }
-                }).fail(function() {
-                    alert('Error al guardar el diseno.');
+                }).fail(function(xhr) {
+                    console.error('Error:', xhr.status, xhr.responseText);
+                    Swal.fire('Error', 'Error ' + xhr.status + ': ' + (xhr.responseText || 'No se pudo guardar el diseno'), 'error');
                 });
             });
+
+            if ($img[0].complete) {
+                applyFromRealToView();
+            } else {
+                $img.on('load', applyFromRealToView);
+            }
+
+            $(window).on('resize', applyFromRealToView);
         })();
     </script>
 }
