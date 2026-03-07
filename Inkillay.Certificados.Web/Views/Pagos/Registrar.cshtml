@@ -1,0 +1,61 @@
+@{
+    ViewData["Title"] = "Registrar Pago";
+}
+
+<div class="max-w-2xl mx-auto p-6 bg-white rounded-2xl shadow-sm border border-slate-200 mt-10">
+    <h2 class="text-xl font-bold text-slate-800 mb-6">Registrar Pago de Alumno</h2>
+
+    <form id="formPago">
+        @Html.AntiForgeryToken()
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-slate-700">ID de Matricula</label>
+                <input type="number" name="IdMatricula" id="idMatricula" value="@ViewBag.IdMatricula"
+                       class="w-full mt-1 p-3 border rounded-xl bg-slate-50" readonly />
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Monto a Abonar (S/)</label>
+                <input type="number" step="0.01" name="Monto" id="monto" required
+                       class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-primary" placeholder="0.00" />
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-700">Referencia / Observacion</label>
+                <input type="text" name="Referencia" id="referencia" required
+                       class="w-full mt-1 p-3 border rounded-xl focus:ring-2 focus:ring-primary" placeholder="Ej: Yape, Transferencia BCP" />
+            </div>
+
+            <button type="button" onclick="confirmarPago()"
+                    class="w-full bg-primary text-white font-bold py-4 rounded-xl hover:bg-opacity-90 transition-all">
+                Confirmar y Validar Certificado
+            </button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function confirmarPago() {
+            const data = {
+                idMatricula: $('#idMatricula').val(),
+                monto: $('#monto').val(),
+                referencia: $('#referencia').val(),
+                __RequestVerificationToken: $('#formPago input[name="__RequestVerificationToken"]').val()
+            };
+
+            $.post('/Pagos/Registrar', data, function(res) {
+                if (res.success) {
+                    Swal.fire('Exito', 'El pago ha sido registrado. El certificado ahora podria estar disponible.', 'success')
+                        .then(() => { window.location.href = '/Docentes/Index'; });
+                } else {
+                    Swal.fire('Error', res.message || 'No se pudo registrar el pago.', 'error');
+                }
+            }).fail(function() {
+                Swal.fire('Error', 'No se pudo registrar el pago.', 'error');
+            });
+        }
+    </script>
+}

@@ -14,6 +14,15 @@ public class CursoRepository : ICursoRepository
         _connectionFactory = connectionFactory;
     }
 
+    public async Task<IEnumerable<Curso>> ListarTodosAsync()
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        return await connection.QueryAsync<Curso>(
+            "USP_Cursos_ListarTodos",
+            commandType: CommandType.StoredProcedure
+        );
+    }
+
     public async Task<IEnumerable<Curso>> ListarCursosActivosAsync()
     {
         using var connection = _connectionFactory.CreateConnection();

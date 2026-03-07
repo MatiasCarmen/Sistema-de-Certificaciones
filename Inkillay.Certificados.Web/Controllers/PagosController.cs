@@ -14,6 +14,13 @@ public class PagosController : Controller
         _pagoRepository = pagoRepository;
     }
 
+    [HttpGet]
+    public IActionResult Registrar(int idMatricula)
+    {
+        ViewBag.IdMatricula = idMatricula;
+        return View();
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Registrar(int idMatricula, decimal monto, string referencia)

@@ -32,15 +32,57 @@
                 <h1 class="text-lg font-bold tracking-tight">SDG Diplomas</h1>
             </div>
             <div class="flex flex-col flex-1 py-4 overflow-y-auto">
-                <nav class="flex-1 space-y-1 px-3">
-                    <a class="flex items-center px-3 py-2.5 bg-sidebar-hover rounded-lg text-sm font-medium" asp-controller="Home" asp-action="Index">
-                        <span class="material-symbols-outlined mr-3 text-[20px]">dashboard</span> Dashboard
-                    </a>
-                    <a class="flex items-center px-3 py-2.5 hover:bg-sidebar-hover/50 rounded-lg text-sm font-medium transition-colors"
-                       asp-controller="Plantillas" asp-action="Index">
-                        <span class="material-symbols-outlined mr-3 text-[20px]">article</span>
-                        Plantillas
-                    </a>
+                <nav class="flex-1 px-3">
+                    <ul class="space-y-2 mt-4">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li>
+                                <a href="/" class="flex items-center p-3 text-slate-100 hover:bg-sidebar-hover rounded-xl">
+                                    <span>Inicio</span>
+                                </a>
+                            </li>
+
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li class="pt-4 pb-2 px-3 text-[10px] font-bold text-slate-400 uppercase">Administracion</li>
+                                <li>
+                                    <a href="/Plantillas/Index" class="flex items-center p-3 text-slate-100 hover:bg-sidebar-hover rounded-xl">
+                                        <span>Plantillas de Certificados</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/Cursos/Index" class="flex items-center p-3 text-slate-100 hover:bg-sidebar-hover rounded-xl">
+                                        <span>Gestionar Cursos</span>
+                                    </a>
+                                </li>
+                            }
+
+                            @if (User.IsInRole("Docente") || User.IsInRole("Admin"))
+                            {
+                                <li class="pt-4 pb-2 px-3 text-[10px] font-bold text-slate-400 uppercase">Docencia</li>
+                                <li>
+                                    <a href="/Docentes/Index" class="flex items-center p-3 text-slate-100 hover:bg-sidebar-hover rounded-xl">
+                                        <span>Panel de Control</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/Emision/Index" class="flex items-center p-3 text-slate-100 hover:bg-sidebar-hover rounded-xl">
+                                        <span>Emitir Certificados</span>
+                                    </a>
+                                </li>
+                            }
+
+                            @if (User.IsInRole("Alumno"))
+                            {
+                                <li class="pt-4 pb-2 px-3 text-[10px] font-bold text-slate-400 uppercase">Mis Estudios</li>
+                                <li>
+                                    <a href="/Alumnos/MisCursos" class="flex items-center p-3 text-slate-100 hover:bg-sidebar-hover rounded-xl">
+                                        <span>Mis Cursos y Pagos</span>
+                                    </a>
+                                </li>
+                            }
+                        }
+                    </ul>
                 </nav>
             </div>
             <div class="p-4 border-t border-sidebar-hover">
