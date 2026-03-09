@@ -1,32 +1,46 @@
 @model IEnumerable<Inkillay.Certificados.Web.Models.Entities.Curso>
+@{
+    ViewData["Title"] = "Gestión de Cursos";
+}
 
-<div class="p-6">
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-bold text-slate-800">Mantenimiento de Cursos</h2>
-        <button class="bg-primary text-white px-4 py-2 rounded-xl">+ Nuevo Curso</button>
+<div class="bg-white border border-slate-300 shadow-sm rounded-sm">
+    <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+        <h3 class="text-xs font-bold uppercase text-slate-600 tracking-wider">Catálogo de Cursos</h3>
+        <a href="@Url.Action("Create")" 
+           class="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-sm hover:bg-sky-800 transition-none flex items-center gap-2">
+            <span class="material-symbols-outlined text-base">add</span> Nuevo Curso
+        </a>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <table class="w-full text-left">
-            <thead class="bg-slate-50 text-slate-500 text-xs uppercase">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm border-collapse">
+            <thead class="bg-slate-100 border-b border-slate-300 text-slate-700">
                 <tr>
-                    <th class="px-6 py-4">Nombre</th>
-                    <th class="px-6 py-4">Costo</th>
-                    <th class="px-6 py-4">Inicio</th>
-                    <th class="px-6 py-4">Estado</th>
+                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">ID</th>
+                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Nombre del Curso</th>
+                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Costo</th>
+                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Inicio</th>
+                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Estado</th>
+                    <th class="px-4 py-2 font-semibold text-xs uppercase text-center">Acciones</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
+            <tbody class="divide-y divide-slate-200 text-slate-600">
                 @foreach (var item in Model)
                 {
-                    <tr>
-                        <td class="px-6 py-4 font-medium">@item.Nombre</td>
-                        <td class="px-6 py-4">S/ @item.Costo</td>
-                        <td class="px-6 py-4">@item.FechaInicio?.ToShortDateString()</td>
-                        <td class="px-6 py-4">
-                            <span class="px-2 py-1 rounded-lg text-xs @(item.Estado ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700")">
-                                @(item.Estado ? "Activo" : "Inactivo")
+                    <tr class="hover:bg-slate-50">
+                        <td class="px-4 py-2 border-r border-slate-200 font-mono text-xs">#@item.IdCurso</td>
+                        <td class="px-4 py-2 border-r border-slate-200 font-medium text-slate-800">@item.Nombre</td>
+                        <td class="px-4 py-2 border-r border-slate-200">S/ @item.Costo.ToString("N2")</td>
+                        <td class="px-4 py-2 border-r border-slate-200">@item.FechaInicio?.ToString("dd/MM/yyyy")</td>
+                        <td class="px-4 py-2 border-r border-slate-200">
+                            <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded-sm border @(item.Estado ? "bg-green-50 text-green-700 border-green-200" : "bg-red-50 text-red-700 border-red-200")">
+                                @(item.Estado ? "Activo" : "Cerrado")
                             </span>
+                        </td>
+                        <td class="px-4 py-2 text-center space-x-2">
+                            <a href="@Url.Action("Edit", new { id = item.IdCurso })" class="text-primary hover:underline font-semibold text-xs">Editar</a>
+                            <span class="text-slate-300">|</span>
+                            <a href="@Url.Action("Details", new { id = item.IdCurso })" class="text-slate-500 hover:underline font-semibold text-xs">Detalles</a>
                         </td>
                     </tr>
                 }

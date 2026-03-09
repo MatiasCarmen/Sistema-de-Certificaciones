@@ -3,61 +3,118 @@
     ViewData["Title"] = "Gestión de Usuarios";
 }
 
-<div class="container mt-5">
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h2>Gestión de Usuarios</h2>
-        </div>
-        <div class="col-md-4 text-end">
-            <a href="@Url.Action("Create")" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Nuevo Usuario
-            </a>
-        </div>
+<div class="bg-white border border-slate-300 shadow-sm rounded-sm">
+    <div class="p-4 border-b border-slate-300 bg-slate-50 flex justify-between items-center">
+        <h3 class="text-xs font-bold uppercase text-slate-600 tracking-wider">Directorio de Usuarios</h3>
+        <a href="@Url.Action("Create")" 
+           class="px-3 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-sm hover:bg-blue-700 transition-none flex items-center gap-2">
+            <span class="material-symbols-outlined text-base">person_add</span> Nuevo Usuario
+        </a>
     </div>
 
-    @if (Model?.Any() == true)
-    {
-        <div class="table-responsive">
-            <table class="table table-striped table-hover">
-                <thead class="table-dark">
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Correo</th>
-                        <th>Rol</th>
-                        <th>Estado</th>
-                        <th>Registrado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm border-collapse">
+            <thead class="bg-slate-100 border-b border-slate-300 text-slate-700">
+                <tr>
+                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">ID</th>
+                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Nombre Completo</th>
+                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Correo</th>
+                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Rol</th>
+                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Fecha Registro</th>
+                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase text-center">Estado</th>
+                    <th class="px-4 py-2 font-semibold text-xs uppercase text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 text-slate-600">
+                @if (Model?.Any() == true)
+                {
                     @foreach (var usuario in Model)
                     {
-                        <tr>
-                            <td>@usuario.IdUsuario</td>
-                            <td>@usuario.Nombre</td>
-                            <td>@usuario.Correo</td>
-                            <td><span class="badge bg-info">@usuario.NombreRol</span></td>
-                            <td>
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-4 py-2 border-r border-slate-200 font-mono text-[11px]">#@usuario.IdUsuario</td>
+                            <td class="px-4 py-2 border-r border-slate-200 font-medium text-slate-800">@usuario.Nombre</td>
+                            <td class="px-4 py-2 border-r border-slate-200 text-[12px]">@usuario.Correo</td>
+                            <td class="px-4 py-2 border-r border-slate-200">
+                                <span class="px-2 py-0.5 bg-blue-50 text-blue-700 text-[10px] font-bold uppercase rounded-sm border border-blue-200">
+                                    @usuario.NombreRol
+                                </span>
+                            </td>
+                            <td class="px-4 py-2 border-r border-slate-200 text-[12px]">@usuario.FechaRegistro.ToString("dd/MM/yyyy")</td>
+                            <td class="px-4 py-2 border-r border-slate-200 text-center">
                                 @if (usuario.Estado)
                                 {
-                                    <span class="badge bg-success">Activo</span>
+                                    <span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase rounded-sm border border-emerald-200">
+                                        Activo
+                                    </span>
                                 }
                                 else
                                 {
-                                    <span class="badge bg-danger">Inactivo</span>
+                                    <span class="px-2 py-0.5 bg-red-50 text-red-700 text-[10px] font-bold uppercase rounded-sm border border-red-200">
+                                        Inactivo
+                                    </span>
                                 }
                             </td>
-                            <td>@usuario.FechaRegistro.ToString("dd/MM/yyyy")</td>
-                            <td>
-                                <a href="@Url.Action("Edit", new { id = usuario.IdUsuario })" class="btn btn-sm btn-warning">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <button type="button" class="btn btn-sm btn-danger" onclick="cambiarEstado(@usuario.IdUsuario, @(!usuario.Estado).ToString().ToLower())">
-                                    <i class="fas fa-@(usuario.Estado ? "ban" : "check")"></i>
+                            <td class="px-4 py-2 text-center space-x-2">
+                                <a href="@Url.Action("Edit", new { id = usuario.IdUsuario })" 
+                                   class="text-blue-600 hover:underline font-semibold text-xs">Editar</a>
+                                <span class="text-slate-300">|</span>
+                                <button type="button" 
+                                        onclick="cambiarEstado(@usuario.IdUsuario, @(!usuario.Estado).ToString().ToLower())"
+                                        class="text-slate-500 hover:underline font-semibold text-xs">
+                                    @(usuario.Estado ? "Desactivar" : "Activar")
                                 </button>
                             </td>
                         </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" class="px-4 py-6 text-center text-slate-500">
+                            <span class="material-symbols-outlined block mb-2">people_outline</span>
+                            No hay usuarios registrados
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function cambiarEstado(idUsuario, nuevoEstado) {
+            Swal.fire({
+                title: 'Confirmar cambio',
+                text: `¿Deseas ${nuevoEstado ? 'activar' : 'desactivar'} este usuario?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#0369a1',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Sí, cambiar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    fetch(`/Usuarios/CambiarEstado?id=${idUsuario}&estado=${nuevoEstado}`, {
+                        method: 'POST',
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire('Éxito', 'El estado ha sido actualizado', 'success')
+                                .then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', data.message || 'No se pudo actualizar', 'error');
+                        }
+                    });
+                }
+            });
+        }
+    </script>
+}
+
                     }
                 </tbody>
             </table>

@@ -3,35 +3,59 @@
     ViewData["Title"] = "Mis Cursos";
 }
 
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
-    @foreach (var item in Model)
-    {
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-            <div class="p-5">
-                <h3 class="font-bold text-lg text-slate-800">@item.NombreCurso</h3>
-                <p class="text-xs text-slate-500 mt-1">@item.Sumilla</p>
+<div class="bg-white border border-slate-300 rounded-sm shadow-sm">
+    <div class="p-4 border-b border-slate-300 bg-slate-50">
+        <h3 class="text-xs font-bold uppercase text-slate-600 tracking-wider">Cursos Matriculados</h3>
+    </div>
 
-                <div class="mt-4 flex justify-between items-center text-sm">
-                    <span class="text-slate-600">Estado de Pago:</span>
-                    <span class="@(item.TotalPagado >= item.CostoCurso ? "text-green-600" : "text-red-500") font-bold">
-                        S/ @item.TotalPagado / S/ @item.CostoCurso
-                    </span>
+    <div class="divide-y divide-slate-200">
+        @foreach (var item in Model)
+        {
+            <div class="p-4 flex items-center justify-between hover:bg-slate-50">
+                <div class="flex-1">
+                    <h3 class="font-bold text-sm text-slate-800">@item.NombreCurso</h3>
+                    <p class="text-xs text-slate-500 mt-1">@item.Sumilla</p>
+
+                    <div class="flex items-center gap-6 mt-3">
+                        <div>
+                            <span class="text-xs text-slate-600">Estado de Pago:</span>
+                            <p class="text-xs font-bold @(item.TotalPagado >= item.CostoCurso ? "text-green-700" : "text-red-600")">
+                                S/ @item.TotalPagado.ToString("N2") / S/ @item.CostoCurso.ToString("N2")
+                            </p>
+                        </div>
+                        <div>
+                            <span class="text-xs text-slate-600">Aprobación:</span>
+                            <p class="text-xs font-bold @(item.Aprobado ? "text-green-700" : "text-amber-600")">
+                                @(item.Aprobado ? "Aprobado ✓" : "Pendiente")
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
-                @if (item.Aprobado && item.TotalPagado >= item.CostoCurso)
-                {
-                    <a href="@Url.Action("Descargar", "Certificados", new { id = item.IdMatricula })"
-                       class="block w-full mt-6 bg-primary text-white text-center py-3 rounded-xl font-bold hover:bg-opacity-90 transition-all">
-                        Descargar Certificado
-                    </a>
-                }
-                else
-                {
-                    <button disabled class="block w-full mt-6 bg-slate-100 text-slate-400 py-3 rounded-xl font-bold cursor-not-allowed">
-                        Pendiente de Pago/Aprobacion
-                    </button>
-                }
+                <div class="ml-4">
+                    @if (item.Aprobado && item.TotalPagado >= item.CostoCurso)
+                    {
+                        <a href="@Url.Action("DescargarPdf", "Emision", new { idMatricula = item.IdMatricula })"
+                           class="inline-block px-4 py-2 bg-primary text-white text-xs font-bold rounded-sm hover:bg-sky-800">
+                            Descargar PDF
+                        </a>
+                    }
+                    else
+                    {
+                        <button disabled class="inline-block px-4 py-2 bg-slate-100 text-slate-400 text-xs font-bold rounded-sm cursor-not-allowed">
+                            Bloqueado
+                        </button>
+                    }
+                </div>
             </div>
+        }
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="p-8 text-center">
+            <span class="material-symbols-outlined text-4xl text-slate-300 block mb-2">school</span>
+            <p class="text-sm text-slate-500">No tienes cursos matriculados.</p>
         </div>
     }
 </div>
