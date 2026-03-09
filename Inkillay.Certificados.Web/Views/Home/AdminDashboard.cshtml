@@ -1,156 +1,114 @@
 @model AdminDashboardViewModel
 @{
-    ViewData["Title"] = "Centro de Control - Admin";
+    ViewData["Title"] = "Centro de Control";
 }
 
-<div class="container-fluid mt-4 mb-4">
-    <div class="row mb-4">
-        <div class="col-md-12">
-            <h2 class="mb-0">
-                <i class="fas fa-chart-line"></i> Centro de Control de Inkillay
-            </h2>
-            <small class="text-muted">Estadísticas en tiempo real del sistema</small>
+<div class="space-y-6">
+    <!-- Título -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">Centro de Control</h1>
+            <p class="text-sm text-slate-600 mt-1">Estadísticas del sistema en tiempo real</p>
         </div>
     </div>
 
-    <!-- KPIs -->
-    <div class="row mb-4">
-        <div class="col-md-3 mb-3">
-            <div class="card border-primary h-100">
-                <div class="card-body text-center">
-                    <h5 class="card-title">
-                        <i class="fas fa-users text-primary"></i> Alumnos
-                    </h5>
-                    <h2 class="text-primary">@Model.TotalAlumnos</h2>
-                    <small class="text-muted">Registrados en el sistema</small>
+    <!-- KPIs Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- KPI 1: Alumnos -->
+        <div class="bg-white border border-slate-300 rounded-sm shadow-sm p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-600 uppercase font-bold tracking-wide">Alumnos Registrados</p>
+                    <h3 class="text-3xl font-bold text-slate-900 mt-2">@Model.TotalAlumnos</h3>
+                    <p class="text-xs text-slate-500 mt-1">Total en el sistema</p>
                 </div>
+                <span class="material-symbols-outlined text-4xl text-slate-300">people</span>
             </div>
         </div>
 
-        <div class="col-md-3 mb-3">
-            <div class="card border-success h-100">
-                <div class="card-body text-center">
-                    <h5 class="card-title">
-                        <i class="fas fa-book text-success"></i> Cursos Activos
-                    </h5>
-                    <h2 class="text-success">@Model.CursosActivos</h2>
-                    <small class="text-muted">En ejecución</small>
+        <!-- KPI 2: Cursos -->
+        <div class="bg-white border border-slate-300 rounded-sm shadow-sm p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-600 uppercase font-bold tracking-wide">Cursos Activos</p>
+                    <h3 class="text-3xl font-bold text-slate-900 mt-2">@Model.CursosActivos</h3>
+                    <p class="text-xs text-slate-500 mt-1">En ejecución</p>
                 </div>
+                <span class="material-symbols-outlined text-4xl text-slate-300">school</span>
             </div>
         </div>
 
-        <div class="col-md-3 mb-3">
-            <div class="card border-warning h-100">
-                <div class="card-body text-center">
-                    <h5 class="card-title">
-                        <i class="fas fa-dollar-sign text-warning"></i> Recaudación
-                    </h5>
-                    <h2 class="text-warning">$@Model.RecaudacionTotal.ToString("N2")</h2>
-                    <small class="text-muted">Total recaudado</small>
+        <!-- KPI 3: Recaudación -->
+        <div class="bg-white border border-slate-300 rounded-sm shadow-sm p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-600 uppercase font-bold tracking-wide">Recaudación Total</p>
+                    <h3 class="text-3xl font-bold text-slate-900 mt-2">$@Model.RecaudacionTotal.ToString("N0")</h3>
+                    <p class="text-xs text-slate-500 mt-1">Acumulado</p>
                 </div>
+                <span class="material-symbols-outlined text-4xl text-slate-300">trending_up</span>
             </div>
         </div>
 
-        <div class="col-md-3 mb-3">
-            <div class="card border-info h-100">
-                <div class="card-body text-center">
-                    <h5 class="card-title">
-                        <i class="fas fa-certificate text-info"></i> Certificados
-                    </h5>
-                    <h2 class="text-info">@Model.CertificadosEmitidos</h2>
-                    <small class="text-muted">Emitidos</small>
+        <!-- KPI 4: Certificados -->
+        <div class="bg-white border border-slate-300 rounded-sm shadow-sm p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-600 uppercase font-bold tracking-wide">Certificados Emitidos</p>
+                    <h3 class="text-3xl font-bold text-slate-900 mt-2">@Model.CertificadosEmitidos</h3>
+                    <p class="text-xs text-slate-500 mt-1">Documentos generados</p>
                 </div>
+                <span class="material-symbols-outlined text-4xl text-slate-300">verified</span>
             </div>
         </div>
     </div>
 
     <!-- Gráfico de Recaudación -->
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Recaudación por Mes</h5>
-                </div>
-                <div class="card-body">
-                    <canvas id="graficoRecaudacion" height="80"></canvas>
-                </div>
-            </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 bg-white border border-slate-300 rounded-sm shadow-sm p-6">
+            <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wide mb-4">Recaudación por Mes</h3>
+            <canvas id="graficoRecaudacion" height="80"></canvas>
         </div>
 
-        <!-- Resumen -->
-        <div class="col-md-4">
-            <div class="card shadow-sm">
-                <div class="card-header bg-dark text-white">
-                    <h5 class="mb-0"><i class="fas fa-info-circle"></i> Resumen</h5>
+        <!-- Resumen Lateral -->
+        <div class="bg-white border border-slate-300 rounded-sm shadow-sm p-6">
+            <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wide mb-4">Resumen</h3>
+            <div class="space-y-3">
+                <div class="flex justify-between items-center pb-3 border-b border-slate-200">
+                    <span class="text-xs text-slate-600">Total Alumnos</span>
+                    <span class="text-sm font-bold text-slate-900">@Model.TotalAlumnos</span>
                 </div>
-                <div class="card-body">
-                    <ul class="list-unstyled">
-                        <li class="mb-3">
-                            <strong>Total Alumnos:</strong> <span class="badge bg-primary">@Model.TotalAlumnos</span>
-                        </li>
-                        <li class="mb-3">
-                            <strong>Cursos Activos:</strong> <span class="badge bg-success">@Model.CursosActivos</span>
-                        </li>
-                        <li class="mb-3">
-                            <strong>Certificados Emitidos:</strong> <span class="badge bg-info">@Model.CertificadosEmitidos</span>
-                        </li>
-                        <li>
-                            <strong>Recaudación Total:</strong> <span class="badge bg-warning text-dark">$@Model.RecaudacionTotal.ToString("N2")</span>
-                        </li>
-                    </ul>
-
-                    <hr />
-
-                    <div class="text-muted small">
-                        <p>
-                            <i class="fas fa-check-circle text-success"></i>
-                            Sistema operacional
-                        </p>
-                        <p>
-                            <i class="fas fa-shield-alt text-info"></i>
-                            Seguridad: Blindaje Triple Activado
-                        </p>
-                        <p>
-                            <i class="fas fa-database text-primary"></i>
-                            Base de datos: Sincronizada
-                        </p>
-                    </div>
+                <div class="flex justify-between items-center pb-3 border-b border-slate-200">
+                    <span class="text-xs text-slate-600">Cursos Activos</span>
+                    <span class="text-sm font-bold text-slate-900">@Model.CursosActivos</span>
+                </div>
+                <div class="flex justify-between items-center pb-3 border-b border-slate-200">
+                    <span class="text-xs text-slate-600">Certificados</span>
+                    <span class="text-sm font-bold text-slate-900">@Model.CertificadosEmitidos</span>
+                </div>
+                <div class="flex justify-between items-center pt-2">
+                    <span class="text-xs text-slate-600">Recaudación</span>
+                    <span class="text-sm font-bold text-primary">$@Model.RecaudacionTotal.ToString("N0")</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Acciones Rápidas -->
-    <div class="row mt-4">
-        <div class="col-md-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0"><i class="fas fa-cogs"></i> Acciones Rápidas</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3 mb-2">
-                            <a href="@Url.Action("Index", "Usuarios")" class="btn btn-primary w-100">
-                                <i class="fas fa-users"></i> Gestionar Usuarios
-                            </a>
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <a href="@Url.Action("Index", "Plantillas")" class="btn btn-success w-100">
-                                <i class="fas fa-image"></i> Plantillas
-                            </a>
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <a href="@Url.Action("Index", "Emision")" class="btn btn-info w-100">
-                                <i class="fas fa-certificate"></i> Emisión de Certificados
-                            </a>
-                        </div>
-                        <div class="col-md-3 mb-2">
-                            <a href="@Url.Action("Logout", "Account")" class="btn btn-danger w-100">
-                                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-                            </a>
-                        </div>
-                    </div>
-                </div>
+    <!-- Estado del Sistema -->
+    <div class="bg-slate-100 border border-slate-300 rounded-sm p-6">
+        <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wide mb-3">Estado del Sistema</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-green-600">check_circle</span>
+                <span class="text-xs text-slate-700"><strong>Base de Datos:</strong> Conectada</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-green-600">check_circle</span>
+                <span class="text-xs text-slate-700"><strong>Seguridad:</strong> Activada (BCrypt)</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-green-600">check_circle</span>
+                <span class="text-xs text-slate-700"><strong>Rate Limiting:</strong> Activo (5/5min)</span>
             </div>
         </div>
     </div>
@@ -160,37 +118,29 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
 <script>
-    // Datos para el gráfico
     const datos = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoRecaudacion));
     
     const meses = datos.map(d => d.mes);
     const totales = datos.map(d => d.total);
 
     const ctx = document.getElementById('graficoRecaudacion').getContext('2d');
-    const grafico = new Chart(ctx, {
-        type: 'bar',
+    new Chart(ctx, {
+        type: 'line',
         data: {
             labels: meses,
             datasets: [{
-                label: 'Recaudación ($)',
+                label: 'Recaudación',
                 data: totales,
-                backgroundColor: [
-                    'rgba(54, 162, 235, 0.8)',
-                    'rgba(75, 192, 192, 0.8)',
-                    'rgba(153, 102, 255, 0.8)',
-                    'rgba(255, 159, 64, 0.8)',
-                    'rgba(255, 99, 132, 0.8)',
-                    'rgba(201, 203, 207, 0.8)'
-                ],
-                borderColor: [
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)',
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(201, 203, 207, 1)'
-                ],
-                borderWidth: 1
+                borderColor: '#0369a1',
+                backgroundColor: 'rgba(3, 105, 161, 0.05)',
+                borderWidth: 2,
+                tension: 0.4,
+                fill: true,
+                pointBackgroundColor: '#0369a1',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 6
             }]
         },
         options: {
@@ -198,42 +148,39 @@
             maintainAspectRatio: true,
             plugins: {
                 legend: {
-                    display: true,
-                    position: 'top'
+                    display: false
                 }
             },
             scales: {
                 y: {
                     beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)',
+                        drawBorder: false
+                    },
                     ticks: {
                         callback: function(value) {
-                            return '$' + value.toFixed(2);
-                        }
+                            return '$' + value.toLocaleString();
+                        },
+                        font: {
+                            size: 11
+                        },
+                        color: '#6b7280'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false,
+                        drawBorder: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 11
+                        },
+                        color: '#6b7280'
                     }
                 }
             }
         }
     });
 </script>
-
-<style>
-    .card {
-        border-radius: 8px;
-        transition: transform 0.2s;
-    }
-
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 16px rgba(0,0,0,0.2) !important;
-    }
-
-    .card-body h2 {
-        font-weight: bold;
-        margin: 10px 0;
-    }
-
-    .badge {
-        padding: 8px 12px;
-        font-size: 14px;
-    }
-</style>
