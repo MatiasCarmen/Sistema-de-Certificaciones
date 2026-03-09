@@ -7,7 +7,7 @@
     <div class="p-4 border-b border-slate-300 bg-slate-50 flex justify-between items-center">
         <h3 class="text-xs font-bold uppercase text-slate-600 tracking-wider">Directorio de Usuarios</h3>
         <a href="@Url.Action("Create")" 
-           class="px-3 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-sm hover:bg-blue-700 transition-none flex items-center gap-2">
+           class="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-sm hover:bg-sky-800 transition-none flex items-center gap-2">
             <span class="material-symbols-outlined text-base">person_add</span> Nuevo Usuario
         </a>
     </div>
@@ -81,6 +81,8 @@
     </div>
 </div>
 
+<form id="csrfForm" class="hidden">@Html.AntiForgeryToken()</form>
+
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
@@ -104,9 +106,10 @@
                         didOpen: async () => {
                             Swal.showLoading();
                             try {
+                                const token = document.querySelector('#csrfForm input[name="__RequestVerificationToken"]').value;
                                 const response = await fetch(`/Usuarios/CambiarEstado?id=${idUsuario}&estado=${nuevoEstado}`, {
                                     method: 'POST',
-                                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'RequestVerificationToken': token }
                                 });
                                 const data = await response.json();
 
@@ -151,41 +154,3 @@
     </script>
 }
 
-
-                    }
-                </tbody>
-            </table>
-        </div>
-    }
-    else
-    {
-        <div class="alert alert-info" role="alert">
-            <i class="fas fa-info-circle"></i> No hay usuarios registrados
-        </div>
-    }
-</div>
-
-<script>
-    function cambiarEstado(idUsuario, nuevoEstado) {
-        if (!confirm('¿Está seguro de que desea cambiar el estado de este usuario?')) return;
-
-        fetch('@Url.Action("CambiarEstado")', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
-            },
-            body: JSON.stringify({ idUsuario: idUsuario, estado: nuevoEstado })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.mensaje);
-                location.reload();
-            } else {
-                alert('Error: ' + data.mensaje);
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    }
-</script>

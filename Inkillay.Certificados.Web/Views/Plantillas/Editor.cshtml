@@ -161,12 +161,12 @@
 
                 $.post('/Plantillas/ActualizarDiseno', data, function(res) {
                     if (res.success) {
-                        alert('Diseno guardado a escala real');
+                        Swal.fire({ title: '✓ Éxito', text: 'Diseño guardado correctamente', icon: 'success', confirmButtonColor: '#0369a1' });
                     } else {
-                        alert('Error al guardar el diseno.');
+                        Swal.fire({ title: 'Error', text: 'Error al guardar el diseño.', icon: 'error', confirmButtonColor: '#0369a1' });
                     }
                 }).fail(function() {
-                    alert('Error al guardar el diseno.');
+                    Swal.fire({ title: 'Error', text: 'Error al guardar el diseño.', icon: 'error', confirmButtonColor: '#0369a1' });
                 });
             });
 

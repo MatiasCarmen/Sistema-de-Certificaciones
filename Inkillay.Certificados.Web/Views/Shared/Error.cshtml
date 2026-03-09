@@ -3,23 +3,35 @@
     ViewData["Title"] = "Error";
 }
 
-<h1 class="text-danger">Error.</h1>
-<h2 class="text-danger">An error occurred while processing your request.</h2>
+<div class="max-w-lg mx-auto mt-12">
+    <div class="bg-white border border-slate-300 rounded-sm shadow-sm">
+        <div class="p-4 border-b border-slate-300 bg-red-50">
+            <div class="flex items-center gap-3">
+                <span class="material-symbols-outlined text-2xl text-red-600">error</span>
+                <h3 class="text-sm font-bold text-red-700 uppercase tracking-wider">Ha ocurrido un error</h3>
+            </div>
+        </div>
 
-@if (Model.ShowRequestId)
-{
-    <p>
-        <strong>Request ID:</strong> <code>@Model.RequestId</code>
-    </p>
-}
+        <div class="p-6 space-y-4">
+            <p class="text-sm text-slate-700">
+                Ocurrió un error al procesar tu solicitud. Por favor, intenta nuevamente o contacta al administrador del sistema.
+            </p>
 
-<h3>Development Mode</h3>
-<p>
-    Swapping to <strong>Development</strong> environment will display more detailed information about the error that occurred.
-</p>
-<p>
-    <strong>The Development environment shouldn't be enabled for deployed applications.</strong>
-    It can result in displaying sensitive information from exceptions to end users.
-    For local debugging, enable the <strong>Development</strong> environment by setting the <strong>ASPNETCORE_ENVIRONMENT</strong> environment variable to <strong>Development</strong>
-    and restarting the app.
-</p>
+            @if (Model.ShowRequestId)
+            {
+                <div class="p-3 bg-slate-50 border border-slate-200 rounded-sm">
+                    <p class="text-xs text-slate-600">
+                        <strong>ID de Solicitud:</strong> <code class="font-mono text-xs text-slate-800">@Model.RequestId</code>
+                    </p>
+                </div>
+            }
+        </div>
+
+        <div class="p-4 border-t border-slate-300">
+            <a href="/" class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white text-xs font-bold uppercase rounded-sm hover:bg-sky-800 transition-colors">
+                <span class="material-symbols-outlined text-sm">home</span>
+                Volver al Inicio
+            </a>
+        </div>
+    </div>
+</div>

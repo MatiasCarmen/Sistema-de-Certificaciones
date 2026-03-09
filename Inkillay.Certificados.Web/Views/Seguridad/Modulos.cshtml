@@ -1,36 +1,51 @@
 @model IEnumerable<Inkillay.Certificados.Web.Models.Entities.Seg_Modulo>
 
 @{
-    ViewData["Title"] = "Modulos";
+    ViewData["Title"] = "Módulos del Sistema";
 }
 
-<h1>@ViewData["Title"]</h1>
+<div class="bg-white border border-slate-300 shadow-sm rounded-sm">
+    <div class="p-4 border-b border-slate-200 bg-slate-50">
+        <h3 class="text-xs font-bold uppercase text-slate-600 tracking-wider">Catálogo de Módulos</h3>
+    </div>
 
-@if (!Model.Any())
-{
-    <p>No se encontraron modulos.</p>
-}
-else
-{
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Nombre</th>
-                <th>Icono</th>
-                <th>Estado</th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach (var modulo in Model)
-        {
-            <tr>
-                <td>@modulo.IdModulo</td>
-                <td>@modulo.Nombre</td>
-                <td>@modulo.Icono</td>
-                <td>@(modulo.Estado ? "Activo" : "Inactivo")</td>
-            </tr>
-        }
-        </tbody>
-    </table>
-}
+    @if (!Model.Any())
+    {
+        <div class="p-8 text-center">
+            <span class="material-symbols-outlined text-4xl text-slate-300">info</span>
+            <p class="text-sm text-slate-500 mt-2">No se encontraron módulos registrados.</p>
+        </div>
+    }
+    else
+    {
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm border-collapse">
+                <thead class="bg-slate-100 border-b border-slate-300 text-slate-700">
+                    <tr>
+                        <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">ID</th>
+                        <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Nombre</th>
+                        <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Icono</th>
+                        <th class="px-4 py-2 font-semibold text-xs uppercase">Estado</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200 text-slate-600">
+                    @foreach (var modulo in Model)
+                    {
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-4 py-2 border-r border-slate-200 font-mono text-xs">#@modulo.IdModulo</td>
+                            <td class="px-4 py-2 border-r border-slate-200 font-medium text-slate-800">@modulo.Nombre</td>
+                            <td class="px-4 py-2 border-r border-slate-200">
+                                <span class="material-symbols-outlined text-base text-primary">@modulo.Icono</span>
+                            </td>
+                            <td class="px-4 py-2">
+                                <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded-sm border @(modulo.Estado ? "bg-green-50 text-green-700 border-green-200" : "bg-red-50 text-red-700 border-red-200")">
+                                    @(modulo.Estado ? "Activo" : "Inactivo")
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

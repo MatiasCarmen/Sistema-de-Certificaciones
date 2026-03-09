@@ -4,6 +4,15 @@
 }
 
 <div class="space-y-6">
+    <!-- Header con botón Matricular -->
+    <div class="flex justify-between items-center">
+        <div></div>
+        <a href="@Url.Action("Matricular")"
+           class="px-4 py-2 bg-primary text-white text-xs font-bold rounded-sm hover:bg-sky-800 flex items-center gap-2">
+            <span class="material-symbols-outlined text-base">person_add</span> Matricular Alumno
+        </a>
+    </div>
+
     <!-- KPIs -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         @foreach (var curso in Model)
@@ -16,7 +25,7 @@
                         <p class="text-xs text-slate-500">Alumnos Inscritos</p>
                     </div>
                     <div class="text-right">
-                        <p class="text-lg font-bold text-blue-600">@curso.TotalDescargas</p>
+                        <p class="text-lg font-bold text-primary">@curso.TotalDescargas</p>
                         <p class="text-xs text-slate-500">Certificados</p>
                     </div>
                 </div>
@@ -50,6 +59,9 @@
                                 <span class="text-red-600">@(item.TotalMatriculados - item.TotalPagados)</span>
                             </td>
                             <td class="px-4 py-2 text-center space-x-2">
+                                <a href="@Url.Action("VerAlumnos", new { idCurso = item.IdCurso })"
+                                   class="text-primary hover:underline font-semibold text-xs">Ver Alumnos</a>
+                                <span class="text-slate-300">|</span>
                                 <a href="@Url.Action("Index", "Emision", new { idCurso = item.IdCurso })"
                                    class="text-blue-600 hover:underline font-semibold text-xs">Emitir</a>
                                 <span class="text-slate-300">|</span>

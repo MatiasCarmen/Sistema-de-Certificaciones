@@ -1,4 +1,5 @@
 using Inkillay.Certificados.Web.Data.Repositories;
+using Inkillay.Certificados.Web.Models.Entities;
 using Inkillay.Certificados.Web.Models.ViewModels;
 using Inkillay.Certificados.Web.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -39,6 +40,7 @@ public class EmisionController : Controller
     public async Task<IActionResult> Index(int? idCurso)
     {
         var cursos = await _cursoRepository.ListarCursosActivosAsync();
+        var plantillas = await _seguridadRepository.ListarPlantillasAsync();
         var alumnos = idCurso.HasValue
             ? await _matriculaRepository.ListarAlumnosPorCursoAsync(idCurso.Value)
             : Enumerable.Empty<Models.Entities.Matricula>();
@@ -47,7 +49,8 @@ public class EmisionController : Controller
         {
             IdCursoSeleccionado = idCurso,
             Cursos = cursos,
-            Alumnos = alumnos
+            Alumnos = alumnos,
+            Plantillas = plantillas
         };
 
         return View(vm);
@@ -57,6 +60,13 @@ public class EmisionController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> GenerarCertificados(int idCurso, int idPlantilla)
     {
+        // Validar que se haya seleccionado un curso
+        if (idCurso <= 0)
+            return Json(new { success = false, message = "Por favor, seleccione un curso primero." });
+
+        if (idPlantilla <= 0)
+            return Json(new { success = false, message = "Por favor, seleccione una plantilla." });
+
         var alumnos = (await _matriculaRepository.ListarAlumnosPorCursoAsync(idCurso)).ToList();
         var curso = await _cursoRepository.ObtenerPorIdAsync(idCurso);
 
@@ -126,12 +136,22 @@ public class EmisionController : Controller
     [HttpGet]
     public async Task<IActionResult> DescargarPdf(int idMatricula)
     {
-        // 1. Obtener datos de la matrícula
-        var matriculas = await _matriculaRepository.ListarAlumnosPorCursoAsync(0);
-        var matricula = matriculas.FirstOrDefault(m => m.IdMatricula == idMatricula);
+        if (idMatricula <= 0)
+            return BadRequest("ID de matrícula inválido.");
+
+        // 1. Buscar la matrícula en todos los cursos
+        // Intentar obtener datos del alumno usando el id del usuario logueado
+        Matricula? matricula = null;
+        var cursos = await _cursoRepository.ListarCursosActivosAsync();
+        foreach (var curso in cursos)
+        {
+            var alumnos = await _matriculaRepository.ListarAlumnosPorCursoAsync(curso.IdCurso);
+            matricula = alumnos.FirstOrDefault(m => m.IdMatricula == idMatricula);
+            if (matricula != null) break;
+        }
 
         if (matricula == null)
-            return NotFound();
+            return NotFound("Matrícula no encontrada.");
 
         // 2. Validar reglas de negocio (Pagado y Aprobado)
         if (!matricula.Aprobado || matricula.TotalPagado < matricula.CostoCurso)

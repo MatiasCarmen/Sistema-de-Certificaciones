@@ -64,6 +64,8 @@
     </div>
 </div>
 
+<form id="csrfForm" class="hidden">@Html.AntiForgeryToken()</form>
+
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
@@ -79,9 +81,10 @@
                 cancelButtonText: 'Cancelar'
             }).then((result) => {
                 if (result.isConfirmed) {
+                    const token = document.querySelector('#csrfForm input[name="__RequestVerificationToken"]').value;
                     fetch('@Url.Action("CambiarEstado")?id=@Model.IdUsuario&estado=@(!Model.Estado)', {
                         method: 'POST',
-                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                        headers: { 'X-Requested-With': 'XMLHttpRequest', 'RequestVerificationToken': token }
                     })
                     .then(response => response.json())
                     .then(data => {

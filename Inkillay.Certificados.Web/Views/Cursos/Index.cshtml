@@ -37,10 +37,8 @@
                                 @(item.Estado ? "Activo" : "Cerrado")
                             </span>
                         </td>
-                        <td class="px-4 py-2 text-center space-x-2">
-                            <a href="@Url.Action("Edit", new { id = item.IdCurso })" class="text-primary hover:underline font-semibold text-xs">Editar</a>
-                            <span class="text-slate-300">|</span>
-                            <a href="@Url.Action("Details", new { id = item.IdCurso })" class="text-slate-500 hover:underline font-semibold text-xs">Detalles</a>
+                        <td class="px-4 py-2 text-center">
+                            <span class="text-slate-400 text-xs italic" title="Funcionalidad próximamente">Próximamente</span>
                         </td>
                     </tr>
                 }

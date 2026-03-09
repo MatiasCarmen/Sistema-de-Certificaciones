@@ -79,7 +79,7 @@ public class UsuariosController : Controller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al registrar usuario: {correo}", model.Correo);
-            return Json(new { success = false, mensaje = "Error interno del servidor" });
+            return Json(new { success = false, mensaje = $"Error al crear el usuario: {ex.Message}" });
         }
     }
 

@@ -26,8 +26,11 @@
 </head>
 <body class="bg-background-light font-display text-slate-900 min-h-screen flex overflow-x-hidden">
     <div class="flex h-screen w-full">
+        <!-- Overlay mobile -->
+        <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/50 z-30 hidden lg:hidden" onclick="toggleSidebar()"></div>
+
         <!-- Sidebar -->
-        <aside class="w-64 bg-sidebar-bg flex-shrink-0 flex flex-col text-slate-200 border-r border-slate-700">
+        <aside id="sidebar" class="w-64 bg-sidebar-bg flex-shrink-0 hidden lg:flex flex-col text-slate-200 border-r border-slate-700 fixed lg:static inset-y-0 left-0 z-40 transition-transform duration-200">
             <!-- Logo Header -->
             <div class="h-16 flex items-center px-6 bg-slate-900 border-b border-slate-700">
                 <span class="material-symbols-outlined text-xl mr-2 text-primary">account_balance</span>
@@ -36,9 +39,20 @@
             
             <!-- Navigation -->
             <nav class="flex-1 py-4 px-3 overflow-y-auto space-y-1">
+                @{
+                    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+                    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+                    string ActiveClass(string controller, string action = "") {
+                        bool isActive = currentController.Equals(controller, StringComparison.OrdinalIgnoreCase)
+                            && (string.IsNullOrEmpty(action) || currentAction.Equals(action, StringComparison.OrdinalIgnoreCase));
+                        return isActive
+                            ? "flex items-center px-3 py-2 text-sm text-white bg-sidebar-hover rounded-sm border-l-2 border-primary font-bold"
+                            : "flex items-center px-3 py-2 text-sm text-slate-300 hover:bg-sidebar-hover rounded-sm transition-colors border-l-2 border-transparent";
+                    }
+                }
                 @if (User.Identity?.IsAuthenticated == true)
                 {
-                    <a href="/" class="flex items-center px-3 py-2 text-sm text-slate-300 hover:bg-sidebar-hover rounded-sm transition-colors">
+                    <a href="/" class="@ActiveClass("Home")">
                         <span class="material-symbols-outlined text-base mr-3">dashboard</span>
                         Inicio
                     </a>
@@ -48,13 +62,17 @@
                         <div class="pt-4 pb-2 px-3 border-t border-slate-700">
                             <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Gestión</p>
                         </div>
-                        <a href="/Plantillas/Index" class="flex items-center px-3 py-2 text-sm text-slate-300 hover:bg-sidebar-hover rounded-sm transition-colors">
+                        <a href="/Plantillas/Index" class="@ActiveClass("Plantillas")">
                             <span class="material-symbols-outlined text-base mr-3">layers</span>
                             Plantillas
                         </a>
-                        <a href="/Usuarios/Index" class="flex items-center px-3 py-2 text-sm text-slate-300 hover:bg-sidebar-hover rounded-sm transition-colors">
+                        <a href="/Usuarios/Index" class="@ActiveClass("Usuarios")">
                             <span class="material-symbols-outlined text-base mr-3">people</span>
                             Usuarios
+                        </a>
+                        <a href="/Cursos/Index" class="@ActiveClass("Cursos")">
+                            <span class="material-symbols-outlined text-base mr-3">school</span>
+                            Cursos
                         </a>
                     }
 
@@ -63,9 +81,17 @@
                         <div class="pt-4 pb-2 px-3 border-t border-slate-700">
                             <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Operaciones</p>
                         </div>
-                        <a href="/Emision/Index" class="flex items-center px-3 py-2 text-sm text-slate-300 hover:bg-sidebar-hover rounded-sm transition-colors">
+                        <a href="/Emision/Index" class="@ActiveClass("Emision")">
                             <span class="material-symbols-outlined text-base mr-3">verified</span>
                             Emisión
+                        </a>
+                        <a href="/Docentes/Index" class="@ActiveClass("Docentes", "Index")">
+                            <span class="material-symbols-outlined text-base mr-3">assignment</span>
+                            Panel Docente
+                        </a>
+                        <a href="/Docentes/Matricular" class="@ActiveClass("Docentes", "Matricular")">
+                            <span class="material-symbols-outlined text-base mr-3">person_add</span>
+                            Matricular Alumno
                         </a>
                     }
 
@@ -74,11 +100,11 @@
                         <div class="pt-4 pb-2 px-3 border-t border-slate-700">
                             <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Portal</p>
                         </div>
-                        <a href="/Alumnos/MisCursos" class="flex items-center px-3 py-2 text-sm text-slate-300 hover:bg-sidebar-hover rounded-sm transition-colors">
+                        <a href="/Alumnos/MisCursos" class="@ActiveClass("Alumnos", "MisCursos")">
                             <span class="material-symbols-outlined text-base mr-3">school</span>
                             Mis Cursos
                         </a>
-                        <a href="/Alumnos/MisCertificados" class="flex items-center px-3 py-2 text-sm text-slate-300 hover:bg-sidebar-hover rounded-sm transition-colors">
+                        <a href="/Alumnos/MisCertificados" class="@ActiveClass("Alumnos", "MisCertificados")">
                             <span class="material-symbols-outlined text-base mr-3">card_membership</span>
                             Mis Certificados
                         </a>
@@ -104,7 +130,12 @@
         <main class="flex-1 flex flex-col bg-slate-50 overflow-hidden">
             <!-- Header -->
             <header class="h-16 bg-white border-b border-slate-300 flex items-center justify-between px-8 flex-shrink-0 shadow-sm">
-                <h2 class="text-base font-bold text-slate-700 uppercase tracking-tight">@ViewData["Title"]</h2>
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleSidebar()" class="lg:hidden p-1.5 text-slate-600 hover:bg-slate-100 rounded-sm">
+                        <span class="material-symbols-outlined">menu</span>
+                    </button>
+                    <h2 class="text-base font-bold text-slate-700 uppercase tracking-tight">@ViewData["Title"]</h2>
+                </div>
                 <form asp-controller="Account" asp-action="Logout" method="post" class="inline">
                     <button type="submit" class="text-xs text-slate-600 hover:text-red-600 font-bold uppercase transition-colors">Cerrar Sesión</button>
                 </form>
@@ -120,5 +151,22 @@
     </div>
 
     @await RenderSectionAsync("Scripts", required: false)
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const isHidden = sidebar.classList.contains('hidden');
+            if (isHidden) {
+                sidebar.classList.remove('hidden');
+                sidebar.classList.add('flex');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('hidden');
+                sidebar.classList.remove('flex');
+                overlay.classList.add('hidden');
+            }
+        }
+    </script>
 </body>
 </html>

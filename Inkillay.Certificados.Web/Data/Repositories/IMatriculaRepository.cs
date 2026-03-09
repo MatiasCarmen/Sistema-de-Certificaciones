@@ -6,4 +6,5 @@ public interface IMatriculaRepository
 {
     Task<IEnumerable<Matricula>> ListarAlumnosPorCursoAsync(int idCurso);
     Task<IEnumerable<Matricula>> ListarCursosPorAlumnoAsync(int idAlumno);
+    Task<bool> RegistrarMatriculaAsync(int idAlumno, int idCurso);
 }

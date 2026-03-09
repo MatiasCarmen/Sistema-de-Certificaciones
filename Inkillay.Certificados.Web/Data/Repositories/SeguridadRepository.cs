@@ -117,7 +117,7 @@ public class SeguridadRepository : ISeguridadRepository
         );
     }
 
-    // ===== GESTIÓN DE USUARIOS =====
+
 
     public async Task<IEnumerable<UsuarioViewModel>> ListarUsuariosAsync()
     {
@@ -141,29 +141,23 @@ public class SeguridadRepository : ISeguridadRepository
     public async Task<bool> RegistrarUsuarioAsync(Usuarios usuario)
     {
         using var connection = _connectionFactory.CreateConnection();
-        try
-        {
-            // Hashear la contraseña antes de guardar
-            var claveHash = HashHelper.HashPassword(usuario.Clave);
 
-            var filas = await connection.ExecuteAsync(
-                "USP_Usuarios_Registrar",
-                new
-                {
-                    Nombre = usuario.Nombre,
-                    Correo = usuario.Correo,
-                    Clave = claveHash,
-                    IdRol = usuario.IdRol
-                },
-                commandType: CommandType.StoredProcedure
-            );
+        // Hashear la contraseña antes de guardar
+        var claveHash = HashHelper.HashPassword(usuario.Clave);
 
-            return filas > 0;
-        }
-        catch
-        {
-            return false;
-        }
+        var filas = await connection.ExecuteAsync(
+            "USP_Usuarios_Registrar",
+            new
+            {
+                Nombre = usuario.Nombre,
+                Correo = usuario.Correo,
+                Clave = claveHash,
+                IdRol = usuario.IdRol
+            },
+            commandType: CommandType.StoredProcedure
+        );
+
+        return filas > 0;
     }
 
     public async Task<bool> CorreoExisteAsync(string correo)
