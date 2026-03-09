@@ -13,20 +13,26 @@ public class EmisionController : Controller
     private readonly IMatriculaRepository _matriculaRepository;
     private readonly ISeguridadRepository _seguridadRepository;
     private readonly ICertificadoService _certificadoService;
+    private readonly AuditoriaService _auditoriaService;
     private readonly IWebHostEnvironment _hostEnvironment;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public EmisionController(
         ICursoRepository cursoRepository,
         IMatriculaRepository matriculaRepository,
         ISeguridadRepository seguridadRepository,
         ICertificadoService certificadoService,
-        IWebHostEnvironment hostEnvironment)
+        AuditoriaService auditoriaService,
+        IWebHostEnvironment hostEnvironment,
+        IHttpContextAccessor httpContextAccessor)
     {
         _cursoRepository = cursoRepository;
         _matriculaRepository = matriculaRepository;
         _seguridadRepository = seguridadRepository;
         _certificadoService = certificadoService;
+        _auditoriaService = auditoriaService;
         _hostEnvironment = hostEnvironment;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     [HttpGet]
@@ -154,6 +160,19 @@ public class EmisionController : Controller
 
             // 6. Retornar archivo con nombre profesional
             string nombreArchivo = $"Certificado_{SanitizeFileName(matricula.NombreAlumno)}.pdf";
+
+            // Registrar auditoría
+            var idUsuario = User.FindFirst("IdUsuario");
+            var ip = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "DESCONOCIDA";
+
+            await _auditoriaService.RegistrarAsync(
+                idUsuario != null ? int.Parse(idUsuario.Value) : null,
+                "DESCARGA PDF",
+                "Certificados",
+                $"Alumno: {matricula.NombreAlumno} - Curso: {matricula.NombreCurso}",
+                ip
+            );
+
             return File(pdfBytes, "application/pdf", nombreArchivo);
         }
         catch (Exception ex)

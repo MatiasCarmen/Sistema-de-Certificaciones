@@ -1,46 +1,54 @@
 @model IEnumerable<Inkillay.Certificados.Web.Models.RecentActivityViewModel>
 @{
-    ViewData["Title"] = "Dashboard Principal";
+    ViewData["Title"] = "Dashboard";
 }
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-    <div class="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-200 shadow-sm flex flex-col">
-        <h3 class="text-slate-500 text-sm font-medium mb-1">Diplomas Emitidos Hoy</h3>
-        <p class="text-3xl font-bold text-slate-800 dark:text-slate-100">145</p>
+<div class="space-y-6">
+    <!-- KPI -->
+    <div class="bg-white border border-slate-300 rounded-sm shadow-sm p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-xs text-slate-600 uppercase font-bold tracking-wide">Actividad del Día</p>
+                <h3 class="text-3xl font-bold text-slate-900 mt-2">@Model.Count()</h3>
+                <p class="text-xs text-slate-500 mt-1">Registros</p>
+            </div>
+            <span class="material-symbols-outlined text-4xl text-slate-300">monitoring</span>
+        </div>
     </div>
-</div>
 
-<div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-    <div class="px-6 py-5 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
-        <h3 class="text-lg font-bold">Actividad Reciente</h3>
-    </div>
-    <div class="overflow-x-auto">
-        <table class="w-full text-left">
-            <thead class="bg-slate-50 dark:bg-slate-800">
-                <tr>
-                    <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500">ID</th>
-                    <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Estudiante</th>
-                    <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Curso</th>
-                    <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Fecha</th>
-                    <th class="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Estado</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
-                @foreach (var item in Model)
-                {
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="px-6 py-4 text-sm font-medium text-slate-500">#@item.ID</td>
-                        <td class="px-6 py-4 text-sm font-medium text-slate-800 dark:text-slate-100">@item.Estudiante</td>
-                        <td class="px-6 py-4 text-sm text-slate-500">@item.Curso</td>
-                        <td class="px-6 py-4 text-sm text-slate-500">@item.Fecha.ToString("dd/MM/yyyy")</td>
-                        <td class="px-6 py-4">
-                            <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium @(item.Estado == "Emitido" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800")">
-                                @item.Estado
-                            </span>
-                        </td>
+    <!-- Tabla Actividad -->
+    <div class="bg-white border border-slate-300 rounded-sm shadow-sm">
+        <div class="p-4 border-b border-slate-300 bg-slate-50">
+            <h3 class="text-xs font-bold text-slate-600 uppercase tracking-wider">Actividad Reciente</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm border-collapse">
+                <thead class="bg-slate-100 border-b border-slate-300 text-slate-700">
+                    <tr>
+                        <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">ID</th>
+                        <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Estudiante</th>
+                        <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Curso</th>
+                        <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Fecha</th>
+                        <th class="px-4 py-2 font-semibold text-xs uppercase text-center">Estado</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="divide-y divide-slate-200 text-slate-600">
+                    @foreach (var item in Model)
+                    {
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-4 py-2 border-r border-slate-200 font-mono text-xs">#@item.ID</td>
+                            <td class="px-4 py-2 border-r border-slate-200 font-medium text-slate-800">@item.Estudiante</td>
+                            <td class="px-4 py-2 border-r border-slate-200">@item.Curso</td>
+                            <td class="px-4 py-2 border-r border-slate-200">@item.Fecha.ToString("dd/MM/yyyy")</td>
+                            <td class="px-4 py-2 text-center">
+                                <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded-sm border @(item.Estado == "Emitido" ? "bg-green-50 text-green-700 border-green-200" : "bg-amber-50 text-amber-700 border-amber-200")">
+                                    @item.Estado
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

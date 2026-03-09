@@ -86,34 +86,71 @@
     <script>
         function cambiarEstado(idUsuario, nuevoEstado) {
             Swal.fire({
-                title: 'Confirmar cambio',
+                title: '⚠️ Confirmar cambio de estado',
                 text: `¿Deseas ${nuevoEstado ? 'activar' : 'desactivar'} este usuario?`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#0369a1',
                 cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Sí, cambiar',
-                cancelButtonText: 'Cancelar'
+                confirmButtonText: 'Sí, confirmar',
+                cancelButtonText: 'Cancelar',
+                backdrop: true,
+                allowOutsideClick: false
             }).then((result) => {
                 if (result.isConfirmed) {
-                    fetch(`/Usuarios/CambiarEstado?id=${idUsuario}&estado=${nuevoEstado}`, {
-                        method: 'POST',
-                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            Swal.fire('Éxito', 'El estado ha sido actualizado', 'success')
-                                .then(() => location.reload());
-                        } else {
-                            Swal.fire('Error', data.message || 'No se pudo actualizar', 'error');
+                    Swal.fire({
+                        title: 'Procesando...',
+                        allowOutsideClick: false,
+                        didOpen: async () => {
+                            Swal.showLoading();
+                            try {
+                                const response = await fetch(`/Usuarios/CambiarEstado?id=${idUsuario}&estado=${nuevoEstado}`, {
+                                    method: 'POST',
+                                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                                });
+                                const data = await response.json();
+
+                                if (data.success) {
+                                    await Swal.fire({
+                                        title: '✓ Éxito',
+                                        text: 'El estado ha sido actualizado correctamente',
+                                        icon: 'success',
+                                        confirmButtonColor: '#0369a1'
+                                    });
+                                    location.reload();
+                                } else {
+                                    Swal.fire('Error', data.message || 'No se pudo actualizar', 'error');
+                                }
+                            } catch (error) {
+                                Swal.fire('Error', 'No se pudo procesar la solicitud', 'error');
+                            }
                         }
                     });
                 }
             });
         }
+
+        // Confirmación para eliminar (si aplica)
+        function confirmarEliminacion(idUsuario, nombre) {
+            Swal.fire({
+                title: '🗑️ Eliminar usuario',
+                text: `¿Estás seguro de que deseas eliminar a ${nombre}? Esta acción no se puede deshacer.`,
+                icon: 'error',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Enviar solicitud de eliminación
+                    location.href = `/Usuarios/Delete/${idUsuario}`;
+                }
+            });
+        }
     </script>
 }
+
 
                     }
                 </tbody>

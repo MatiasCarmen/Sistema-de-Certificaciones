@@ -1,6 +1,7 @@
 using Inkillay.Certificados.Web.Data.Repositories;
 using Inkillay.Certificados.Web.Models;
 using Inkillay.Certificados.Web.Models.ViewModels;
+using Inkillay.Certificados.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -12,11 +13,13 @@ public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly ISeguridadRepository _seguridadRepository;
+    private readonly AuditoriaService _auditoriaService;
 
-    public HomeController(ILogger<HomeController> logger, ISeguridadRepository seguridadRepository)
+    public HomeController(ILogger<HomeController> logger, ISeguridadRepository seguridadRepository, AuditoriaService auditoriaService)
     {
         _logger = logger;
         _seguridadRepository = seguridadRepository;
+        _auditoriaService = auditoriaService;
     }
 
     public async Task<IActionResult> Index()
@@ -27,6 +30,16 @@ public class HomeController : Controller
             try
             {
                 var dashboard = await _seguridadRepository.ObtenerEstadisticasDashboardAsync();
+
+                // Obtener actividad reciente
+                var actividad = await _auditoriaService.ObtenerUltimosAsync(5);
+                dashboard.ActividadReciente = actividad.Select(a => new ActividadReciente
+                {
+                    Accion = a.accion,
+                    Detalles = a.detalles,
+                    Fecha = a.fecha
+                }).ToList();
+
                 return View("AdminDashboard", dashboard);
             }
             catch (Exception ex)

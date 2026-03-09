@@ -1,4 +1,5 @@
 using Inkillay.Certificados.Web.Data.Repositories;
+using Inkillay.Certificados.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,10 +9,14 @@ namespace Inkillay.Certificados.Web.Controllers;
 public class PagosController : Controller
 {
     private readonly IPagoRepository _pagoRepository;
+    private readonly AuditoriaService _auditoriaService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public PagosController(IPagoRepository pagoRepository)
+    public PagosController(IPagoRepository pagoRepository, AuditoriaService auditoriaService, IHttpContextAccessor httpContextAccessor)
     {
         _pagoRepository = pagoRepository;
+        _auditoriaService = auditoriaService;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     [HttpGet]
@@ -31,6 +36,22 @@ public class PagosController : Controller
         }
 
         var ok = await _pagoRepository.RegistrarPagoAsync(idMatricula, monto, referencia.Trim());
+
+        // Registrar auditoría
+        var idUsuario = User.FindFirst("IdUsuario");
+        var ip = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "DESCONOCIDA";
+
+        if (ok)
+        {
+            await _auditoriaService.RegistrarAsync(
+                idUsuario != null ? int.Parse(idUsuario.Value) : null,
+                "REGISTRO PAGO",
+                "Pagos",
+                $"Matrícula #{idMatricula} - Monto: S/ {monto:F2} - Ref: {referencia}",
+                ip
+            );
+        }
+
         return Json(new
         {
             success = ok,
@@ -38,3 +59,4 @@ public class PagosController : Controller
         });
     }
 }
+
