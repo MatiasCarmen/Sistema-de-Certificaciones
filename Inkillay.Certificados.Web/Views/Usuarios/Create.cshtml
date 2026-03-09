@@ -53,50 +53,50 @@
         </form>
 
         <div id="mensajeResultado" class="px-6 pb-6"></div>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 
-<script>
-    document.getElementById('formCrearUsuario').addEventListener('submit', function(e) {
-        e.preventDefault();
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.getElementById('formCrearUsuario').addEventListener('submit', async function(e) {
+            e.preventDefault();
 
-        const formData = new FormData(this);
-        const data = {
-            nombre: formData.get('Nombre'),
-            correo: formData.get('Correo'),
-            clave: formData.get('Clave'),
-            idRol: parseInt(formData.get('IdRol'))
-        };
+            const formData = new FormData(this);
 
-        fetch('@Url.Action("Create")', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'RequestVerificationToken': formData.get('__RequestVerificationToken')
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(data => {
-            const mensajeDiv = document.getElementById('mensajeResultado');
-            if (data.success) {
-                mensajeDiv.innerHTML = '<div class="alert alert-success alert-dismissible fade show" role="alert">' +
-                    '<i class="fas fa-check-circle"></i> ' + data.mensaje +
-                    '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';
-                setTimeout(() => window.location.href = '@Url.Action("Index")', 2000);
-            } else {
-                mensajeDiv.innerHTML = '<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
-                    '<i class="fas fa-exclamation-circle"></i> ' + data.mensaje +
-                    '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';
+            try {
+                const response = await fetch('@Url.Action("Create")', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    await Swal.fire({
+                        title: '✓ Éxito',
+                        text: data.mensaje,
+                        icon: 'success',
+                        confirmButtonColor: '#0369a1'
+                    });
+                    window.location.href = '@Url.Action("Index")';
+                } else {
+                    Swal.fire({
+                        title: 'Error',
+                        text: data.mensaje,
+                        icon: 'error',
+                        confirmButtonColor: '#0369a1'
+                    });
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error',
+                    text: 'No se pudo crear el usuario',
+                    icon: 'error',
+                    confirmButtonColor: '#0369a1'
+                });
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            document.getElementById('mensajeResultado').innerHTML = 
-                '<div class="alert alert-danger">Error al crear el usuario</div>';
         });
-    });
-</script>
+    </script>
+}
