@@ -1,5 +1,6 @@
 using Inkillay.Certificados.Web.Data.Repositories;
 using Inkillay.Certificados.Web.Models;
+using Inkillay.Certificados.Web.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
@@ -20,8 +21,25 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var actividad = await _seguridadRepository.ListarActividadRecienteAsync();
-        return View(actividad);
+        // Si es Admin, mostrar dashboard
+        if (User.IsInRole("Admin"))
+        {
+            try
+            {
+                var dashboard = await _seguridadRepository.ObtenerEstadisticasDashboardAsync();
+                return View("AdminDashboard", dashboard);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al cargar estadísticas del dashboard");
+                var actividad = await _seguridadRepository.ListarActividadRecienteAsync();
+                return View("Index", actividad);
+            }
+        }
+
+        // Si es Docente o Alumno, mostrar actividad reciente
+        var recentActivity = await _seguridadRepository.ListarActividadRecienteAsync();
+        return View(recentActivity);
     }
 
     public IActionResult Privacy()

@@ -361,3 +361,66 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# ==============================================
+## APLICACIÓN ESPECÍFICA - Inkillay.Certificados
+## ==============================================
+
+## Archivos de Configuración Local (CRÍTICO - Nunca subir)
+appsettings.Development.json
+appsettings.Local.json
+appsettings.*.local.json
+
+## Secretos de Usuario
+user_secrets/
+.secrets/
+
+## Uploads - Ignorar contenido, mantener estructura
+Inkillay.Certificados.Web/wwwroot/uploads/*
+!Inkillay.Certificados.Web/wwwroot/uploads/.gitkeep
+
+## Archivos Generados Dinámicamente
+Inkillay.Certificados.Web/wwwroot/generated/*
+!Inkillay.Certificados.Web/wwwroot/generated/.gitkeep
+
+## Documentación de Desarrollo (Markdown local/temporal)
+SECURITY_SPRINT_SUMMARY.md
+RATE_LIMITING_GUIDE.md
+SECURITY_STATUS.md
+README_SECURITY_SPRINT.md
+*.local.md
+NOTES.md
+TODO.md
+DEV_NOTES.md
+
+## Archivos de Backup del Proyecto
+*.Backup.tmp
+*.backup
+*.bak
+
+## Base de Datos Local (SQLite, LocalDB, etc.)
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+## ==============================================
+## Sistema Operativo
+## ==============================================
+
+Thumbs.db
+.AppleDouble
+.LSOverride
+*.lnk
+.directory
+ehthumbs.db
+
+## ==============================================
+## Test Coverage
+## ==============================================
+
+coverage/
+*.coverage
+coverage*.json
+coverage*.xml

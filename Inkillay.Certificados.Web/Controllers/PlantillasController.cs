@@ -1,6 +1,8 @@
 using Inkillay.Certificados.Web.Data.Repositories;
 using Inkillay.Certificados.Web.Models.Entities;
 using Inkillay.Certificados.Web.Services;
+using Inkillay.Certificados.Web.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Inkillay.Certificados.Web.Controllers;
@@ -10,15 +12,18 @@ public class PlantillasController : Controller
     private readonly IWebHostEnvironment _hostEnvironment;
     private readonly ISeguridadRepository _seguridadRepository;
     private readonly ICertificadoService _certificadoService;
+    private readonly ILogger<PlantillasController> _logger;
 
     public PlantillasController(
         IWebHostEnvironment hostEnvironment,
         ISeguridadRepository seguridadRepository,
-        ICertificadoService certificadoService)
+        ICertificadoService certificadoService,
+        ILogger<PlantillasController> logger)
     {
         _hostEnvironment = hostEnvironment;
         _seguridadRepository = seguridadRepository;
         _certificadoService = certificadoService;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -45,10 +50,8 @@ public class PlantillasController : Controller
 
         if (plantilla == null) return NotFound();
 
-        string rutaImagen = Path.Combine(_hostEnvironment.WebRootPath, "uploads", plantilla.RutaImagen);
-
         var imagenBytes = _certificadoService.GenerarImagenCertificado(
-            rutaImagen,
+            plantilla.RutaImagen,
             "MATIAS ADMINISTRADOR",
             plantilla.EjeX,
             plantilla.EjeY,
@@ -59,12 +62,24 @@ public class PlantillasController : Controller
         return File(imagenBytes, "image/jpeg");
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Crear(string nombre, IFormFile imagen)
     {
-        if (imagen == null || string.IsNullOrWhiteSpace(nombre))
+        // 1. Validación integral del archivo usando FileValidationHelper
+        var (isValid, errorMessage) = FileValidationHelper.ValidateImageFile(imagen);
+        if (!isValid)
+        {
+            _logger.LogWarning("Intento de subida de archivo inválido: {error}", errorMessage);
+            return Json(new { success = false, mensaje = errorMessage });
+        }
+
+        if (string.IsNullOrWhiteSpace(nombre))
+        {
+            _logger.LogWarning("Intento de crear plantilla sin nombre");
             return Json(new { success = false, mensaje = "Datos incompletos" });
+        }
 
         try
         {
@@ -74,8 +89,18 @@ public class PlantillasController : Controller
                 Directory.CreateDirectory(carpeta);
             }
 
-            string nombreArchivo = Guid.NewGuid() + Path.GetExtension(imagen.FileName);
+            string extension = Path.GetExtension(imagen.FileName).ToLowerInvariant();
+            string nombreArchivo = $"{Guid.NewGuid()}{extension}";
             string ruta = Path.Combine(carpeta, nombreArchivo);
+
+            // 2. Garantizar que la ruta no escape del directorio permitido (defensa en profundidad)
+            var rutaCompleta = Path.GetFullPath(ruta);
+            var carpetaCompleta = Path.GetFullPath(carpeta);
+            if (!rutaCompleta.StartsWith(carpetaCompleta, StringComparison.OrdinalIgnoreCase))
+            {
+                _logger.LogError("Intento de path traversal detectado al crear plantilla");
+                return Json(new { success = false, mensaje = "Error de validación de ruta" });
+            }
 
             await using (var stream = new FileStream(ruta, FileMode.Create))
             {
@@ -89,11 +114,13 @@ public class PlantillasController : Controller
             };
 
             await _seguridadRepository.InsertarPlantillaAsync(plantilla);
+            _logger.LogInformation("Plantilla '{nombre}' creada exitosamente por {usuario}", nombre, User.Identity?.Name ?? "Sistema");
             return Json(new { success = true });
         }
         catch (Exception ex)
         {
-            return Json(new { success = false, mensaje = ex.Message });
+            _logger.LogError(ex, "Error al subir plantilla: {nombre}", nombre);
+            return Json(new { success = false, mensaje = "Error interno del servidor" });
         }
     }
 
@@ -109,15 +136,8 @@ public class PlantillasController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ActualizarDiseno(int id, int x, int y, int fontSize, string fontColor)
     {
-        try
-        {
-            var filas = await _seguridadRepository.ActualizarDisenoPlantillaAsync(id, x, y, fontSize, fontColor);
-            return Json(new { success = filas > 0 });
-        }
-        catch (Exception ex)
-        {
-            return Json(new { success = false, mensaje = ex.Message });
-        }
+        var filas = await _seguridadRepository.ActualizarDisenoPlantillaAsync(id, x, y, fontSize, fontColor);
+        return Json(new { success = filas > 0 });
     }
 
     [HttpPost]

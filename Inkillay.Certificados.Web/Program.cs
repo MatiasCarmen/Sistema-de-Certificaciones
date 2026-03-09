@@ -1,8 +1,10 @@
 using System.Data.Common;
+using System.Threading.RateLimiting;
 using Inkillay.Certificados.Web.Data;
 using Inkillay.Certificados.Web.Data.Repositories;
 using Inkillay.Certificados.Web.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Data.SqlClient;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +30,20 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
     });
 
+// 🛡️ Rate Limiting Policy for Login Protection
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("login-policy", opt =>
+    {
+        opt.Window = TimeSpan.FromMinutes(5);  // Ventana de 5 minutos
+        opt.PermitLimit = 5;                   // Máximo 5 intentos
+        opt.QueueLimit = 0;                    // No encolar, rechazar de inmediato
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+    });
+
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -40,6 +56,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+app.UseRateLimiter();  // 🛡️ Activar Rate Limiting
 app.UseRouting();
 
 app.UseAuthentication();

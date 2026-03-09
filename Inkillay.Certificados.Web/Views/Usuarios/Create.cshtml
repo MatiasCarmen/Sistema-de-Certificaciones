@@ -1,0 +1,107 @@
+@model CrearUsuarioViewModel
+@{
+    ViewData["Title"] = "Crear Nuevo Usuario";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-user-plus"></i> Crear Nuevo Usuario</h4>
+                </div>
+                <div class="card-body">
+                    <form id="formCrearUsuario" method="post" asp-action="Create">
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label asp-for="Nombre" class="form-label">Nombre Completo</label>
+                            <input asp-for="Nombre" class="form-control" placeholder="Ej: Juan Pérez" required>
+                            <span asp-validation-for="Nombre" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Correo" class="form-label">Correo Electrónico</label>
+                            <input asp-for="Correo" type="email" class="form-control" placeholder="usuario@example.com" required>
+                            <span asp-validation-for="Correo" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="IdRol" class="form-label">Rol</label>
+                            <select asp-for="IdRol" class="form-select" required>
+                                <option value="">-- Seleccionar Rol --</option>
+                                <option value="1">Admin</option>
+                                <option value="2">Docente</option>
+                                <option value="3">Alumno</option>
+                            </select>
+                            <span asp-validation-for="IdRol" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Clave" class="form-label">Contraseña</label>
+                            <input asp-for="Clave" type="password" class="form-control" placeholder="Mínimo 6 caracteres" required>
+                            <small class="form-text text-muted">La contraseña debe tener al menos 6 caracteres</small>
+                            <span asp-validation-for="Clave" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Crear Usuario
+                            </button>
+                        </div>
+
+                        <div class="mt-3">
+                            <a href="@Url.Action("Index")" class="btn btn-secondary w-100">
+                                <i class="fas fa-arrow-left"></i> Volver
+                            </a>
+                        </div>
+                    </form>
+
+                    <div id="mensajeResultado" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('formCrearUsuario').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        const data = {
+            nombre: formData.get('Nombre'),
+            correo: formData.get('Correo'),
+            clave: formData.get('Clave'),
+            idRol: parseInt(formData.get('IdRol'))
+        };
+
+        fetch('@Url.Action("Create")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': formData.get('__RequestVerificationToken')
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            const mensajeDiv = document.getElementById('mensajeResultado');
+            if (data.success) {
+                mensajeDiv.innerHTML = '<div class="alert alert-success alert-dismissible fade show" role="alert">' +
+                    '<i class="fas fa-check-circle"></i> ' + data.mensaje +
+                    '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';
+                setTimeout(() => window.location.href = '@Url.Action("Index")', 2000);
+            } else {
+                mensajeDiv.innerHTML = '<div class="alert alert-danger alert-dismissible fade show" role="alert">' +
+                    '<i class="fas fa-exclamation-circle"></i> ' + data.mensaje +
+                    '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('mensajeResultado').innerHTML = 
+                '<div class="alert alert-danger">Error al crear el usuario</div>';
+        });
+    });
+</script>
