@@ -1,0 +1,109 @@
+@model IEnumerable<Inkillay.Certificados.Web.Models.Entities.Matricula>
+@{
+    ViewData["Title"] = "Mis Certificados";
+}
+
+<main class="max-w-6xl mx-auto">
+    <header class="mb-8">
+        <div class="flex items-center gap-3 mb-2">
+            <span class="material-symbols-outlined text-3xl text-indigo-600">verified</span>
+            <div>
+                <h1 class="text-3xl font-bold text-slate-900 dark:text-white">Mis Certificados</h1>
+                <p class="text-slate-500 dark:text-slate-400 mt-1">Descarga tus certificados de cursos completados</p>
+            </div>
+        </div>
+    </header>
+
+    @if (!Model.Any())
+    {
+        <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-8 text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-900/20 mb-4">
+                <span class="material-symbols-outlined text-2xl text-amber-600">schedule</span>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">No tienes certificados disponibles</h3>
+            <p class="text-slate-500 dark:text-slate-400 mb-6">
+                Para obtener un certificado, necesitas:
+            </p>
+            <ul class="text-left text-sm text-slate-600 dark:text-slate-300 space-y-2 inline-block">
+                <li class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-lg text-emerald-600">check_circle</span>
+                    Haber completado el curso
+                </li>
+                <li class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-lg text-emerald-600">check_circle</span>
+                    Tener una calificación aprobatoria
+                </li>
+                <li class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-lg text-emerald-600">check_circle</span>
+                    Haber pagado la matrícula completamente
+                </li>
+            </ul>
+            <div class="mt-8">
+                <a href="@Url.Action("MisCursos")" class="inline-flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white font-bold rounded-lg hover:bg-indigo-700 transition-colors">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                    Volver a Mis Cursos
+                </a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @foreach (var certificado in Model)
+            {
+                <div class="group bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl border border-slate-200 dark:border-slate-700 transition-all duration-300 flex flex-col">
+                    <!-- Header del certificado -->
+                    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white">
+                        <div class="flex items-start justify-between mb-3">
+                            <span class="material-symbols-outlined text-3xl">school</span>
+                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-bold">
+                                <span class="material-symbols-outlined text-sm">verified</span>
+                                Completado
+                            </span>
+                        </div>
+                        <h3 class="text-lg font-bold line-clamp-2">@certificado.NombreCurso</h3>
+                        <p class="text-white/70 text-sm mt-2">
+                            Finalizado: @certificado.FechaMatricula.ToString("dd/MM/yyyy")
+                        </p>
+                    </div>
+
+                    <!-- Detalles -->
+                    <div class="p-6 flex-1 flex flex-col">
+                        <div class="space-y-3 mb-6">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-slate-500 dark:text-slate-400">Calificación</span>
+                                <span class="font-bold text-indigo-600 dark:text-indigo-400">Aprobado ✓</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-slate-500 dark:text-slate-400">Estado de Pago</span>
+                                <span class="inline-flex items-center gap-1 px-2 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-bold rounded-full">
+                                    <span class="material-symbols-outlined text-sm">check_circle</span>
+                                    Pagado
+                                </span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-slate-500 dark:text-slate-400">ID Matrícula</span>
+                                <span class="text-sm font-mono text-slate-600 dark:text-slate-300">#@certificado.IdMatricula</span>
+                            </div>
+                        </div>
+
+                        <!-- Botón Descargar -->
+                        <a href="@Url.Action("DescargarPdf", "Emision", new { idMatricula = certificado.IdMatricula })"
+                           class="mt-auto w-full flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md group">
+                            <span class="material-symbols-outlined group-hover:animate-bounce">download</span>
+                            Descargar Certificado
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Nota de información -->
+        <div class="mt-8 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 flex gap-3">
+            <span class="material-symbols-outlined text-blue-600 dark:text-blue-400 flex-shrink-0">info</span>
+            <div class="text-sm text-blue-700 dark:text-blue-300">
+                <strong>Nota:</strong> Los certificados se descargan en formato PDF. Puedes descargarlos en cualquier momento.
+            </div>
+        </div>
+    }
+</main>
