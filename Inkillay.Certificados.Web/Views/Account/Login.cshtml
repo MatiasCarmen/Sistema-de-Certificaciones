@@ -130,7 +130,7 @@
         function togglePassword() {
             const input = document.getElementById('Clave');
             const icon = document.getElementById('toggleIcon');
-            
+
             if (input.type === 'password') {
                 input.type = 'text';
                 icon.textContent = 'visibility_off';
@@ -141,9 +141,42 @@
         }
 
         document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
             const btn = document.getElementById('btnIngresar');
+            const msgError = document.getElementById('msgError');
+
             btn.disabled = true;
             btn.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 1s linear infinite;">hourglass_top</span><span>Verificando...</span>';
+            msgError.classList.add('hidden');
+
+            const formData = new FormData(this);
+
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.redirectUrl) {
+                    // Login exitoso, redirigir
+                    window.location.href = data.redirectUrl;
+                } else {
+                    // Error en login
+                    msgError.classList.remove('hidden');
+                    btn.disabled = false;
+                    btn.innerHTML = '<span class="material-symbols-outlined">login</span><span>Acceder al Sistema</span>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                msgError.classList.remove('hidden');
+                btn.disabled = false;
+                btn.innerHTML = '<span class="material-symbols-outlined">login</span><span>Acceder al Sistema</span>';
+            });
         });
     </script>
 </body>
