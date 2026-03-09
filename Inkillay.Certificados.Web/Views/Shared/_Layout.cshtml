@@ -12,13 +12,13 @@
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#5600b2",
-                        "background-light": "#f7f5f8",
-                        "background-dark": "#190f23",
-                        "sidebar-bg": "#190f23",
-                        "sidebar-hover": "#2d1b3d"
+                        "primary": "#0369a1",
+                        "background-light": "#f8fafc",
+                        "background-dark": "#0f172a",
+                        "sidebar-bg": "#1e293b",
+                        "sidebar-hover": "#334155"
                     },
-                    fontFamily: { "display": ["Inter", "sans-serif"] }
+                    fontFamily: { "display": ["Segoe UI", "Inter", "sans-serif"] }
                 },
             },
         }
@@ -26,38 +26,36 @@
 </head>
 <body class="bg-background-light dark:bg-background-dark font-display text-slate-900 dark:text-slate-100 min-h-screen flex flex-col overflow-x-hidden">
     <div class="flex h-screen w-full">
-        <aside class="w-64 bg-sidebar-bg flex-shrink-0 flex flex-col text-slate-100">
-            <div class="h-16 flex items-center px-6 border-b border-sidebar-hover">
-                <span class="material-symbols-outlined text-2xl mr-3">school</span>
-                <h1 class="text-lg font-bold tracking-tight">SDG Diplomas</h1>
+        <aside class="w-64 bg-sidebar-bg flex-shrink-0 flex flex-col text-slate-200 border-r border-slate-700 shadow-md">
+            <div class="h-14 flex items-center px-6 bg-slate-900 border-b border-slate-700">
+                <span class="material-symbols-outlined text-lg mr-3 text-primary">account_balance</span>
+                <h1 class="text-sm font-bold tracking-wide uppercase text-slate-100">SDG Diplomas</h1>
             </div>
             <div class="flex flex-col flex-1 py-4 overflow-y-auto">
-                <nav class="flex-1 px-3">
-                    <ul class="space-y-2 mt-4">
-                        @if (User.Identity?.IsAuthenticated == true)
+                <nav class="flex-1 px-3 space-y-1">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <a href="/" class="flex items-center px-3 py-2 text-sm text-slate-300 hover:bg-sidebar-hover rounded-md transition-colors">
+                            <span class="material-symbols-outlined text-base mr-3">home</span>
+                            Inicio
+                        </a>
+
+                        @if (User.IsInRole("Admin"))
                         {
-                            <li>
-                                <a href="/" class="flex items-center p-3 text-slate-100 hover:bg-sidebar-hover rounded-xl">
-                                    <span>Inicio</span>
-                                </a>
-                            </li>
+                            <div class="pt-3 pb-2 px-3">
+                                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Administración</p>
+                            </div>
+                            <a href="/Plantillas/Index" class="flex items-center px-3 py-2 text-sm text-slate-300 hover:bg-sidebar-hover rounded-md transition-colors">
+                                <span class="material-symbols-outlined text-base mr-3">document_scanner</span>
+                                Plantillas
+                            </a>
+                            <a href="/Usuarios/Index" class="flex items-center px-3 py-2 text-sm text-slate-300 hover:bg-sidebar-hover rounded-md transition-colors">
+                                <span class="material-symbols-outlined text-base mr-3">people</span>
+                                Usuarios
+                            </a>
+                        }
 
-                            @if (User.IsInRole("Admin"))
-                            {
-                                <li class="pt-4 pb-2 px-3 text-[10px] font-bold text-slate-400 uppercase">Administracion</li>
-                                <li>
-                                    <a href="/Plantillas/Index" class="flex items-center p-3 text-slate-100 hover:bg-sidebar-hover rounded-xl">
-                                        <span>Plantillas de Certificados</span>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="/Cursos/Index" class="flex items-center p-3 text-slate-100 hover:bg-sidebar-hover rounded-xl">
-                                        <span>Gestionar Cursos</span>
-                                    </a>
-                                </li>
-                            }
-
-                            @if (User.IsInRole("Docente") || User.IsInRole("Admin"))
+                        @if (User.IsInRole("Docente") || User.IsInRole("Admin"))
                             {
                                 <li class="pt-4 pb-2 px-3 text-[10px] font-bold text-slate-400 uppercase">Docencia</li>
                                 <li>
