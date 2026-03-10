@@ -176,15 +176,18 @@ public class SeguridadRepository : ISeguridadRepository
     public async Task<bool> GuardarDisenoCompletoAsync(int idPlantilla, List<PlantillaDetalleDTO> detalles)
     {
         using var connection = _connectionFactory.CreateConnection();
-        var json = JsonSerializer.Serialize(detalles);
+        // Serialize with PascalCase to match SQL Server OPENJSON column names
+        var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = null };
+        var json = JsonSerializer.Serialize(detalles, jsonOptions);
 
-        var result = await connection.ExecuteAsync(
+        await connection.ExecuteAsync(
             "USP_Plantillas_GuardarDisenoCompleto",
             new { IdPlantilla = idPlantilla, JsonDetalles = json },
             commandType: CommandType.StoredProcedure
         );
 
-        return result > 0;
+        // If no exception was thrown, the SP committed successfully
+        return true;
     }
 
     public async Task<int> CambiarEstadoPlantillaAsync(int id)

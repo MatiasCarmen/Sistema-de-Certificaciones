@@ -412,25 +412,62 @@
         }));
 
         const token = document.querySelector('#tokenForm input[name="__RequestVerificationToken"]').value;
-        const formData = new URLSearchParams();
-        formData.append('id', '@Model.Plantilla.IdPlantilla');
-        formData.append('json', JSON.stringify(payload));
-        formData.append('__RequestVerificationToken', token);
+        const body = new URLSearchParams();
+        body.append('id', '@Model.Plantilla.IdPlantilla');
+        body.append('json', JSON.stringify(payload));
+        body.append('__RequestVerificationToken', token);
 
-        fetch('/Plantillas/GuardarTodo', { method: 'POST', body: formData })
-            .then(r => r.json())
-            .then(res => {
-                if (res.success) {
-                    showToast('Diseño guardado correctamente', 'success');
-                } else {
-                    showToast('Error: ' + (res.mensaje || 'No se pudo guardar'), 'error');
-                }
-            })
-            .catch(() => showToast('Error de conexión', 'error'))
-            .finally(() => {
-                btn.disabled = false;
-                btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:14px">save</span> GUARDAR';
+        fetch('/Plantillas/GuardarTodo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: body.toString()
+        })
+        .then(function (r) {
+            if (!r.ok) {
+                return r.text().then(function (txt) {
+                    throw new Error(txt ? txt.substring(0, 200) : 'Error del servidor (HTTP ' + r.status + ')');
+                });
+            }
+            var ct = (r.headers.get('content-type') || '');
+            if (!ct.includes('application/json')) {
+                return r.text().then(function (txt) {
+                    throw new Error(txt ? txt.substring(0, 200) : 'Respuesta inesperada del servidor');
+                });
+            }
+            return r.json();
+        })
+        .then(function (res) {
+            if (res.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Guardado!',
+                    text: 'El diseño de la plantilla se guardó correctamente.',
+                    confirmButtonColor: '#0369a1',
+                    timer: 2500,
+                    timerProgressBar: true,
+                    showConfirmButton: false
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al guardar',
+                    text: res.mensaje || 'No se pudieron guardar los cambios',
+                    confirmButtonColor: '#0369a1'
+                });
+            }
+        })
+        .catch(function (err) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error al guardar',
+                text: err.message || 'Error de conexión',
+                confirmButtonColor: '#0369a1'
             });
+        })
+        .then(function () {
+            btn.disabled = false;
+            btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:14px">save</span> GUARDAR';
+        });
     });
 
     // --- Preview PNG ---
@@ -443,20 +480,7 @@
         window.open('/Emision/DescargarPdf?idMatricula=1', '_blank');
     });
 
-    // --- Toast notification ---
-    function showToast(msg, type) {
-        const toast = document.createElement('div');
-        toast.className = 'fixed bottom-4 right-4 z-50 px-4 py-2 text-sm font-bold shadow-lg border';
-        toast.style.borderRadius = '1px';
-        if (type === 'success') {
-            toast.classList.add('bg-green-50', 'text-green-800', 'border-green-300');
-        } else {
-            toast.classList.add('bg-red-50', 'text-red-800', 'border-red-300');
-        }
-        toast.textContent = msg;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
-    }
+    // --- Toast notification (see full implementation below) ---
 
     // --- Initialize ---
     img.addEventListener('load', function () {

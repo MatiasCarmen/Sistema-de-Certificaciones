@@ -72,10 +72,16 @@ public class CertificadoService : ICertificadoService
             Style = SKPaintStyle.Fill,
             TextAlign = SKTextAlign.Left,
             TextSize = fontSize,
-            Typeface = SKTypeface.FromFamilyName("Arial", SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright)
+            Typeface = ResolveTypeface()
         };
 
-        canvas.DrawText(nombreAlumno, ejeX, ejeY, paint);
+        // CSS positions from top-left; SkiaSharp DrawText uses baseline.
+        // MeasureText returns bounds where bounds.Top is negative (ascent above baseline).
+        // Subtracting it converts top-left Y to baseline Y with pixel-perfect precision.
+        SKRect bounds = new SKRect();
+        paint.MeasureText(nombreAlumno, ref bounds);
+        float skiaY = ejeY - bounds.Top;
+        canvas.DrawText(nombreAlumno, ejeX, skiaY, paint);
 
         using var image = SKImage.FromBitmap(bitmap);
         using var data = image.Encode(SKEncodedImageFormat.Jpeg, 100);
@@ -126,10 +132,15 @@ public class CertificadoService : ICertificadoService
                 Style = SKPaintStyle.Fill,
                 TextAlign = SKTextAlign.Left,
                 TextSize = capa.FontSize > 0 ? capa.FontSize : 40,
-                Typeface = SKTypeface.FromFamilyName("Arial", SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright)
+                Typeface = ResolveTypeface()
             };
 
-            canvas.DrawText(texto, capa.X, capa.Y, paint);
+            // CSS positions from top-left; SkiaSharp DrawText uses baseline.
+            // bounds.Top is negative (ascent), subtracting it gives precise baseline Y.
+            SKRect bounds = new SKRect();
+            paint.MeasureText(texto, ref bounds);
+            float skiaY = capa.Y - bounds.Top;
+            canvas.DrawText(texto, capa.X, skiaY, paint);
         }
 
         using var image = SKImage.FromBitmap(bitmap);
@@ -177,5 +188,22 @@ public class CertificadoService : ICertificadoService
         if (string.IsNullOrEmpty(path)) return path;
         var sep = Path.DirectorySeparatorChar;
         return path.EndsWith(sep) ? path : path + sep;
+    }
+
+    /// <summary>
+    /// Loads Montserrat-Bold.ttf from wwwroot/fonts/ if available,
+    /// otherwise falls back to Arial system font, then SKTypeface.Default.
+    /// </summary>
+    private SKTypeface ResolveTypeface()
+    {
+        var fontPath = Path.Combine(_hostEnvironment.WebRootPath, "fonts", "Montserrat-Bold.ttf");
+        if (File.Exists(fontPath))
+        {
+            var tf = SKTypeface.FromFile(fontPath);
+            if (tf != null) return tf;
+        }
+
+        return SKTypeface.FromFamilyName("Arial", SKFontStyleWeight.Bold, SKFontStyleWidth.Normal, SKFontStyleSlant.Upright)
+               ?? SKTypeface.Default;
     }
 }

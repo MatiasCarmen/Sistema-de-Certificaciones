@@ -1,0 +1,137 @@
+@{
+    ViewData["Title"] = "Nueva Plantilla";
+}
+
+<div class="max-w-xl mx-auto">
+    <div class="bg-white border border-slate-300 shadow-sm rounded-sm">
+        <div class="p-4 border-b border-slate-200 bg-slate-50 flex items-center gap-2">
+            <span class="material-symbols-outlined text-base text-primary">add_photo_alternate</span>
+            <h3 class="text-xs font-bold uppercase text-slate-600 tracking-wider">Crear Nueva Plantilla</h3>
+        </div>
+
+        <form id="formCrear" enctype="multipart/form-data" class="p-6 space-y-5">
+            @Html.AntiForgeryToken()
+
+            <div>
+                <label for="nombre" class="block text-xs font-bold uppercase text-slate-600 tracking-wider mb-1">
+                    Nombre de la plantilla
+                </label>
+                <input type="text" id="nombre" name="nombre" required
+                       placeholder="Ej: Certificado de Participación"
+                       class="w-full px-3 py-2 text-sm border border-slate-300 rounded-sm bg-slate-50 focus:bg-white focus:border-primary focus:outline-none transition-colors" />
+            </div>
+
+            <div>
+                <label for="imagen" class="block text-xs font-bold uppercase text-slate-600 tracking-wider mb-1">
+                    Imagen de fondo
+                </label>
+                <input type="file" id="imagen" name="imagen" accept=".jpg,.jpeg,.png" required
+                       class="w-full text-sm text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-sm file:border file:border-slate-300 file:text-xs file:font-bold file:uppercase file:bg-slate-50 file:text-slate-600 hover:file:bg-slate-100 file:cursor-pointer file:transition-colors" />
+                <p class="mt-1 text-[10px] text-slate-400">Solo JPG o PNG. Máximo 5 MB.</p>
+            </div>
+
+            <div id="previewContainer" class="hidden">
+                <label class="block text-xs font-bold uppercase text-slate-600 tracking-wider mb-1">Vista previa</label>
+                <img id="previewImg" class="max-h-48 rounded-sm border border-slate-200 shadow-sm" alt="Vista previa" />
+            </div>
+
+            <div class="flex items-center gap-3 pt-2 border-t border-slate-200">
+                <button type="submit" id="btnCrear"
+                        class="px-4 py-2 bg-primary text-white text-xs font-bold uppercase rounded-sm hover:bg-sky-800 transition-none flex items-center gap-2">
+                    <span class="material-symbols-outlined text-sm">save</span> Guardar Plantilla
+                </button>
+                <a href="@Url.Action("Index")"
+                   class="px-4 py-2 text-xs font-bold uppercase text-slate-600 border border-slate-300 rounded-sm hover:bg-slate-50 transition-none">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+(function () {
+    'use strict';
+
+    // Preview de la imagen seleccionada
+    var imagenInput = document.getElementById('imagen');
+    var previewContainer = document.getElementById('previewContainer');
+    var previewImg = document.getElementById('previewImg');
+
+    imagenInput.addEventListener('change', function () {
+        if (this.files && this.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                previewImg.src = e.target.result;
+                previewContainer.classList.remove('hidden');
+            };
+            reader.readAsDataURL(this.files[0]);
+        } else {
+            previewContainer.classList.add('hidden');
+        }
+    });
+
+    // Submit del formulario
+    document.getElementById('formCrear').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        var btn = document.getElementById('btnCrear');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="material-symbols-outlined text-sm">hourglass_top</span> Guardando...';
+
+        var formData = new FormData(this);
+
+        fetch('@Url.Action("Crear")', {
+            method: 'POST',
+            body: formData
+        })
+        .then(function (r) {
+            if (!r.ok) {
+                return r.text().then(function (txt) {
+                    throw new Error(txt ? txt.substring(0, 200) : 'Error del servidor (HTTP ' + r.status + ')');
+                });
+            }
+            var ct = (r.headers.get('content-type') || '');
+            if (!ct.includes('application/json')) {
+                return r.text().then(function (txt) {
+                    throw new Error(txt ? txt.substring(0, 200) : 'Respuesta inesperada del servidor');
+                });
+            }
+            return r.json();
+        })
+        .then(function (res) {
+            if (res.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Plantilla creada!',
+                    text: 'La plantilla se creó correctamente.',
+                    confirmButtonColor: '#0369a1',
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(function () {
+                    window.location.href = '@Url.Action("Index")';
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: res.mensaje || 'No se pudo crear la plantilla',
+                    confirmButtonColor: '#0369a1'
+                });
+            }
+        })
+        .catch(function (err) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: err.message || 'Error de conexión',
+                confirmButtonColor: '#0369a1'
+            });
+        })
+        .then(function () {
+            btn.disabled = false;
+            btn.innerHTML = '<span class="material-symbols-outlined text-sm">save</span> Guardar Plantilla';
+        });
+    });
+})();
+</script>

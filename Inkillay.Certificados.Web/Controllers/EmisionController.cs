@@ -167,15 +167,22 @@ public class EmisionController : Controller
         if (matricula == null)
             return NotFound("Matrícula no encontrada.");
 
-        // 2. Validar reglas de negocio (Pagado y Aprobado) - BYPASS para IdUsuario = 1
-        var idUsuarioStr = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        var idUsuario = int.TryParse(idUsuarioStr, out var id) ? id : 0;
+        // 2. Validar reglas de negocio (Pagado y Aprobado) - BYPASS para Administrador
+        var idUsuarioStr = User.FindFirst("IdUsuario")?.Value;
+        var idRolStr = User.FindFirst("IdRol")?.Value;
+        var roleClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
 
-        // Si el usuario NO es el admin (IdUsuario = 1), aplicar validaciones
-        if (idUsuario != 1 && (!matricula.Aprobado || matricula.TotalPagado < matricula.CostoCurso))
+        bool esAdmin = (idRolStr == "1") || 
+                       (roleClaim == "Admin") || 
+                       (idUsuarioStr == "1");
+
+        // Si NO es admin, aplicar validaciones de negocio
+        if (!esAdmin && (!matricula.Aprobado || matricula.TotalPagado < matricula.CostoCurso))
         {
             return BadRequest("El alumno no cumple con los requisitos para descargar el certificado (debe estar aprobado y haber pagado el costo completo)");
         }
+
+        var idUsuario = int.TryParse(idUsuarioStr, out var id) ? id : 0;
 
         try
         {

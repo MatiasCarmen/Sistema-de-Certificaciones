@@ -34,6 +34,13 @@ public class PlantillasController : Controller
         return View(lista);
     }
 
+    [Authorize(Roles = "Admin")]
+    [HttpGet]
+    public IActionResult Create()
+    {
+        return View();
+    }
+
     [HttpGet]
     public async Task<IActionResult> Editor(int id)
     {
@@ -210,15 +217,22 @@ public class PlantillasController : Controller
     {
         try
         {
+            if (string.IsNullOrWhiteSpace(json))
+                return Json(new { success = false, mensaje = "No se recibieron datos de capas" });
+
+            // Validate it's actual JSON before sending to DB
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            var detalles = JsonSerializer.Deserialize<List<PlantillaDetalleDTO>>(json, options) ?? new List<PlantillaDetalleDTO>();
+            var detalles = JsonSerializer.Deserialize<List<PlantillaDetalleDTO>>(json, options);
+            if (detalles == null || detalles.Count == 0)
+                return Json(new { success = false, mensaje = "No hay capas para guardar" });
+
             var ok = await _seguridadRepository.GuardarDisenoCompletoAsync(id, detalles);
-            return Json(new { success = ok });
+            return Json(new { success = ok, mensaje = ok ? "Diseño guardado correctamente" : "No se pudieron guardar los cambios" });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error guardando diseno completo. IdPlantilla={IdPlantilla}", id);
-            return Json(new { success = false, mensaje = "Error interno del servidor" });
+            return Json(new { success = false, mensaje = ex.Message });
         }
     }
 
