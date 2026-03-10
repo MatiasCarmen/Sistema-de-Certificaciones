@@ -167,9 +167,12 @@ public class EmisionController : Controller
         if (matricula == null)
             return NotFound("Matrícula no encontrada.");
 
-        // 2. Validar reglas de negocio (Pagado y Aprobado) - BYPASS para Administradores
-        var esAdmin = User.IsInRole("Admin");
-        if (!esAdmin && (!matricula.Aprobado || matricula.TotalPagado < matricula.CostoCurso))
+        // 2. Validar reglas de negocio (Pagado y Aprobado) - BYPASS para IdUsuario = 1
+        var idUsuarioStr = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        var idUsuario = int.TryParse(idUsuarioStr, out var id) ? id : 0;
+
+        // Si el usuario NO es el admin (IdUsuario = 1), aplicar validaciones
+        if (idUsuario != 1 && (!matricula.Aprobado || matricula.TotalPagado < matricula.CostoCurso))
         {
             return BadRequest("El alumno no cumple con los requisitos para descargar el certificado (debe estar aprobado y haber pagado el costo completo)");
         }
@@ -212,12 +215,11 @@ public class EmisionController : Controller
             // 6. Retornar archivo con nombre profesional
             string nombreArchivo = $"Certificado_{SanitizeFileName(matricula.NombreAlumno)}.pdf";
 
-            // Registrar auditoría
-            var idUsuario = User.FindFirst("IdUsuario");
+            // Registrar auditoría (reutilizar idUsuario ya declarado)
             var ip = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "DESCONOCIDA";
 
             await _auditoriaService.RegistrarAsync(
-                idUsuario != null ? int.Parse(idUsuario.Value) : null,
+                idUsuario > 0 ? idUsuario : null,
                 "DESCARGA PDF",
                 "Certificados",
                 $"Alumno: {matricula.NombreAlumno} - Curso: {matricula.NombreCurso}",

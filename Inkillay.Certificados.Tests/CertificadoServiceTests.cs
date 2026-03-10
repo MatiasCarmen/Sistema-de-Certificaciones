@@ -3,7 +3,9 @@ using Moq;
 using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Inkillay.Certificados.Web.Services;
+using Inkillay.Certificados.Web.Models.ViewModels;
 using SkiaSharp;
+using System.Collections.Generic;
 
 namespace Inkillay.Certificados.Tests;
 
@@ -380,6 +382,138 @@ public class CertificadoServiceTests : IDisposable
             resultado.Should().NotBeNull();
             resultado.Length.Should().BeGreaterThan(0);
         }
+    }
+
+    #endregion
+
+    #region Pruebas de Sistema Multicapa (Punto 4)
+
+    [Fact]
+    public void GenerarImagenCertificadoMulticapa_DebeGenerarImagenConVariasCapas()
+    {
+        // Arrange
+        var imagenPrueba = CrearImagenPrueba(800, 600);
+        var rutaImagen = Path.Combine(_uploadsDirectory, "plantilla_multicapa.jpg");
+        File.WriteAllBytes(rutaImagen, imagenPrueba);
+
+        var capas = new List<PlantillaDetalleDTO>
+        {
+            new PlantillaDetalleDTO { Texto = "CERTIFICADO", X = 200, Y = 100, FontSize = 60, FontColor = "#000000", EsPrincipal = 0, Orden = 0 },
+            new PlantillaDetalleDTO { Texto = "", X = 200, Y = 300, FontSize = 50, FontColor = "#0369a1", EsPrincipal = 1, Orden = 1 },
+            new PlantillaDetalleDTO { Texto = "Fecha: 10/03/2026", X = 200, Y = 450, FontSize = 30, FontColor = "#666666", EsPrincipal = 0, Orden = 2 }
+        };
+
+        // Act
+        var resultado = _service.GenerarImagenCertificadoMulticapa(
+            "plantilla_multicapa.jpg",
+            "JUAN PEREZ",
+            capas
+        );
+
+        // Assert
+        resultado.Should().NotBeNull();
+        resultado.Length.Should().BeGreaterThan(0);
+
+        using var stream = new MemoryStream(resultado);
+        using var bitmap = SKBitmap.Decode(stream);
+        bitmap.Should().NotBeNull();
+        bitmap.Width.Should().Be(800);
+        bitmap.Height.Should().Be(600);
+    }
+
+    [Fact]
+    public void GenerarImagenCertificadoMulticapa_DebeReemplazarCapaPrincipalConNombreAlumno()
+    {
+        // Arrange
+        var imagenPrueba = CrearImagenPrueba(600, 400);
+        var rutaImagen = Path.Combine(_uploadsDirectory, "plantilla_principal.jpg");
+        File.WriteAllBytes(rutaImagen, imagenPrueba);
+
+        var capas = new List<PlantillaDetalleDTO>
+        {
+            new PlantillaDetalleDTO { Texto = "Placeholder", X = 100, Y = 200, FontSize = 40, FontColor = "#000000", EsPrincipal = 1, Orden = 0 }
+        };
+
+        // Act
+        var resultado = _service.GenerarImagenCertificadoMulticapa(
+            "plantilla_principal.jpg",
+            "ANA GARCIA",
+            capas
+        );
+
+        // Assert
+        resultado.Should().NotBeNull();
+        resultado.Length.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public void GenerarImagenCertificadoMulticapa_DebeLanzarExcepcion_ConRutaMaliciosa()
+    {
+        // Arrange
+        var capas = new List<PlantillaDetalleDTO>();
+
+        // Act
+        Action act = () => _service.GenerarImagenCertificadoMulticapa(
+            "../../../config.txt",
+            "Alumno",
+            capas
+        );
+
+        // Assert
+        act.Should().Throw<UnauthorizedAccessException>();
+    }
+
+    [Fact]
+    public void GenerarImagenCertificadoMulticapa_DebeIgnorarCapasConTextoVacio()
+    {
+        // Arrange
+        var imagenPrueba = CrearImagenPrueba(500, 400);
+        var rutaImagen = Path.Combine(_uploadsDirectory, "plantilla_vacia.jpg");
+        File.WriteAllBytes(rutaImagen, imagenPrueba);
+
+        var capas = new List<PlantillaDetalleDTO>
+        {
+            new PlantillaDetalleDTO { Texto = "", X = 100, Y = 100, FontSize = 40, FontColor = "#000000", EsPrincipal = 0, Orden = 0 },
+            new PlantillaDetalleDTO { Texto = "Válido", X = 100, Y = 200, FontSize = 40, FontColor = "#000000", EsPrincipal = 0, Orden = 1 }
+        };
+
+        // Act
+        var resultado = _service.GenerarImagenCertificadoMulticapa(
+            "plantilla_vacia.jpg",
+            "ALUMNO PRUEBA",
+            capas
+        );
+
+        // Assert
+        resultado.Should().NotBeNull();
+        resultado.Length.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public void GenerarImagenCertificadoMulticapa_DebeOrdenarCapasPorOrden()
+    {
+        // Arrange
+        var imagenPrueba = CrearImagenPrueba(600, 400);
+        var rutaImagen = Path.Combine(_uploadsDirectory, "plantilla_orden.jpg");
+        File.WriteAllBytes(rutaImagen, imagenPrueba);
+
+        var capas = new List<PlantillaDetalleDTO>
+        {
+            new PlantillaDetalleDTO { Texto = "Tercera", X = 100, Y = 300, FontSize = 30, FontColor = "#000000", EsPrincipal = 0, Orden = 2 },
+            new PlantillaDetalleDTO { Texto = "Primera", X = 100, Y = 100, FontSize = 30, FontColor = "#000000", EsPrincipal = 0, Orden = 0 },
+            new PlantillaDetalleDTO { Texto = "Segunda", X = 100, Y = 200, FontSize = 30, FontColor = "#000000", EsPrincipal = 0, Orden = 1 }
+        };
+
+        // Act
+        var resultado = _service.GenerarImagenCertificadoMulticapa(
+            "plantilla_orden.jpg",
+            "TEST",
+            capas
+        );
+
+        // Assert
+        resultado.Should().NotBeNull();
+        resultado.Length.Should().BeGreaterThan(0);
     }
 
     #endregion

@@ -3,144 +3,78 @@
     ViewData["Title"] = "Gestión de Plantillas";
 }
 
-<div class="container mx-auto px-4 py-6">
-    <div class="bg-white rounded-sm shadow-md p-6">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">Plantillas de Certificados</h1>
-            @if (User.IsInRole("Admin"))
-            {
-                <button type="button" class="bg-primary hover:bg-[#075985] text-white font-semibold px-4 py-2 rounded-sm"
-                        onclick="document.getElementById('modalCrearPlantilla').classList.remove('hidden')">
-                    <span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle">add</span> Nueva Plantilla
-                </button>
-            }
-        </div>
+<div class="bg-white border border-slate-300 shadow-sm rounded-sm">
+    <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+        <h3 class="text-xs font-bold uppercase text-slate-600 tracking-wider">Catálogo de Plantillas</h3>
+        <a href="@Url.Action("Create")" 
+           class="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-sm hover:bg-sky-800 transition-none flex items-center gap-2">
+            <span class="material-symbols-outlined text-base">add</span> Nueva Plantilla
+        </a>
+    </div>
 
-        @if (Model != null && Model.Any())
-        {
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                @foreach (var plantilla in Model)
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm border-collapse">
+            <thead class="bg-slate-100 border-b border-slate-300 text-slate-700">
+                <tr>
+                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">ID</th>
+                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Nombre</th>
+                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Imagen</th>
+                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Estado</th>
+                    <th class="px-4 py-2 font-semibold text-xs uppercase text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 text-slate-600">
+                @foreach (var item in Model)
                 {
-                    <div class="border border-slate-200 rounded-sm overflow-hidden shadow hover:shadow-lg transition-shadow">
-                        <div class="aspect-video bg-gray-100 flex items-center justify-center overflow-hidden">
-                            <img src="/uploads/@plantilla.RutaImagen" alt="@plantilla.Nombre" 
-                                 class="max-w-full max-h-full object-contain" 
-                                 onerror="this.src='/img/placeholder.jpg'" />
-                        </div>
-                        <div class="p-4">
-                            <h3 class="font-bold text-lg mb-2 text-gray-800">@plantilla.Nombre</h3>
-                            <div class="flex items-center gap-2 mb-3">
-                                <span class="text-sm text-gray-600">Estado:</span>
-                                <span class="px-2 py-1 rounded-sm text-xs font-semibold @(plantilla.Estado ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800")">
-                                    @(plantilla.Estado ? "Activa" : "Inactiva")
-                                </span>
-                            </div>
-                            <div class="flex gap-2">
-                                <a href="@Url.Action("Editor", new { id = plantilla.IdPlantilla })" 
-                                   class="flex-1 bg-primary hover:bg-[#075985] text-white text-center py-2 px-3 rounded-sm text-sm font-semibold">
-                                    <span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle">edit</span> Editar
+                    <tr class="hover:bg-slate-50">
+                        <td class="px-4 py-2 border-r border-slate-200 font-mono text-xs">#@item.IdPlantilla</td>
+                        <td class="px-4 py-2 border-r border-slate-200 font-medium text-slate-800">@item.Nombre</td>
+                        <td class="px-4 py-2 border-r border-slate-200">
+                            <img src="/uploads/@item.RutaImagen" alt="@item.Nombre" class="h-12 w-auto object-cover rounded-sm border border-slate-200" />
+                        </td>
+                        <td class="px-4 py-2 border-r border-slate-200">
+                            <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded-sm border @(item.Estado ? "bg-green-50 text-green-700 border-green-200" : "bg-red-50 text-red-700 border-red-200")">
+                                @(item.Estado ? "Activa" : "Inactiva")
+                            </span>
+                        </td>
+                        <td class="px-4 py-2 text-center">
+                            <div class="flex justify-center gap-2">
+                                <a href="@Url.Action("Editor", new { id = item.IdPlantilla })" 
+                                   class="px-3 py-1 bg-primary text-white text-xs font-bold rounded-sm hover:bg-sky-800 transition-none flex items-center gap-1"
+                                   title="Editar diseño">
+                                    <span class="material-symbols-outlined text-sm">edit</span> Editor
                                 </a>
-                                @if (User.IsInRole("Admin"))
-                                {
-                                    <form method="post" asp-action="CambiarEstado" asp-route-id="@plantilla.IdPlantilla" 
-                                          onsubmit="return confirm('¿Cambiar estado de esta plantilla?');" class="flex-1">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit" class="w-full @(plantilla.Estado ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600") text-white py-2 px-3 rounded-sm text-sm font-semibold">
-                                            @(plantilla.Estado ? "Desactivar" : "Activar")
-                                        </button>
-                                    </form>
-                                }
+                                <a href="@Url.Action("Previsualizar", new { id = item.IdPlantilla })" 
+                                   target="_blank"
+                                   class="px-3 py-1 bg-slate-600 text-white text-xs font-bold rounded-sm hover:bg-slate-800 transition-none flex items-center gap-1"
+                                   title="Vista previa">
+                                    <span class="material-symbols-outlined text-sm">visibility</span> Preview
+                                </a>
+                                <form method="post" action="@Url.Action("CambiarEstado")" class="inline-block">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@item.IdPlantilla" />
+                                    <button type="submit" 
+                                            onclick="return confirm('¿Cambiar el estado de esta plantilla?');"
+                                            class="px-3 py-1 text-xs font-bold rounded-sm border transition-none @(item.Estado ? "bg-red-50 text-red-700 border-red-200 hover:bg-red-100" : "bg-green-50 text-green-700 border-green-200 hover:bg-green-100")">
+                                        @(item.Estado ? "Desactivar" : "Activar")
+                                    </button>
+                                </form>
                             </div>
-                        </div>
-                    </div>
+                        </td>
+                    </tr>
                 }
-            </div>
-        }
-        else
+            </tbody>
+        </table>
+
+        @if (!Model.Any())
         {
-            <div class="text-center py-12">
-                <span class="material-symbols-outlined text-6xl text-slate-300 mb-4">image</span>
-                <p class="text-slate-500 text-lg">No hay plantillas disponibles</p>
-                @if (User.IsInRole("Admin"))
-                {
-                    <button type="button" onclick="document.getElementById('modalCrearPlantilla').classList.remove('hidden')"
-                            class="mt-4 bg-primary hover:bg-[#075985] text-white font-semibold px-6 py-2 rounded-sm">
-                        Crear primera plantilla
-                    </button>
-                }
+            <div class="p-8 text-center text-slate-500">
+                <span class="material-symbols-outlined text-4xl mb-2 block">inbox</span>
+                <p class="text-sm">No hay plantillas registradas</p>
+                <a href="@Url.Action("Create")" class="text-primary hover:underline text-xs font-bold mt-2 inline-block">
+                    Crear la primera plantilla
+                </a>
             </div>
         }
     </div>
 </div>
-
-@if (User.IsInRole("Admin"))
-{
-    @* Tailwind Modal — Nueva Plantilla *@
-    <div id="modalCrearPlantilla" class="hidden fixed inset-0 z-50 flex items-center justify-center">
-        <div class="absolute inset-0 bg-slate-900/50" onclick="document.getElementById('modalCrearPlantilla').classList.add('hidden')"></div>
-        <div class="relative bg-white border border-slate-300 shadow-xl w-full max-w-md rounded-sm">
-            <div class="flex items-center justify-between px-5 py-3 border-b border-slate-200 bg-slate-50">
-                <h5 class="text-sm font-bold text-slate-800 uppercase tracking-wide">Nueva Plantilla</h5>
-                <button type="button" onclick="document.getElementById('modalCrearPlantilla').classList.add('hidden')"
-                        class="text-slate-400 hover:text-slate-700 text-lg font-bold leading-none">&times;</button>
-            </div>
-            <form id="formCrearPlantilla" enctype="multipart/form-data">
-                @Html.AntiForgeryToken()
-                <div class="px-5 py-4 space-y-4">
-                    <div>
-                        <label for="nombre" class="block text-xs font-bold text-slate-600 uppercase mb-1">Nombre de la Plantilla</label>
-                        <input type="text" id="nombre" name="nombre" required
-                               class="w-full px-3 py-2 text-sm border border-slate-300 rounded-sm bg-white focus:border-primary focus:outline-none" />
-                    </div>
-                    <div>
-                        <label for="imagen" class="block text-xs font-bold text-slate-600 uppercase mb-1">Imagen de Fondo (JPG/PNG, máx 5MB)</label>
-                        <input type="file" id="imagen" name="imagen" accept=".jpg,.jpeg,.png" required
-                               class="w-full px-3 py-2 text-sm border border-slate-300 rounded-sm bg-white file:mr-3 file:py-1 file:px-3 file:border-0 file:bg-slate-100 file:text-xs file:font-bold file:text-slate-700 file:rounded-sm" />
-                    </div>
-                </div>
-                <div class="flex justify-end gap-2 px-5 py-3 border-t border-slate-200 bg-slate-50">
-                    <button type="button" onclick="document.getElementById('modalCrearPlantilla').classList.add('hidden')"
-                            class="px-4 py-2 text-xs font-bold text-slate-600 bg-white border border-slate-300 rounded-sm hover:bg-slate-100 uppercase">
-                        Cancelar
-                    </button>
-                    <button type="submit"
-                            class="px-4 py-2 text-xs font-bold text-white bg-primary border border-primary rounded-sm hover:bg-[#075985] uppercase">
-                        Crear Plantilla
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        document.getElementById('formCrearPlantilla')?.addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            const formData = new FormData(this);
-            const btn = this.querySelector('button[type="submit"]');
-            btn.disabled = true;
-            btn.textContent = 'CREANDO...';
-
-            try {
-                const response = await fetch('/Plantillas/Crear', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    location.reload();
-                } else {
-                    alert('Error: ' + (result.mensaje || 'No se pudo crear la plantilla'));
-                    btn.disabled = false;
-                    btn.textContent = 'CREAR PLANTILLA';
-                }
-            } catch (error) {
-                alert('Error al crear la plantilla');
-                btn.disabled = false;
-                btn.textContent = 'CREAR PLANTILLA';
-            }
-        });
-    </script>
-}

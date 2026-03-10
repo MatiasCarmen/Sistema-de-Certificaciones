@@ -4,8 +4,20 @@
 }
 
 <style>
-    #editor-canvas { position: relative; display: inline-block; background: #fff; }
-    #editor-canvas img { display: block; pointer-events: none; user-select: none; }
+    #editor-canvas { 
+        position: relative; 
+        display: inline-block; 
+        background: #fff;
+        margin: 0;
+        padding: 0;
+    }
+    #editor-canvas img { 
+        display: block; 
+        pointer-events: none; 
+        user-select: none;
+        margin: 0;
+        padding: 0;
+    }
     .layer-handle {
         position: absolute; cursor: move; z-index: 10;
         border: 2px solid transparent; padding: 2px 4px;
@@ -246,18 +258,23 @@
         selectLayer(layerId);
 
         const rect = canvas.getBoundingClientRect();
+        const scrollContainer = document.getElementById('canvasScroll');
+
         dragState = {
             layerId: layerId,
             startMouseX: e.clientX,
             startMouseY: e.clientY,
             startLeft: parseFloat(handle.style.left) || 0,
-            startTop: parseFloat(handle.style.top) || 0
+            startTop: parseFloat(handle.style.top) || 0,
+            canvasOffsetX: rect.left + scrollContainer.scrollLeft,
+            canvasOffsetY: rect.top + scrollContainer.scrollTop
         };
     });
 
     document.addEventListener('mousemove', function (e) {
         if (!dragState) return;
         e.preventDefault();
+
         const dx = e.clientX - dragState.startMouseX;
         const dy = e.clientY - dragState.startMouseY;
         const newLeft = Math.max(0, dragState.startLeft + dx);
@@ -338,12 +355,32 @@
     // --- Delete layer ---
     document.getElementById('btnDeleteLayer').addEventListener('click', function () {
         if (selectedId === null) return;
-        if (!confirm('¿Eliminar esta capa?')) return;
-        layers = layers.filter(l => l.id !== selectedId);
-        const el = canvas.querySelector(`[data-layer-id="${selectedId}"]`);
-        if (el) el.remove();
-        selectedId = null;
-        updateSelection();
+
+        Swal.fire({
+            title: '¿Eliminar capa?',
+            text: 'Esta acción no se puede deshacer',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#0369a1',
+            cancelButtonColor: '#94a3b8',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                layers = layers.filter(l => l.id !== selectedId);
+                const el = canvas.querySelector(`[data-layer-id="${selectedId}"]`);
+                if (el) el.remove();
+                selectedId = null;
+                updateSelection();
+                Swal.fire({
+                    title: 'Eliminada',
+                    text: 'La capa fue eliminada correctamente',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            }
+        });
     });
 
     // --- Duplicate layer ---
