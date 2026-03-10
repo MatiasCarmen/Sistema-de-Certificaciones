@@ -1,182 +1,492 @@
-@model Inkillay.Certificados.Web.Models.Entities.Plantilla
+@model EditorPlantillaViewModel
 @{
-    ViewData["Title"] = "Editor de Plantilla";
+    ViewData["Title"] = "Editor — " + Model.Plantilla.Nombre;
 }
 
-<div class="flex flex-col lg:flex-row gap-6">
-    <!-- Panel de Control -->
-    <div class="w-full lg:w-64 bg-white border border-slate-300 rounded-sm shadow-sm">
-        <div class="p-4 border-b border-slate-300 bg-slate-50">
-            <h4 class="text-xs font-bold text-slate-600 uppercase tracking-wider">Configuración de Texto</h4>
-        </div>
+<style>
+    #editor-canvas { position: relative; display: inline-block; background: #fff; }
+    #editor-canvas img { display: block; pointer-events: none; user-select: none; }
+    .layer-handle {
+        position: absolute; cursor: move; z-index: 10;
+        border: 2px solid transparent; padding: 2px 4px;
+        white-space: nowrap; user-select: none; line-height: 1;
+        transition: border-color 0.1s;
+    }
+    .layer-handle:hover { border-color: rgba(3,105,161,0.4); }
+    .layer-handle.selected { border-color: #0369a1; background: rgba(3,105,161,0.06); }
+    .layer-handle.principal .layer-text::after { content: " ★"; font-size: 10px; color: #0369a1; }
+    .panel-section { border-bottom: 1px solid #e2e8f0; padding: 12px; }
+    .panel-section:last-child { border-bottom: none; }
+    .panel-label { font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+    .panel-input {
+        width: 100%; padding: 4px 8px; font-size: 13px; border: 1px solid #cbd5e1;
+        background: #f8fafc; outline: none; font-family: inherit; border-radius: 1px;
+    }
+    .panel-input:focus { border-color: #0369a1; background: #fff; }
+    .layer-item {
+        display: flex; align-items: center; gap: 6px; padding: 6px 8px; cursor: pointer;
+        border: 1px solid transparent; font-size: 12px; transition: all 0.1s;
+    }
+    .layer-item:hover { background: #f1f5f9; }
+    .layer-item.active { background: #e0f2fe; border-color: #0369a1; font-weight: 700; }
+    .btn-tool {
+        padding: 4px 12px; font-size: 11px; font-weight: 700; border: 1px solid #cbd5e1;
+        background: #fff; cursor: pointer; text-transform: uppercase; letter-spacing: 0.03em;
+        border-radius: 1px;
+    }
+    .btn-tool:hover { background: #f1f5f9; border-color: #94a3b8; }
+    .btn-primary-tool { background: #0369a1; color: #fff; border-color: #0369a1; }
+    .btn-primary-tool:hover { background: #075985; }
+    .btn-danger-tool { color: #dc2626; border-color: #fca5a5; }
+    .btn-danger-tool:hover { background: #fef2f2; }
+</style>
 
-        <div class="p-4 space-y-4">
-            <div class="space-y-2">
-                <label class="block text-xs font-bold text-slate-600 uppercase">Tamaño (px)</label>
-                <input type="number" id="inputSize" value="@Model.FontSize"
-                       class="w-full px-3 py-2 border border-slate-300 rounded-sm text-sm focus:ring-1 focus:ring-blue-600 focus:border-blue-600">
-            </div>
-            <div class="space-y-2">
-                <label class="block text-xs font-bold text-slate-600 uppercase">Color</label>
-                <div class="flex gap-2">
-                    <input type="color" id="inputColor" value="@Model.FontColor" class="h-10 w-14 rounded-sm border border-slate-300">
-                    <input type="text" id="textColor" value="@Model.FontColor" class="flex-1 px-3 py-2 border border-slate-300 rounded-sm text-sm uppercase">
-                </div>
-            </div>
-        </div>
-
-        <div class="p-4 border-t border-slate-300">
-            <button id="btnGuardarTodo" class="w-full py-2 bg-blue-600 text-white text-xs font-bold uppercase rounded-sm hover:bg-blue-700">
-                Guardar Configuración
-            </button>
-        </div>
-        <form id="csrfEditor" class="hidden">
-            @Html.AntiForgeryToken()
-        </form>
+<div class="-m-8 flex flex-col h-[calc(100vh-64px)] bg-slate-100">
+    @* TOOLBAR *@
+    <div class="h-11 bg-white border-b border-slate-300 flex items-center px-3 gap-2 flex-shrink-0">
+        <a href="@Url.Action("Index")" class="btn-tool flex items-center gap-1">
+            <span class="material-symbols-outlined" style="font-size:14px">arrow_back</span> VOLVER
+        </a>
+        <div class="w-px h-6 bg-slate-300 mx-1"></div>
+        <span class="text-xs font-bold text-slate-500 uppercase tracking-wider truncate max-w-[200px]">@Model.Plantilla.Nombre</span>
+        <div class="flex-1"></div>
+        <span class="text-xs font-mono text-slate-400 mr-2">
+            X:<strong id="statusX" class="text-slate-700">0</strong>
+            Y:<strong id="statusY" class="text-slate-700">0</strong>
+            &nbsp;|&nbsp; Factor:<strong id="statusFactor" class="text-slate-700">1.00</strong>x
+        </span>
+        <button id="btnSave" class="btn-tool btn-primary-tool flex items-center gap-1">
+            <span class="material-symbols-outlined" style="font-size:14px">save</span> GUARDAR
+        </button>
+        <button id="btnPreview" class="btn-tool flex items-center gap-1">
+            <span class="material-symbols-outlined" style="font-size:14px">image</span> PNG
+        </button>
+        <button id="btnPdf" class="btn-tool flex items-center gap-1">
+            <span class="material-symbols-outlined" style="font-size:14px">picture_as_pdf</span> PDF TEST
+        </button>
     </div>
 
-    <!-- Área de Edición -->
-    <div class="flex-1">
-        <div class="bg-white border border-slate-300 rounded-sm shadow-sm p-4">
-            <div class="relative overflow-auto border border-slate-200" id="contenedorDiploma">
-                <img src="~/uploads/@Model.RutaImagen" id="imgDiploma" class="max-w-full h-auto" alt="@Model.Nombre">
-                <div id="nombreMovible"
-                     data-real-x="@Model.EjeX"
-                     data-real-y="@Model.EjeY"
-                     data-real-size="@Model.FontSize"
-                     style="left: 0px; top: 0px; font-size: 24px; color: @Model.FontColor;"
-                     class="absolute cursor-move font-bold whitespace-nowrap px-2 outline-dashed outline-2 outline-blue-600">
-                    NOMBRE DEL ALUMNO
+    <div class="flex flex-1 overflow-hidden">
+        @* LEFT PANEL *@
+        <div class="w-56 bg-white border-r border-slate-300 flex flex-col flex-shrink-0 overflow-y-auto">
+            @* Layers list *@
+            <div class="panel-section">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="panel-label mb-0">Capas</span>
+                    <button id="btnAddLayer" class="btn-tool text-[10px] px-2 py-1">+ AGREGAR</button>
+                </div>
+                <div id="layersList" class="space-y-1 max-h-48 overflow-y-auto"></div>
+            </div>
+
+            @* Properties *@
+            <div class="panel-section flex-1" id="propsPanel" style="display:none;">
+                <div class="panel-label mb-2">Propiedades</div>
+                <div class="space-y-3">
+                    <div>
+                        <label class="panel-label">Texto</label>
+                        <input type="text" id="propTexto" class="panel-input" placeholder="Texto de la capa" />
+                    </div>
+                    <div class="flex gap-2">
+                        <div class="flex-1">
+                            <label class="panel-label">Tamaño</label>
+                            <input type="number" id="propFontSize" class="panel-input" min="8" max="300" />
+                        </div>
+                        <div class="flex-1">
+                            <label class="panel-label">Color</label>
+                            <input type="color" id="propFontColor" class="panel-input p-0 h-[30px] cursor-pointer" />
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" id="propPrincipal" class="accent-[#0369a1]" />
+                        <label for="propPrincipal" class="text-xs text-slate-600">
+                            Capa principal <span class="text-[10px] text-slate-400">(nombre del alumno)</span>
+                        </label>
+                    </div>
+                    <div class="flex gap-2 pt-2 border-t border-slate-200">
+                        <button id="btnDuplicate" class="btn-tool flex-1 text-[10px]">DUPLICAR</button>
+                        <button id="btnDeleteLayer" class="btn-tool btn-danger-tool flex-1 text-[10px]">ELIMINAR</button>
+                    </div>
                 </div>
             </div>
-            <p class="text-xs text-slate-500 mt-2 text-center">Arrastra el texto para posicionarlo</p>
+
+            <div id="propsEmpty" class="panel-section flex-1 flex items-center justify-center text-xs text-slate-400 italic">
+                Selecciona una capa
+            </div>
+        </div>
+
+        @* CANVAS AREA *@
+        <div class="flex-1 overflow-auto bg-slate-500 p-8 flex justify-center items-start" id="canvasScroll">
+            <div id="editor-canvas" class="shadow-2xl">
+                <img id="canvasImg" src="/uploads/@Model.Plantilla.RutaImagen"
+                     alt="@Model.Plantilla.Nombre"
+                     onerror="this.parentElement.innerHTML='<div class=\'p-20 text-white text-center\'>Imagen no encontrada</div>'" />
+            </div>
         </div>
     </div>
 </div>
 
-@section Scripts {
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        (() => {
-            const $contenedor = $('#contenedorDiploma');
-            const $img = $('#imgDiploma');
-            const $movible = $('#nombreMovible');
-            const $inputSize = $('#inputSize');
-            const $inputColor = $('#inputColor');
-            const $textColor = $('#textColor');
-            const token = $('#csrfEditor input[name="__RequestVerificationToken"]').val();
+<form id="tokenForm" style="display:none">@Html.AntiForgeryToken()</form>
 
-            function applyFromRealToView() {
-                const img = $img[0];
-                if (!img.complete || img.naturalWidth === 0 || img.clientWidth === 0) return;
+<script>
+(function () {
+    'use strict';
 
-                const escalaXView = img.clientWidth / img.naturalWidth;
-                const escalaYView = img.clientHeight / img.naturalHeight;
+    // --- State ---
+    let layers = [];
+    let selectedId = null;
+    let nextId = 1;
+    let factor = 1;
 
-                const realX = parseInt($movible.data('real-x'), 10) || 0;
-                const realY = parseInt($movible.data('real-y'), 10) || 0;
-                const realSize = parseInt($movible.data('real-size'), 10) || 60;
+    const canvas = document.getElementById('editor-canvas');
+    const img = document.getElementById('canvasImg');
+    const layersList = document.getElementById('layersList');
+    const propsPanel = document.getElementById('propsPanel');
+    const propsEmpty = document.getElementById('propsEmpty');
 
-                $movible.css({
-                    left: Math.round(realX * escalaXView) + 'px',
-                    top: Math.round(realY * escalaYView) + 'px',
-                    fontSize: Math.max(8, Math.round(realSize * escalaXView)) + 'px'
-                });
+    // --- Factor calculation ---
+    function updateFactor() {
+        if (img.naturalWidth > 0 && img.clientWidth > 0) {
+            factor = img.naturalWidth / img.clientWidth;
+        } else {
+            factor = 1;
+        }
+        document.getElementById('statusFactor').textContent = factor.toFixed(2);
+    }
 
-                $inputSize.val(parseInt($movible.css('font-size'), 10));
-            }
+    // --- Layer DOM ---
+    function createLayerDom(layer) {
+        const el = document.createElement('div');
+        el.className = 'layer-handle' + (layer.esPrincipal ? ' principal' : '');
+        el.dataset.layerId = layer.id;
+        el.innerHTML = '<span class="layer-text" style="font-weight:bold;"></span>';
+        el.style.position = 'absolute';
+        canvas.appendChild(el);
+        applyLayerStyle(layer, el);
+        return el;
+    }
 
-            $inputSize.on('input', function() {
-                $movible.css('font-size', ($(this).val() || 1) + 'px');
-            });
+    function applyLayerStyle(layer, el) {
+        if (!el) el = canvas.querySelector(`[data-layer-id="${layer.id}"]`);
+        if (!el) return;
+        const span = el.querySelector('.layer-text');
+        const cssX = layer.x / factor;
+        const cssY = layer.y / factor;
+        const cssFontSize = Math.max(8, layer.fontSize / factor);
+        el.style.left = cssX + 'px';
+        el.style.top = cssY + 'px';
+        span.style.fontSize = cssFontSize + 'px';
+        span.style.color = layer.fontColor;
+        span.textContent = layer.esPrincipal ? 'NOMBRE ALUMNO' : (layer.texto || '(vacío)');
+        el.classList.toggle('principal', !!layer.esPrincipal);
+    }
 
-            $inputColor.on('input', function() {
-                const color = $(this).val();
-                $movible.css('color', color);
-                $textColor.val(color);
-            });
+    function renderAllLayers() {
+        canvas.querySelectorAll('.layer-handle').forEach(el => el.remove());
+        layers.forEach(l => createLayerDom(l));
+        updateSelection();
+    }
 
-            $textColor.on('input', function() {
-                let value = ($(this).val() || '').trim();
-                if (!value.startsWith('#')) value = '#' + value;
-                if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
-                    $inputColor.val(value);
-                    $movible.css('color', value);
+    // --- Layers list panel ---
+    function renderLayersList() {
+        layersList.innerHTML = '';
+        layers.forEach((l, i) => {
+            const item = document.createElement('div');
+            item.className = 'layer-item' + (l.id === selectedId ? ' active' : '');
+            item.innerHTML =
+                '<span class="material-symbols-outlined" style="font-size:14px;color:#94a3b8">' +
+                (l.esPrincipal ? 'star' : 'text_fields') + '</span>' +
+                '<span class="truncate flex-1">' + (l.esPrincipal ? '★ ' + (l.texto || 'Principal') : (l.texto || 'Capa ' + (i + 1))) + '</span>';
+            item.addEventListener('click', () => selectLayer(l.id));
+            layersList.appendChild(item);
+        });
+    }
+
+    // --- Selection ---
+    function selectLayer(id) {
+        selectedId = id;
+        updateSelection();
+    }
+
+    function updateSelection() {
+        // DOM highlight
+        canvas.querySelectorAll('.layer-handle').forEach(el => {
+            el.classList.toggle('selected', el.dataset.layerId == selectedId);
+        });
+        // List highlight
+        renderLayersList();
+        // Properties panel
+        const layer = layers.find(l => l.id === selectedId);
+        if (layer) {
+            propsPanel.style.display = '';
+            propsEmpty.style.display = 'none';
+            document.getElementById('propTexto').value = layer.texto;
+            document.getElementById('propFontSize').value = layer.fontSize;
+            document.getElementById('propFontColor').value = layer.fontColor;
+            document.getElementById('propPrincipal').checked = !!layer.esPrincipal;
+            // Update status bar
+            document.getElementById('statusX').textContent = Math.round(layer.x);
+            document.getElementById('statusY').textContent = Math.round(layer.y);
+        } else {
+            propsPanel.style.display = 'none';
+            propsEmpty.style.display = '';
+        }
+    }
+
+    // --- Drag system ---
+    let dragState = null;
+
+    canvas.addEventListener('mousedown', function (e) {
+        const handle = e.target.closest('.layer-handle');
+        if (!handle) {
+            selectLayer(null);
+            return;
+        }
+        e.preventDefault();
+        const layerId = parseInt(handle.dataset.layerId);
+        selectLayer(layerId);
+
+        const rect = canvas.getBoundingClientRect();
+        dragState = {
+            layerId: layerId,
+            startMouseX: e.clientX,
+            startMouseY: e.clientY,
+            startLeft: parseFloat(handle.style.left) || 0,
+            startTop: parseFloat(handle.style.top) || 0
+        };
+    });
+
+    document.addEventListener('mousemove', function (e) {
+        if (!dragState) return;
+        e.preventDefault();
+        const dx = e.clientX - dragState.startMouseX;
+        const dy = e.clientY - dragState.startMouseY;
+        const newLeft = Math.max(0, dragState.startLeft + dx);
+        const newTop = Math.max(0, dragState.startTop + dy);
+
+        const handle = canvas.querySelector(`[data-layer-id="${dragState.layerId}"]`);
+        if (handle) {
+            handle.style.left = newLeft + 'px';
+            handle.style.top = newTop + 'px';
+        }
+
+        const layer = layers.find(l => l.id === dragState.layerId);
+        if (layer) {
+            layer.x = Math.round(newLeft * factor);
+            layer.y = Math.round(newTop * factor);
+            document.getElementById('statusX').textContent = layer.x;
+            document.getElementById('statusY').textContent = layer.y;
+        }
+    });
+
+    document.addEventListener('mouseup', function () {
+        dragState = null;
+    });
+
+    // --- Property bindings ---
+    document.getElementById('propTexto').addEventListener('input', function () {
+        const layer = layers.find(l => l.id === selectedId);
+        if (!layer) return;
+        layer.texto = this.value;
+        applyLayerStyle(layer);
+        renderLayersList();
+    });
+
+    document.getElementById('propFontSize').addEventListener('input', function () {
+        const layer = layers.find(l => l.id === selectedId);
+        if (!layer) return;
+        layer.fontSize = parseInt(this.value) || 40;
+        applyLayerStyle(layer);
+    });
+
+    document.getElementById('propFontColor').addEventListener('input', function () {
+        const layer = layers.find(l => l.id === selectedId);
+        if (!layer) return;
+        layer.fontColor = this.value;
+        applyLayerStyle(layer);
+    });
+
+    document.getElementById('propPrincipal').addEventListener('change', function () {
+        const layer = layers.find(l => l.id === selectedId);
+        if (!layer) return;
+        // Uncheck all other principal layers
+        if (this.checked) {
+            layers.forEach(l => { l.esPrincipal = 0; });
+        }
+        layer.esPrincipal = this.checked ? 1 : 0;
+        renderAllLayers();
+        renderLayersList();
+    });
+
+    // --- Add layer ---
+    document.getElementById('btnAddLayer').addEventListener('click', function () {
+        const newLayer = {
+            id: nextId++,
+            texto: 'Texto nuevo',
+            x: 100,
+            y: 100,
+            fontSize: 40,
+            fontColor: '#000000',
+            esPrincipal: 0,
+            orden: layers.length
+        };
+        layers.push(newLayer);
+        createLayerDom(newLayer);
+        selectLayer(newLayer.id);
+        renderLayersList();
+    });
+
+    // --- Delete layer ---
+    document.getElementById('btnDeleteLayer').addEventListener('click', function () {
+        if (selectedId === null) return;
+        if (!confirm('¿Eliminar esta capa?')) return;
+        layers = layers.filter(l => l.id !== selectedId);
+        const el = canvas.querySelector(`[data-layer-id="${selectedId}"]`);
+        if (el) el.remove();
+        selectedId = null;
+        updateSelection();
+    });
+
+    // --- Duplicate layer ---
+    document.getElementById('btnDuplicate').addEventListener('click', function () {
+        const src = layers.find(l => l.id === selectedId);
+        if (!src) return;
+        const dup = { ...src, id: nextId++, x: src.x + 30, y: src.y + 30, esPrincipal: 0, orden: layers.length };
+        layers.push(dup);
+        createLayerDom(dup);
+        selectLayer(dup.id);
+        renderLayersList();
+    });
+
+    // --- SAVE ---
+    document.getElementById('btnSave').addEventListener('click', function () {
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:14px">hourglass_top</span> GUARDANDO...';
+
+        // Build payload with PascalCase for C# deserialization
+        const payload = layers.map((l, i) => ({
+            Texto: l.texto,
+            X: Math.round(l.x),
+            Y: Math.round(l.y),
+            FontSize: l.fontSize,
+            FontColor: l.fontColor,
+            EsPrincipal: l.esPrincipal,
+            Orden: i
+        }));
+
+        const token = document.querySelector('#tokenForm input[name="__RequestVerificationToken"]').value;
+        const formData = new URLSearchParams();
+        formData.append('id', '@Model.Plantilla.IdPlantilla');
+        formData.append('json', JSON.stringify(payload));
+        formData.append('__RequestVerificationToken', token);
+
+        fetch('/Plantillas/GuardarTodo', { method: 'POST', body: formData })
+            .then(r => r.json())
+            .then(res => {
+                if (res.success) {
+                    showToast('Diseño guardado correctamente', 'success');
+                } else {
+                    showToast('Error: ' + (res.mensaje || 'No se pudo guardar'), 'error');
                 }
+            })
+            .catch(() => showToast('Error de conexión', 'error'))
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:14px">save</span> GUARDAR';
             });
+    });
 
-            let dragging = false;
-            let startOffsetX = 0;
-            let startOffsetY = 0;
+    // --- Preview PNG ---
+    document.getElementById('btnPreview').addEventListener('click', function () {
+        window.open('/Plantillas/Previsualizar?id=@Model.Plantilla.IdPlantilla&t=' + Date.now(), '_blank');
+    });
 
-            $movible.on('mousedown', function(e) {
-                const pos = $movible.position();
-                dragging = true;
-                startOffsetX = e.pageX - pos.left;
-                startOffsetY = e.pageY - pos.top;
-                e.preventDefault();
+    // --- PDF Test ---
+    document.getElementById('btnPdf').addEventListener('click', function () {
+        window.open('/Emision/DescargarPdf?idMatricula=1', '_blank');
+    });
+
+    // --- Toast notification ---
+    function showToast(msg, type) {
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-4 right-4 z-50 px-4 py-2 text-sm font-bold shadow-lg border';
+        toast.style.borderRadius = '1px';
+        if (type === 'success') {
+            toast.classList.add('bg-green-50', 'text-green-800', 'border-green-300');
+        } else {
+            toast.classList.add('bg-red-50', 'text-red-800', 'border-red-300');
+        }
+        toast.textContent = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    // --- Initialize ---
+    img.addEventListener('load', function () {
+        updateFactor();
+        renderAllLayers();
+        renderLayersList();
+    });
+
+    // Load initial layers from server
+    const initialData = @Html.Raw(Json.Serialize(Model.Detalles));
+    if (initialData && initialData.length > 0) {
+        initialData.forEach(function (d) {
+            layers.push({
+                id: nextId++,
+                texto: d.texto || '',
+                x: d.x || 0,
+                y: d.y || 0,
+                fontSize: d.fontSize || 40,
+                fontColor: d.fontColor || '#000000',
+                esPrincipal: d.esPrincipal || 0,
+                orden: d.orden || 0
             });
+        });
+    }
 
-            $(document).on('mousemove', function(e) {
-                if (!dragging) return;
+    // If image is cached and already loaded
+    if (img.complete && img.naturalWidth > 0) {
+        updateFactor();
+        renderAllLayers();
+        renderLayersList();
+    }
 
-                const containerOffset = $contenedor.offset();
-                const maxX = $img.width() - $movible.outerWidth();
-                const maxY = $img.height() - $movible.outerHeight();
+    // Toast notification helper
+    function showToast(message, type = 'success') {
+        const bgColor = type === 'success' ? '#10b981' : '#ef4444';
+        const icon = type === 'success' ? 'check_circle' : 'error';
 
-                let x = Math.round(e.pageX - containerOffset.left - startOffsetX);
-                let y = Math.round(e.pageY - containerOffset.top - startOffsetY);
+        const toast = document.createElement('div');
+        toast.style.cssText = `
+            position: fixed; top: 20px; right: 20px; z-index: 9999;
+            background: ${bgColor}; color: white; padding: 12px 20px;
+            border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex; align-items: center; gap: 8px;
+            font-size: 14px; font-weight: 500;
+            animation: slideIn 0.3s ease-out;
+        `;
+        toast.innerHTML = `
+            <span class="material-symbols-outlined" style="font-size:20px">${icon}</span>
+            <span>${message}</span>
+        `;
 
-                x = Math.max(0, Math.min(maxX, x));
-                y = Math.max(0, Math.min(maxY, y));
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.style.animation = 'slideOut 0.3s ease-in';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
 
-                $movible.css({ left: x + 'px', top: y + 'px' });
-            });
-
-            $(document).on('mouseup', function() {
-                dragging = false;
-            });
-
-            $('#btnGuardarTodo').click(function() {
-                const img = document.getElementById('imgDiploma');
-                const nombre = $('#nombreMovible');
-
-                // Calculamos la proporcion: Tamano Real / Tamano en Pantalla
-                const escalaX = img.naturalWidth / img.clientWidth;
-                const escalaY = img.naturalHeight / img.clientHeight;
-
-                const pos = nombre.position();
-
-                const data = {
-                    id: @Model.IdPlantilla,
-                    // Traducimos coordenadas de pantalla a pixeles reales de la imagen
-                    x: Math.round(pos.left * escalaX),
-                    y: Math.round(pos.top * escalaY),
-                    // Escalamos tambien el tamano de la letra
-                    fontSize: Math.round((parseInt($('#inputSize').val(), 10) || 60) * escalaX),
-                    fontColor: $('#inputColor').val(),
-                    __RequestVerificationToken: token
-                };
-
-                $.post('/Plantillas/ActualizarDiseno', data, function(res) {
-                    if (res.success) {
-                        Swal.fire({ title: '✓ Éxito', text: 'Diseño guardado correctamente', icon: 'success', confirmButtonColor: '#0369a1' });
-                    } else {
-                        Swal.fire({ title: 'Error', text: 'Error al guardar el diseño.', icon: 'error', confirmButtonColor: '#0369a1' });
-                    }
-                }).fail(function() {
-                    Swal.fire({ title: 'Error', text: 'Error al guardar el diseño.', icon: 'error', confirmButtonColor: '#0369a1' });
-                });
-            });
-
-            if ($img[0].complete) {
-                applyFromRealToView();
-            } else {
-                $img.on('load', applyFromRealToView);
-            }
-
-            $(window).on('resize', applyFromRealToView);
-        })();
-    </script>
-}
+    // Add CSS animations
+    if (!document.getElementById('toast-animations')) {
+        const style = document.createElement('style');
+        style.id = 'toast-animations';
+        style.textContent = `
+            @@keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+            @@keyframes slideOut { from { transform: translateX(0); opacity: 1; } to { transform: translateX(400px); opacity: 0; } }
+        `;
+        document.head.appendChild(style);
+    }
+})();
+</script>

@@ -39,9 +39,9 @@ builder.Services.AddRateLimiter(options =>
 {
     options.AddFixedWindowLimiter("login-policy", opt =>
     {
-        opt.Window = TimeSpan.FromMinutes(5);  // Ventana de 5 minutos
-        opt.PermitLimit = 5;                   // Máximo 5 intentos
-        opt.QueueLimit = 0;                    // No encolar, rechazar de inmediato
+        opt.Window = TimeSpan.FromMinutes(5); 
+        opt.PermitLimit = 5;                   
+        opt.QueueLimit = 0;                   
         opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
     });
 

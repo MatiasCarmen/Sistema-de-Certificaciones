@@ -90,6 +90,8 @@ public class EmisionController : Controller
         int generados = 0;
         int omitidos = 0;
 
+        var detalles = (await _seguridadRepository.ListarDetallesPlantillaAsync(idPlantilla)).ToList();
+
         foreach (var alumno in alumnos)
         {
             if (!(alumno.Aprobado && alumno.TotalPagado >= curso.Costo))
@@ -98,14 +100,26 @@ public class EmisionController : Controller
                 continue;
             }
 
-            var bytes = _certificadoService.GenerarImagenCertificado(
-                plantilla.RutaImagen,
-                alumno.NombreAlumno,
-                plantilla.EjeX,
-                plantilla.EjeY,
-                plantilla.FontSize,
-                plantilla.FontColor
-            );
+            byte[] bytes;
+            if (detalles.Count > 0)
+            {
+                bytes = _certificadoService.GenerarImagenCertificadoMulticapa(
+                    plantilla.RutaImagen,
+                    alumno.NombreAlumno,
+                    detalles
+                );
+            }
+            else
+            {
+                bytes = _certificadoService.GenerarImagenCertificado(
+                    plantilla.RutaImagen,
+                    alumno.NombreAlumno,
+                    plantilla.EjeX,
+                    plantilla.EjeY,
+                    plantilla.FontSize,
+                    plantilla.FontColor
+                );
+            }
 
             var nombreArchivo = $"{alumno.IdAlumno}_{SanitizeFileName(alumno.NombreAlumno)}.jpg";
             var rutaSalida = Path.Combine(carpetaSalida, nombreArchivo);
@@ -155,7 +169,7 @@ public class EmisionController : Controller
 
         // 2. Validar reglas de negocio (Pagado y Aprobado)
         if (!matricula.Aprobado || matricula.TotalPagado < matricula.CostoCurso)
-            return Forbid("El alumno no cumple con los requisitos para descargar el certificado");
+            return BadRequest("El alumno no cumple con los requisitos para descargar el certificado (debe estar aprobado y haber pagado el costo completo)");
 
         try
         {
@@ -165,15 +179,29 @@ public class EmisionController : Controller
             if (plantilla == null)
                 return NotFound("No hay plantillas disponibles");
 
-            // 4. Generar la imagen del certificado con SkiaSharp
-            byte[] imagenCertificado = _certificadoService.GenerarImagenCertificado(
-                plantilla.RutaImagen,
-                matricula.NombreAlumno,
-                plantilla.EjeX,
-                plantilla.EjeY,
-                plantilla.FontSize,
-                plantilla.FontColor
-            );
+            // 4. Generar la imagen del certificado
+            var detalles = (await _seguridadRepository.ListarDetallesPlantillaAsync(plantilla.IdPlantilla)).ToList();
+            byte[] imagenCertificado;
+
+            if (detalles.Count > 0)
+            {
+                imagenCertificado = _certificadoService.GenerarImagenCertificadoMulticapa(
+                    plantilla.RutaImagen,
+                    matricula.NombreAlumno,
+                    detalles
+                );
+            }
+            else
+            {
+                imagenCertificado = _certificadoService.GenerarImagenCertificado(
+                    plantilla.RutaImagen,
+                    matricula.NombreAlumno,
+                    plantilla.EjeX,
+                    plantilla.EjeY,
+                    plantilla.FontSize,
+                    plantilla.FontColor
+                );
+            }
 
             // 5. Convertir imagen a PDF
             byte[] pdfBytes = _certificadoService.GenerarPdfDesdeImagen(imagenCertificado);

@@ -1,9 +1,10 @@
 using Inkillay.Certificados.Web.Data.Repositories;
 using Inkillay.Certificados.Web.Models.Entities;
+using Inkillay.Certificados.Web.Models.ViewModels;
 using Inkillay.Certificados.Web.Services;
-using Inkillay.Certificados.Web.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace Inkillay.Certificados.Web.Controllers;
 
@@ -39,7 +40,31 @@ public class PlantillasController : Controller
         var plantillas = await _seguridadRepository.ListarPlantillasAsync();
         var plantilla = plantillas.FirstOrDefault(p => p.IdPlantilla == id);
         if (plantilla == null) return NotFound();
-        return View(plantilla);
+
+        var detalles = (await _seguridadRepository.ListarDetallesPlantillaAsync(id)).ToList();
+
+        // Backward compatibility: if no detalles exist but plantilla has coordinates, create a virtual layer
+        if (detalles.Count == 0 && (plantilla.EjeX > 0 || plantilla.EjeY > 0))
+        {
+            detalles.Add(new PlantillaDetalleDTO
+            {
+                Texto = "NOMBRE ALUMNO",
+                X = plantilla.EjeX,
+                Y = plantilla.EjeY,
+                FontSize = plantilla.FontSize,
+                FontColor = plantilla.FontColor,
+                EsPrincipal = 1,
+                Orden = 0
+            });
+        }
+
+        var vm = new EditorPlantillaViewModel
+        {
+            Plantilla = plantilla,
+            Detalles = detalles
+        };
+
+        return View(vm);
     }
 
     [HttpGet]
@@ -47,19 +72,45 @@ public class PlantillasController : Controller
     {
         var plantillas = await _seguridadRepository.ListarPlantillasAsync();
         var plantilla = plantillas.FirstOrDefault(p => p.IdPlantilla == id);
-
         if (plantilla == null) return NotFound();
 
-        var imagenBytes = _certificadoService.GenerarImagenCertificado(
-            plantilla.RutaImagen,
-            "MATIAS ADMINISTRADOR",
-            plantilla.EjeX,
-            plantilla.EjeY,
-            plantilla.FontSize,
-            plantilla.FontColor
-        );
+        try
+        {
+            var detalles = (await _seguridadRepository.ListarDetallesPlantillaAsync(id)).ToList();
+            byte[] imagenBytes;
 
-        return File(imagenBytes, "image/jpeg");
+            if (detalles.Count > 0)
+            {
+                imagenBytes = _certificadoService.GenerarImagenCertificadoMulticapa(
+                    plantilla.RutaImagen,
+                    "NOMBRE DE PRUEBA",
+                    detalles
+                );
+            }
+            else
+            {
+                imagenBytes = _certificadoService.GenerarImagenCertificado(
+                    plantilla.RutaImagen,
+                    "NOMBRE DE PRUEBA",
+                    plantilla.EjeX,
+                    plantilla.EjeY,
+                    plantilla.FontSize,
+                    plantilla.FontColor
+                );
+            }
+
+            return File(imagenBytes, "image/jpeg");
+        }
+        catch (FileNotFoundException ex)
+        {
+            _logger.LogWarning(ex, "Plantilla no encontrada en uploads. IdPlantilla={IdPlantilla}", plantilla.IdPlantilla);
+            return NotFound("Plantilla no encontrada en uploads.");
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogWarning(ex, "Intento de acceso a ruta no permitida. IdPlantilla={IdPlantilla}", plantilla.IdPlantilla);
+            return BadRequest("Ruta de plantilla invalida.");
+        }
     }
 
     [Authorize(Roles = "Admin")]
@@ -67,19 +118,19 @@ public class PlantillasController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Crear(string nombre, IFormFile imagen)
     {
-        // 1. Validación integral del archivo usando FileValidationHelper
-        var (isValid, errorMessage) = FileValidationHelper.ValidateImageFile(imagen);
-        if (!isValid)
-        {
-            _logger.LogWarning("Intento de subida de archivo inválido: {error}", errorMessage);
-            return Json(new { success = false, mensaje = errorMessage });
-        }
+        if (imagen == null || imagen.Length == 0)
+            return Json(new { success = false, mensaje = "Debes subir una imagen" });
+
+        var extension = Path.GetExtension(imagen.FileName).ToLowerInvariant();
+        var extensionesPermitidas = new[] { ".jpg", ".jpeg", ".png" };
+        if (!extensionesPermitidas.Contains(extension))
+            return Json(new { success = false, mensaje = "Solo se permiten JPG o PNG" });
+
+        if (imagen.Length > 5 * 1024 * 1024)
+            return Json(new { success = false, mensaje = "La imagen es muy pesada (max 5MB)" });
 
         if (string.IsNullOrWhiteSpace(nombre))
-        {
-            _logger.LogWarning("Intento de crear plantilla sin nombre");
             return Json(new { success = false, mensaje = "Datos incompletos" });
-        }
 
         try
         {
@@ -89,18 +140,8 @@ public class PlantillasController : Controller
                 Directory.CreateDirectory(carpeta);
             }
 
-            string extension = Path.GetExtension(imagen.FileName).ToLowerInvariant();
             string nombreArchivo = $"{Guid.NewGuid()}{extension}";
             string ruta = Path.Combine(carpeta, nombreArchivo);
-
-            // 2. Garantizar que la ruta no escape del directorio permitido (defensa en profundidad)
-            var rutaCompleta = Path.GetFullPath(ruta);
-            var carpetaCompleta = Path.GetFullPath(carpeta);
-            if (!rutaCompleta.StartsWith(carpetaCompleta, StringComparison.OrdinalIgnoreCase))
-            {
-                _logger.LogError("Intento de path traversal detectado al crear plantilla");
-                return Json(new { success = false, mensaje = "Error de validación de ruta" });
-            }
 
             await using (var stream = new FileStream(ruta, FileMode.Create))
             {
@@ -114,22 +155,13 @@ public class PlantillasController : Controller
             };
 
             await _seguridadRepository.InsertarPlantillaAsync(plantilla);
-            _logger.LogInformation("Plantilla '{nombre}' creada exitosamente por {usuario}", nombre, User.Identity?.Name ?? "Sistema");
             return Json(new { success = true });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al subir plantilla: {nombre}", nombre);
+            _logger.LogError(ex, "Error al subir plantilla");
             return Json(new { success = false, mensaje = "Error interno del servidor" });
         }
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> GuardarEjes(int id, int x, int y)
-    {
-        var filas = await _seguridadRepository.ActualizarCoordenadasAsync(id, x, y);
-        return Json(new { success = filas > 0 });
     }
 
     [HttpPost]
@@ -141,10 +173,70 @@ public class PlantillasController : Controller
     }
 
     [HttpPost]
+    public async Task<IActionResult> GuardarDiseno([FromBody] GuardarDisenoRequest request)
+    {
+        if (request == null || request.id <= 0)
+            return Json(new { success = false, mensaje = "Datos inválidos" });
+
+        try
+        {
+            var filas = await _seguridadRepository.ActualizarDisenoPlantillaAsync(
+                request.id,
+                int.Parse(request.ejeX.ToString()),
+                int.Parse(request.ejeY.ToString()),
+                int.Parse(request.fontSize.ToString()),
+                request.fontColor
+            );
+
+            if (filas > 0)
+            {
+                _logger.LogInformation("Diseño de plantilla actualizado. IdPlantilla={IdPlantilla}", request.id);
+                return Json(new { success = true, mensaje = "Diseño actualizado correctamente" });
+            }
+
+            return Json(new { success = false, mensaje = "No se pudieron guardar los cambios" });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error guardando diseño. IdPlantilla={IdPlantilla}", request.id);
+            return Json(new { success = false, mensaje = "Error al guardar: " + ex.Message });
+        }
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> GuardarTodo(int id, string json)
+    {
+        try
+        {
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var detalles = JsonSerializer.Deserialize<List<PlantillaDetalleDTO>>(json, options) ?? new List<PlantillaDetalleDTO>();
+            var ok = await _seguridadRepository.GuardarDisenoCompletoAsync(id, detalles);
+            return Json(new { success = ok });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error guardando diseno completo. IdPlantilla={IdPlantilla}", id);
+            return Json(new { success = false, mensaje = "Error interno del servidor" });
+        }
+    }
+
+    [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> CambiarEstado(int id)
     {
         var filas = await _seguridadRepository.CambiarEstadoPlantillaAsync(id);
         return Json(new { success = filas > 0 });
     }
+}
+
+public class GuardarDisenoRequest
+{
+    public int id { get; set; }
+    public int ejeX { get; set; }
+    public int ejeY { get; set; }
+    public int fontSize { get; set; }
+    public string fontColor { get; set; } = "#000000";
+    public bool estado { get; set; }
 }

@@ -38,7 +38,15 @@ public class DocentesController : Controller
     {
         var cursos = await _cursoRepository.ListarCursosActivosAsync();
         var usuarios = await _seguridadRepository.ListarUsuariosAsync();
-        var alumnos = usuarios.Where(u => u.IdRol == 3 || u.NombreRol.Contains("Alumno", StringComparison.OrdinalIgnoreCase)).ToList();
+        var alumnos = usuarios
+            .Where(u => u.IdRol == 3)
+            .Select(u => new UsuarioViewModel
+            {
+                IdUsuario = u.IdUsuario,
+                Nombre = u.Nombre,
+                Correo = u.Correo
+            })
+            .ToList();
 
         var vm = new MatricularViewModel
         {
