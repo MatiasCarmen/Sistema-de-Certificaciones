@@ -167,9 +167,12 @@ public class EmisionController : Controller
         if (matricula == null)
             return NotFound("Matrícula no encontrada.");
 
-        // 2. Validar reglas de negocio (Pagado y Aprobado)
-        if (!matricula.Aprobado || matricula.TotalPagado < matricula.CostoCurso)
+        // 2. Validar reglas de negocio (Pagado y Aprobado) - BYPASS para Administradores
+        var esAdmin = User.IsInRole("Admin");
+        if (!esAdmin && (!matricula.Aprobado || matricula.TotalPagado < matricula.CostoCurso))
+        {
             return BadRequest("El alumno no cumple con los requisitos para descargar el certificado (debe estar aprobado y haber pagado el costo completo)");
+        }
 
         try
         {
