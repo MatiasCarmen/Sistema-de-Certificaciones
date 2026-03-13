@@ -12,6 +12,7 @@ public interface IMatriculaRepository
     /// </summary>
     /// <param name="idAlumno">ID del alumno</param>
     /// <param name="idCurso">ID del curso</param>
+    /// <param name="modalidad">Modalidad de la matrícula</param>
     /// <param name="usuarioRegistro">Usuario que registra (para auditoría)</param>
-    Task<bool> RegistrarMatriculaAsync(int idAlumno, int idCurso, string usuarioRegistro = "Sistema");
+    Task<bool> RegistrarMatriculaAsync(int idAlumno, int idCurso, char modalidad, string usuarioRegistro = "Sistema");
 }

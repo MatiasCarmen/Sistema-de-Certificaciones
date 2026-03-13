@@ -2,7 +2,9 @@ using Xunit;
 using FluentAssertions;
 using Inkillay.Certificados.Web.Data.Repositories;
 using Inkillay.Certificados.Web.Models.Entities;
+using Inkillay.Certificados.Web.Data;
 using Inkillay.Certificados.Web.Services;
+using Microsoft.Extensions.Configuration;
 using Moq;
 
 namespace Inkillay.Certificados.Tests;
@@ -148,5 +150,36 @@ public class UsuariosManagementTests
         verificacion1.Should().BeTrue();
         verificacion2.Should().BeTrue();
         verificacionIncorrecto.Should().BeFalse("Una contraseña incorrecta no debe verificar");
+    }
+
+    [Fact]
+    public async Task RegistrarUsuario_DeberiaRetornarTrue()
+    {
+        // Configuracion (usa tus datos reales de conexion)
+        var basePath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "Inkillay.Certificados.Web"));
+        var config = new ConfigurationBuilder()
+            .SetBasePath(basePath)
+            .AddJsonFile("appsettings.json", optional: true)
+            .AddJsonFile("appsettings.Development.json", optional: true)
+            .AddEnvironmentVariables()
+            .Build();
+
+        var repo = new SeguridadRepository(new DbConnectionFactory(config));
+        var correo = $"test_{Guid.NewGuid():N}@test.com";
+
+        var nuevo = new Usuarios
+        {
+            Nombre = "Test Error",
+            Correo = correo,
+            Clave = HashHelper.HashPassword("123456"),
+            IdRol = 3, // Alumno
+            Estado = 'A',
+            UsuarioRegistro = "Matias Test",
+            FechaRegistro = DateTime.Now
+        };
+
+        var resultado = await repo.RegistrarUsuarioAsync(nuevo);
+
+        resultado.Should().BeTrue();
     }
 }

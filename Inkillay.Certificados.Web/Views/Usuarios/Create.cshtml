@@ -26,12 +26,23 @@
 
             <div class="space-y-2">
                 <label asp-for="IdRol" class="block text-xs font-bold text-slate-600 uppercase tracking-wider">Rol</label>
-                <select asp-for="IdRol" class="w-full px-3 py-2 border border-slate-300 rounded-sm text-sm focus:ring-1 focus:ring-primary focus:border-primary" required>
-                    <option value="">-- Seleccionar Rol --</option>
-                    <option value="1">Admin</option>
-                    <option value="2">Docente</option>
-                    <option value="3">Alumno</option>
-                </select>
+                @if (User.IsInRole("Docente"))
+                {
+                    <input type="hidden" name="IdRol" value="3" />
+                    <select class="w-full px-3 py-2 border border-slate-300 rounded-sm text-sm bg-slate-100 cursor-not-allowed" disabled>
+                        <option value="3" selected>Alumno</option>
+                    </select>
+                    <p class="text-[10px] text-slate-400 italic">Como docente, solo puedes registrar nuevos alumnos.</p>
+                }
+                else
+                {
+                    <select asp-for="IdRol" class="w-full px-3 py-2 border border-slate-300 rounded-sm text-sm focus:ring-1 focus:ring-primary focus:border-primary" required>
+                        <option value="">-- Seleccionar Rol --</option>
+                        <option value="1">Admin</option>
+                        <option value="2">Docente</option>
+                        <option value="3">Alumno</option>
+                    </select>
+                }
                 <span asp-validation-for="IdRol" class="text-red-600 text-xs"></span>
             </div>
 
@@ -79,7 +90,11 @@
                         icon: 'success',
                         confirmButtonColor: '#0369a1'
                     });
-                    window.location.href = '@Url.Action("Index")';
+                    if (data.redirectUrl) {
+                        window.location.href = data.redirectUrl;
+                    } else {
+                        window.location.href = '@Url.Action("Index")';
+                    }
                 } else {
                     Swal.fire({
                         title: 'Error',

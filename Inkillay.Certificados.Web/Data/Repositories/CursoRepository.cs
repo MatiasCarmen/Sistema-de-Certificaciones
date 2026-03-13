@@ -51,4 +51,24 @@ public class CursoRepository : ICursoRepository
             commandType: CommandType.StoredProcedure
         );
     }
+
+    public async Task<int> RegistrarCursoAsync(Curso curso)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        return await connection.ExecuteScalarAsync<int>(
+            "USP_Cursos_Registrar",
+            new
+            {
+                curso.Nombre,
+                curso.Sumilla,
+                curso.Costo,
+                curso.FechaInicio,
+                curso.FechaFin,
+                curso.IdProfesor,
+                curso.Imagen,
+                curso.UsuarioRegistro
+            },
+            commandType: CommandType.StoredProcedure
+        );
+    }
 }

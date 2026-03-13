@@ -81,25 +81,27 @@ public class SeguridadRepository : ISeguridadRepository
     public async Task<bool> RegistrarUsuarioAsync(Usuarios usuario)
     {
         using var connection = _connectionFactory.CreateConnection();
-        var resultado = await connection.ExecuteAsync(
+        var id = await connection.ExecuteScalarAsync<object>(
             "USP_Usuarios_Registrar",
             new
             {
-                usuario.Nombre,
-                usuario.Correo,
-                usuario.Clave,
-                usuario.IdRol
+                Nombre = usuario.Nombre,
+                Correo = usuario.Correo,
+                Clave = usuario.Clave,
+                IdRol = usuario.IdRol,
+                UsuarioRegistro = usuario.UsuarioRegistro
             },
             commandType: CommandType.StoredProcedure
         );
 
-        return resultado > 0;
+
+        return id != null && int.TryParse(id.ToString(), out var idNuevo) && idNuevo > 0;
     }
 
     public async Task<int> CambiarEstadoUsuarioAsync(int id, bool estado)
     {
         using var connection = _connectionFactory.CreateConnection();
-        // ⚠️ MIGRACIÓN: Convertir bool a char ('A' o 'I') para el nuevo estándar
+
         char estadoChar = estado ? 'A' : 'I';
         return await connection.ExecuteAsync(
             "USP_Usuarios_CambiarEstado",
@@ -188,7 +190,7 @@ public class SeguridadRepository : ISeguridadRepository
             commandType: CommandType.StoredProcedure
         );
 
-        // If no exception was thrown, the SP committed successfully
+
         return true;
     }
 

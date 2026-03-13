@@ -7,10 +7,16 @@
     <!-- Header con botón Matricular -->
     <div class="flex justify-between items-center">
         <div></div>
-        <a href="@Url.Action("Matricular")"
-           class="px-4 py-2 bg-primary text-white text-xs font-bold rounded-sm hover:bg-sky-800 flex items-center gap-2">
-            <span class="material-symbols-outlined text-base">person_add</span> Matricular Alumno
-        </a>
+        <div class="flex items-center gap-2">
+            <a href="@Url.Action("Create", "Usuarios")"
+               class="px-4 py-2 bg-primary text-white text-xs font-bold uppercase rounded-sm flex items-center gap-2">
+                <span class="material-symbols-outlined text-base">person_add</span> Registrar Nuevo Alumno
+            </a>
+            <a href="@Url.Action("Matricular")"
+               class="px-4 py-2 bg-slate-800 text-white text-xs font-bold uppercase rounded-sm hover:bg-black flex items-center gap-2">
+                <span class="material-symbols-outlined text-base">assignment</span> Matricular Alumno
+            </a>
+        </div>
     </div>
 
     <!-- KPIs -->

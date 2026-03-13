@@ -28,22 +28,20 @@ public class PagosController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Registrar(int idMatricula, decimal monto, string referencia)
+    public async Task<IActionResult> Registrar(int idMatricula, decimal monto, string referencia, string formaPago, string tipoPago)
     {
+        var nombreUsuario = User.Identity?.Name ?? "Sistema";
         if (idMatricula <= 0 || monto <= 0 || string.IsNullOrWhiteSpace(referencia))
         {
             return Json(new { success = false, message = "Datos de pago invalidos." });
         }
 
-        // ✅ AUDITORÍA: Capturar usuario actual
-        var nombreUsuario = User.Identity?.Name ?? "Sistema";
-
         var ok = await _pagoRepository.RegistrarPagoAsync(
-            idMatricula, 
-            monto, 
+            idMatricula,
+            monto,
             referencia.Trim(),
-            formaPago: "Efectivo",  // Por defecto, puede parametrizarse en el futuro
-            tipoPago: "Contado",     // Por defecto, puede parametrizarse en el futuro
+            formaPago: "Efectivo",
+            tipoPago: "Contado",
             usuarioRegistro: nombreUsuario
         );
 
@@ -69,4 +67,3 @@ public class PagosController : Controller
         });
     }
 }
-

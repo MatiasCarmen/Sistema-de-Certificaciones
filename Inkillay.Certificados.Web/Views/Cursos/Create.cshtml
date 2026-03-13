@@ -1,0 +1,78 @@
+@model Inkillay.Certificados.Web.Models.Entities.Curso
+
+@{
+    ViewData["Title"] = "Crear Curso";
+}
+
+<div class="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-lg">
+    <h2 class="text-2xl font-bold text-slate-800 mb-6">Crear Nuevo Curso</h2>
+
+    <form asp-action="Create" method="post" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="col-span-2">
+            <label class="block text-sm font-medium text-gray-700">Nombre del Curso</label>
+            <input asp-for="Nombre" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-primary focus:border-primary" required />
+        </div>
+
+        <div class="col-span-2">
+            <label class="block text-sm font-medium text-gray-700">Sumilla / Descripción</label>
+            <textarea asp-for="Sumilla" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"></textarea>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Costo (S/.)</label>
+            <input asp-for="Costo" type="number" step="0.01" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700">URL de la Imagen</label>
+            <input asp-for="Imagen" id="imagenUrl" type="url" placeholder="https://..." class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
+        </div>
+
+        <div class="col-span-2">
+            <label class="block text-sm font-medium text-gray-700">Previsualizacion</label>
+            <div class="mt-2 border rounded-md p-3 bg-slate-50">
+                <img id="imagenPreview" src="" alt="Previsualizacion de imagen" class="max-h-64 w-full object-contain hidden" />
+                <p id="imagenPlaceholder" class="text-sm text-slate-500">Ingrese una URL valida para ver la imagen.</p>
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Fecha de Inicio</label>
+            <input asp-for="FechaInicio" type="date" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Fecha de Fin</label>
+            <input asp-for="FechaFin" type="date" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" />
+        </div>
+
+        <div class="col-span-2 flex justify-end gap-3 mt-4">
+            <a asp-action="Index" class="px-4 py-2 border rounded-md text-gray-600 hover:bg-gray-50">Cancelar</a>
+            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Guardar Curso</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    (function () {
+        var input = document.getElementById('imagenUrl');
+        var img = document.getElementById('imagenPreview');
+        var placeholder = document.getElementById('imagenPlaceholder');
+
+        function updatePreview() {
+            var url = (input.value || '').trim();
+            if (!url) {
+                img.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+                img.removeAttribute('src');
+                return;
+            }
+            img.src = url;
+            img.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+        }
+
+        input.addEventListener('input', updatePreview);
+        updatePreview();
+    })();
+</script>

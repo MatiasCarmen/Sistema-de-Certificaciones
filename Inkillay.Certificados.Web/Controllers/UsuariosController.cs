@@ -1,12 +1,13 @@
 using Inkillay.Certificados.Web.Data.Repositories;
 using Inkillay.Certificados.Web.Models.Entities;
 using Inkillay.Certificados.Web.Models.ViewModels;
+using Inkillay.Certificados.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Inkillay.Certificados.Web.Controllers;
 
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "Admin,Docente")]
 public class UsuariosController : Controller
 {
     private readonly ISeguridadRepository _seguridadRepository;
@@ -24,7 +25,23 @@ public class UsuariosController : Controller
         try
         {
             var usuarios = await _seguridadRepository.ListarUsuariosAsync();
-            return View(usuarios);
+            var vm = usuarios.Select(u => new UsuarioViewModel
+            {
+                IdUsuario = u.IdUsuario,
+                Nombre = u.Nombre,
+                Correo = u.Correo,
+                IdRol = u.IdRol,
+                NombreRol = u.IdRol switch
+                {
+                    1 => "Admin",
+                    2 => "Docente",
+                    3 => "Alumno",
+                    _ => "Desconocido"
+                },
+                Estado = u.EstadoActivo,
+                FechaRegistro = u.FechaRegistro ?? DateTime.MinValue
+            }).ToList();
+            return View(vm);
         }
         catch (Exception ex)
         {
@@ -61,7 +78,7 @@ public class UsuariosController : Controller
             {
                 Nombre = model.Nombre.Trim(),
                 Correo = model.Correo.Trim().ToLower(),
-                Clave = model.Clave,
+                Clave = HashHelper.HashPassword(model.Clave),
                 IdRol = model.IdRol,
                 Estado = 'A',  // ✅ Cambiado de true a 'A' según estándar corporativo
                 UsuarioRegistro = User.Identity?.Name ?? "Sistema",
@@ -72,7 +89,11 @@ public class UsuariosController : Controller
             if (registrado)
             {
                 _logger.LogInformation("Usuario creado: {correo} por {usuario}", model.Correo, User.Identity?.Name);
-                return Json(new { success = true, mensaje = "Usuario creado exitosamente" });
+                var redirectUrl = User.IsInRole("Docente")
+                    ? Url.Action("Matricular", "Docentes")
+                    : Url.Action("Index");
+
+                return Json(new { success = true, mensaje = "Usuario creado exitosamente", redirectUrl });
             }
 
             return Json(new { success = false, mensaje = "Error al crear el usuario" });
@@ -80,7 +101,7 @@ public class UsuariosController : Controller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error al registrar usuario: {correo}", model.Correo);
-            return Json(new { success = false, mensaje = $"Error al crear el usuario: {ex.Message}" });
+            return Json(new { success = false, mensaje = "ERROR REAL: " + ex.Message + " | INTERNO: " + ex.InnerException?.Message });
         }
     }
 
@@ -97,7 +118,7 @@ public class UsuariosController : Controller
             Nombre = usuario.Nombre,
             Correo = usuario.Correo,
             IdRol = usuario.IdRol,
-            Estado = usuario.EstadoActivo  // ✅ Usar EstadoActivo (bool) en lugar de Estado (char)
+            Estado = usuario.EstadoActivo 
         };
 
         return View(vm);

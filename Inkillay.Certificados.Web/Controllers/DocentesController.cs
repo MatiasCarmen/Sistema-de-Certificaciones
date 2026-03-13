@@ -59,13 +59,16 @@ public class DocentesController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Matricular(int idAlumno, int idCurso)
+    public async Task<IActionResult> Matricular(int idAlumno, int idCurso, char modalidad)
     {
         if (idAlumno <= 0)
             return Json(new { success = false, mensaje = "Seleccione un alumno." });
 
         if (idCurso <= 0)
             return Json(new { success = false, mensaje = "Seleccione un curso." });
+
+        if (modalidad == '\0')
+            return Json(new { success = false, mensaje = "Seleccione una modalidad." });
 
         try
         {
@@ -77,7 +80,7 @@ public class DocentesController : Controller
             // ✅ AUDITORÍA: Capturar usuario actual
             var nombreUsuario = User.Identity?.Name ?? "Sistema";
 
-            var resultado = await _matriculaRepository.RegistrarMatriculaAsync(idAlumno, idCurso, nombreUsuario);
+            var resultado = await _matriculaRepository.RegistrarMatriculaAsync(idAlumno, idCurso, modalidad, nombreUsuario);
             if (resultado)
                 return Json(new { success = true, mensaje = "Alumno matriculado exitosamente." });
 
