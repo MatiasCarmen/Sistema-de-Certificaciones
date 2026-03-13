@@ -35,7 +35,17 @@ public class PagosController : Controller
             return Json(new { success = false, message = "Datos de pago invalidos." });
         }
 
-        var ok = await _pagoRepository.RegistrarPagoAsync(idMatricula, monto, referencia.Trim());
+        // ✅ AUDITORÍA: Capturar usuario actual
+        var nombreUsuario = User.Identity?.Name ?? "Sistema";
+
+        var ok = await _pagoRepository.RegistrarPagoAsync(
+            idMatricula, 
+            monto, 
+            referencia.Trim(),
+            formaPago: "Efectivo",  // Por defecto, puede parametrizarse en el futuro
+            tipoPago: "Contado",     // Por defecto, puede parametrizarse en el futuro
+            usuarioRegistro: nombreUsuario
+        );
 
         // Registrar auditoría
         var idUsuario = User.FindFirst("IdUsuario");

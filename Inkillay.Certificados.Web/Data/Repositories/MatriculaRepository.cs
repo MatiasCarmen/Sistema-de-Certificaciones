@@ -33,12 +33,12 @@ public class MatriculaRepository : IMatriculaRepository
         );
     }
 
-    public async Task<bool> RegistrarMatriculaAsync(int idAlumno, int idCurso)
+    public async Task<bool> RegistrarMatriculaAsync(int idAlumno, int idCurso, string usuarioRegistro = "Sistema")
     {
         using var connection = _connectionFactory.CreateConnection();
         var filas = await connection.ExecuteAsync(
             "USP_Matriculas_Registrar",
-            new { IdAlumno = idAlumno, IdCurso = idCurso },
+            new { IdAlumno = idAlumno, IdCurso = idCurso, UsuarioRegistro = usuarioRegistro },
             commandType: CommandType.StoredProcedure
         );
         return filas > 0;

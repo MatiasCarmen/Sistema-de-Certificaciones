@@ -33,8 +33,8 @@
                             <img src="/uploads/@item.RutaImagen" alt="@item.Nombre" class="h-12 w-auto object-cover rounded-sm border border-slate-200" />
                         </td>
                         <td class="px-4 py-2 border-r border-slate-200">
-                            <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded-sm border @(item.Estado ? "bg-green-50 text-green-700 border-green-200" : "bg-red-50 text-red-700 border-red-200")">
-                                @(item.Estado ? "Activa" : "Inactiva")
+                            <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded-sm border @(item.EstadoActivo ? "bg-green-50 text-green-700 border-green-200" : "bg-red-50 text-red-700 border-red-200")">
+                                @(item.EstadoActivo ? "Activa" : "Inactiva")
                             </span>
                         </td>
                         <td class="px-4 py-2 text-center">
@@ -55,8 +55,8 @@
                                     <input type="hidden" name="id" value="@item.IdPlantilla" />
                                     <button type="submit" 
                                             onclick="return confirm('¿Cambiar el estado de esta plantilla?');"
-                                            class="px-3 py-1 text-xs font-bold rounded-sm border transition-none @(item.Estado ? "bg-red-50 text-red-700 border-red-200 hover:bg-red-100" : "bg-green-50 text-green-700 border-green-200 hover:bg-green-100")">
-                                        @(item.Estado ? "Desactivar" : "Activar")
+                                            class="px-3 py-1 text-xs font-bold rounded-sm border transition-none @(item.EstadoActivo ? "bg-red-50 text-red-700 border-red-200 hover:bg-red-100" : "bg-green-50 text-green-700 border-green-200 hover:bg-green-100")">
+                                        @(item.EstadoActivo ? "Desactivar" : "Activar")
                                     </button>
                                 </form>
                             </div>

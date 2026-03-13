@@ -12,7 +12,8 @@ public class PagoRepository : IPagoRepository
         _connectionFactory = connectionFactory;
     }
 
-    public async Task<bool> RegistrarPagoAsync(int idMatricula, decimal monto, string referencia)
+    public async Task<bool> RegistrarPagoAsync(int idMatricula, decimal monto, string referencia, 
+        string formaPago = "Efectivo", string tipoPago = "Contado", string usuarioRegistro = "Sistema")
     {
         using var connection = _connectionFactory.CreateConnection();
 
@@ -22,7 +23,10 @@ public class PagoRepository : IPagoRepository
             {
                 IdMatricula = idMatricula,
                 Monto = monto,
-                Referencia = referencia
+                Referencia = referencia,
+                FormaPago = formaPago,
+                TipoPago = tipoPago,
+                UsuarioRegistro = usuarioRegistro
             },
             commandType: CommandType.StoredProcedure
         );

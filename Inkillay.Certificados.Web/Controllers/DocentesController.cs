@@ -74,7 +74,10 @@ public class DocentesController : Controller
             if (matriculasExistentes.Any(m => m.IdAlumno == idAlumno))
                 return Json(new { success = false, mensaje = "El alumno ya está matriculado en este curso." });
 
-            var resultado = await _matriculaRepository.RegistrarMatriculaAsync(idAlumno, idCurso);
+            // ✅ AUDITORÍA: Capturar usuario actual
+            var nombreUsuario = User.Identity?.Name ?? "Sistema";
+
+            var resultado = await _matriculaRepository.RegistrarMatriculaAsync(idAlumno, idCurso, nombreUsuario);
             if (resultado)
                 return Json(new { success = true, mensaje = "Alumno matriculado exitosamente." });
 

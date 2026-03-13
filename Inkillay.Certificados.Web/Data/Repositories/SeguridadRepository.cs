@@ -99,9 +99,11 @@ public class SeguridadRepository : ISeguridadRepository
     public async Task<int> CambiarEstadoUsuarioAsync(int id, bool estado)
     {
         using var connection = _connectionFactory.CreateConnection();
+        // ⚠️ MIGRACIÓN: Convertir bool a char ('A' o 'I') para el nuevo estándar
+        char estadoChar = estado ? 'A' : 'I';
         return await connection.ExecuteAsync(
             "USP_Usuarios_CambiarEstado",
-            new { IdUsuario = id, Estado = estado },
+            new { IdUsuario = id, Estado = estadoChar },
             commandType: CommandType.StoredProcedure
         );
     }

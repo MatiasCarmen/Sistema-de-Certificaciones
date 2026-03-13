@@ -34,7 +34,7 @@
                     <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Plantilla</label>
                     <select name="idPlantilla" required class="px-3 py-2 border border-slate-300 rounded-sm text-sm text-slate-700 focus:ring-1 focus:ring-primary focus:border-primary">
                         <option value="">Seleccionar plantilla...</option>
-                        @foreach (var p in Model.Plantillas.Where(p => p.Estado))
+                        @foreach (var p in Model.Plantillas.Where(p => p.EstadoActivo))
                         {
                             <option value="@p.IdPlantilla">[@p.IdPlantilla] @p.Nombre</option>
                         }

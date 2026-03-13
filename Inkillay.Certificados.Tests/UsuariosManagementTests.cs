@@ -60,7 +60,7 @@ public class UsuariosManagementTests
             Correo = "juan@example.com",
             Clave = "hash_seguro",
             IdRol = 2,
-            Estado = true,
+            Estado = 'A',  // ✅ Cambiado de true a 'A' según estándar corporativo
             FechaRegistro = DateTime.Now
         };
 
@@ -68,20 +68,22 @@ public class UsuariosManagementTests
         usuario.Nombre.Should().Be("Juan Pérez");
         usuario.Correo.Should().Be("juan@example.com");
         usuario.IdRol.Should().Be(2);
-        usuario.Estado.Should().BeTrue();
+        usuario.Estado.Should().Be('A');  // ✅ Verificar que sea 'A'
+        usuario.EstadoActivo.Should().BeTrue();  // ✅ Propiedad auxiliar para compatibilidad
     }
 
     [Fact]
     public void Usuario_DebePermitir_CambiarEstado()
     {
         // Arrange
-        var usuario = new Usuarios { IdUsuario = 1, Estado = true };
+        var usuario = new Usuarios { IdUsuario = 1, Estado = 'A' };  // ✅ Activo
 
         // Act
-        usuario.Estado = false;
+        usuario.Estado = 'I';  // ✅ Cambiar a Inactivo
 
         // Assert
-        usuario.Estado.Should().BeFalse("El estado del usuario debe poder cambiarse");
+        usuario.Estado.Should().Be('I', "El estado del usuario debe poder cambiarse");
+        usuario.EstadoActivo.Should().BeFalse("EstadoActivo debe ser false cuando Estado es 'I'");
     }
 
     [Theory]

@@ -63,7 +63,8 @@ public class UsuariosController : Controller
                 Correo = model.Correo.Trim().ToLower(),
                 Clave = model.Clave,
                 IdRol = model.IdRol,
-                Estado = true,
+                Estado = 'A',  // ✅ Cambiado de true a 'A' según estándar corporativo
+                UsuarioRegistro = User.Identity?.Name ?? "Sistema",
                 FechaRegistro = DateTime.Now
             };
 
@@ -96,7 +97,7 @@ public class UsuariosController : Controller
             Nombre = usuario.Nombre,
             Correo = usuario.Correo,
             IdRol = usuario.IdRol,
-            Estado = usuario.Estado
+            Estado = usuario.EstadoActivo  // ✅ Usar EstadoActivo (bool) en lugar de Estado (char)
         };
 
         return View(vm);

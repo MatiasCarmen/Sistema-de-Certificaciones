@@ -1,5 +1,6 @@
 using System.Data.SqlClient;
 using Microsoft.Data.SqlClient;
+using System.Security.Claims;
 
 namespace Inkillay.Certificados.Web.Services;
 
@@ -7,6 +8,11 @@ public interface IAuditoriaService
 {
     Task RegistrarAsync(int? idUsuario, string accion, string modulo, string detalles, string ip);
     Task<List<(string accion, string detalles, DateTime fecha, string ip)>> ObtenerUltimosAsync(int cantidad = 5);
+
+    /// <summary>
+    /// Obtiene el nombre del usuario actual desde los Claims para campos de auditoría
+    /// </summary>
+    string? ObtenerUsuarioActual(ClaimsPrincipal? user);
 }
 
 public class AuditoriaService : IAuditoriaService
@@ -16,6 +22,21 @@ public class AuditoriaService : IAuditoriaService
     public AuditoriaService(string connectionString)
     {
         _connectionString = connectionString;
+    }
+
+    /// <summary>
+    /// Obtiene el nombre del usuario actual desde los Claims
+    /// Este método se usa para capturar UsuarioRegistro y UsuarioModifica
+    /// </summary>
+    public string? ObtenerUsuarioActual(ClaimsPrincipal? user)
+    {
+        if (user?.Identity?.IsAuthenticated != true)
+            return null;
+
+        // Intenta obtener el nombre del usuario desde los Claims
+        return user.FindFirst(ClaimTypes.Name)?.Value 
+            ?? user.FindFirst(ClaimTypes.Email)?.Value 
+            ?? "Sistema";
     }
 
     public async Task RegistrarAsync(int? idUsuario, string accion, string modulo, string detalles, string ip)
@@ -70,10 +91,10 @@ public class AuditoriaService : IAuditoriaService
                         while (await reader.ReadAsync())
                         {
                             registros.Add((
-                                reader["Accion"].ToString(),
-                                reader["Detalles"].ToString(),
+                                reader["Accion"].ToString() ?? "",
+                                reader["Detalles"].ToString() ?? "",
                                 (DateTime)reader["FechaHora"],
-                                reader["DireccionIp"].ToString()
+                                reader["DireccionIp"].ToString() ?? ""
                             ));
                         }
                     }
