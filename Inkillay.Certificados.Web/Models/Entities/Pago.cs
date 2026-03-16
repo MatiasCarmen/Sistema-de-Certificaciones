@@ -6,7 +6,7 @@ namespace Inkillay.Certificados.Web.Models.Entities;
 public class Pago : AuditoriaBase
 {
     public int IdPago { get; set; }
-    public int IdMatricula { get; set; }
+    public int IdModulo { get; set; }
     public decimal Monto { get; set; }
     public DateTime? FechaPago { get; set; }
     public string? Referencia { get; set; }

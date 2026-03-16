@@ -10,4 +10,5 @@ public interface ICursoRepository
     Task<Curso?> ObtenerPorIdAsync(int idCurso);
     Task<IEnumerable<ReporteCursoViewModel>> ObtenerReporteDocenteAsync(int idProfesor);
     Task<int> RegistrarCursoAsync(Curso curso);
+    Task<bool> ActualizarCursoAsync(Curso curso);
 }

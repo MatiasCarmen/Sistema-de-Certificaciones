@@ -90,7 +90,7 @@ public class UsuariosController : Controller
             {
                 _logger.LogInformation("Usuario creado: {correo} por {usuario}", model.Correo, User.Identity?.Name);
                 var redirectUrl = User.IsInRole("Docente")
-                    ? Url.Action("Matricular", "Docentes")
+                    ? Url.Action("Modulor", "Docentes")
                     : Url.Action("Index");
 
                 return Json(new { success = true, mensaje = "Usuario creado exitosamente", redirectUrl });

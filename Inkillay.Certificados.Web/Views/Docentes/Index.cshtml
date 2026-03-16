@@ -4,7 +4,7 @@
 }
 
 <div class="space-y-6">
-    <!-- Header con botón Matricular -->
+    <!-- Header con botón Modulor -->
     <div class="flex justify-between items-center">
         <div></div>
         <div class="flex items-center gap-2">
@@ -12,9 +12,9 @@
                class="px-4 py-2 bg-primary text-white text-xs font-bold uppercase rounded-sm flex items-center gap-2">
                 <span class="material-symbols-outlined text-base">person_add</span> Registrar Nuevo Alumno
             </a>
-            <a href="@Url.Action("Matricular")"
+            <a href="@Url.Action("Modulor")"
                class="px-4 py-2 bg-slate-800 text-white text-xs font-bold uppercase rounded-sm hover:bg-black flex items-center gap-2">
-                <span class="material-symbols-outlined text-base">assignment</span> Matricular Alumno
+                <span class="material-symbols-outlined text-base">assignment</span> Modulor Alumno
             </a>
         </div>
     </div>
@@ -27,7 +27,7 @@
                 <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider">@curso.NombreCurso</h4>
                 <div class="flex justify-between items-end mt-3">
                     <div>
-                        <p class="text-3xl font-bold text-slate-900">@curso.TotalMatriculados</p>
+                        <p class="text-3xl font-bold text-slate-900">@curso.TotalModulodos</p>
                         <p class="text-xs text-slate-500">Alumnos Inscritos</p>
                     </div>
                     <div class="text-right">
@@ -49,7 +49,7 @@
                 <thead class="bg-slate-100 border-b border-slate-300 text-slate-700">
                     <tr>
                         <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Curso</th>
-                        <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Matriculados</th>
+                        <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Modulodos</th>
                         <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Al Día / Pendientes</th>
                         <th class="px-4 py-2 font-semibold text-xs uppercase text-center">Acciones</th>
                     </tr>
@@ -59,10 +59,10 @@
                     {
                         <tr class="hover:bg-slate-50">
                             <td class="px-4 py-2 border-r border-slate-200 font-medium text-slate-800">@item.NombreCurso</td>
-                            <td class="px-4 py-2 border-r border-slate-200">@item.TotalMatriculados</td>
+                            <td class="px-4 py-2 border-r border-slate-200">@item.TotalModulodos</td>
                             <td class="px-4 py-2 border-r border-slate-200">
                                 <span class="text-green-700 font-bold">@item.TotalPagados</span> /
-                                <span class="text-red-600">@(item.TotalMatriculados - item.TotalPagados)</span>
+                                <span class="text-red-600">@(item.TotalModulodos - item.TotalPagados)</span>
                             </td>
                             <td class="px-4 py-2 text-center space-x-2">
                                 <a href="@Url.Action("VerAlumnos", new { idCurso = item.IdCurso })"
@@ -71,7 +71,7 @@
                                 <a href="@Url.Action("Index", "Emision", new { idCurso = item.IdCurso })"
                                    class="text-blue-600 hover:underline font-semibold text-xs">Emitir</a>
                                 <span class="text-slate-300">|</span>
-                                <a href="@Url.Action("Registrar", "Pagos", new { idMatricula = item.IdMatricula })"
+                                <a href="@Url.Action("Registrar", "Pagos", new { idModulo = item.IdModulo })"
                                    class="text-green-600 hover:underline font-semibold text-xs">Pago</a>
                             </td>
                         </tr>

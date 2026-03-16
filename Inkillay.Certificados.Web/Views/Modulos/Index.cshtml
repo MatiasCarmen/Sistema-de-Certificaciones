@@ -1,0 +1,59 @@
+@model IEnumerable<Inkillay.Certificados.Web.Models.Entities.Modulo>
+@{
+    ViewData["Title"] = "Gestión de Módulos (Grupos)";
+}
+
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold tracking-tight text-slate-900">Listado de Módulos</h1>
+        <a asp-action="Create" class="bg-indigo-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition">
+            Nuevo Módulo
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded">
+            @TempData["Success"]
+        </div>
+    }
+
+    <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+        <table class="min-w-full divide-y divide-slate-200 text-sm">
+            <thead class="bg-slate-50">
+                <tr>
+                    <th class="px-6 py-3 text-left font-semibold text-slate-600 uppercase">ID</th>
+                    <th class="px-6 py-3 text-left font-semibold text-slate-600 uppercase">Curso Fk</th>
+                    <th class="px-6 py-3 text-left font-semibold text-slate-600 uppercase">Edición</th>
+                    <th class="px-6 py-3 text-left font-semibold text-slate-600 uppercase">Costo</th>
+                    <th class="px-6 py-3 text-left font-semibold text-slate-600 uppercase">Estado</th>
+                    <th class="px-6 py-3 text-right font-semibold text-slate-600 uppercase">Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200">
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="px-6 py-4 font-medium text-slate-900">#@item.IdModulo</td>
+                        <td class="px-6 py-4">@item.IdCurso</td>
+                        <td class="px-6 py-4">@item.EdicionCurso</td>
+                        <td class="px-6 py-4">S/ @item.CostoCurso.ToString("N2")</td>
+                        <td class="px-6 py-4">
+                            @if (item.Estado == 'A')
+                            {
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">Activo</span>
+                            }
+                            else
+                            {
+                                <span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium">Inactivo</span>
+                            }
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <a href="#" class="text-indigo-600 hover:text-indigo-900">Alumnos</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

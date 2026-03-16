@@ -7,11 +7,11 @@ namespace Inkillay.Certificados.Web.Controllers;
 [Authorize(Roles = "Alumno")]
 public class AlumnosController : Controller
 {
-    private readonly IMatriculaRepository _matriculaRepository;
+    private readonly IModuloRepository _ModuloRepository;
 
-    public AlumnosController(IMatriculaRepository matriculaRepository)
+    public AlumnosController(IModuloRepository ModuloRepository)
     {
-        _matriculaRepository = matriculaRepository;
+        _ModuloRepository = ModuloRepository;
     }
 
     public async Task<IActionResult> MisCursos()
@@ -21,8 +21,8 @@ public class AlumnosController : Controller
             return Unauthorized();
         }
 
-        var misMatriculas = await _matriculaRepository.ListarCursosPorAlumnoAsync(idAlumno);
-        return View(misMatriculas);
+        var misModulos = await _ModuloRepository.ListarCursosPorAlumnoAsync(idAlumno);
+        return View(misModulos);
     }
 
     public async Task<IActionResult> MisCertificados()
@@ -33,12 +33,12 @@ public class AlumnosController : Controller
         }
 
         // Obtener los cursos del alumno
-        var misMatriculas = await _matriculaRepository.ListarCursosPorAlumnoAsync(idAlumno);
+        var misModulos = await _ModuloRepository.ListarCursosPorAlumnoAsync(idAlumno);
 
         // Filtrar solo los que están aprobados y pagados (listos para certificar)
-        var certificadosDisponibles = misMatriculas
+        var certificadosDisponibles = misModulos
             .Where(m => m.Aprobado && m.TotalPagado >= m.CostoCurso)
-            .OrderByDescending(m => m.FechaMatricula)
+            .OrderByDescending(m => m.FechaModulo)
             .ToList();
 
         return View(certificadosDisponibles);

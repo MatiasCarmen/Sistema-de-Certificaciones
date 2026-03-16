@@ -15,7 +15,7 @@ public enum EstadoRegistro
 /// <summary>
 /// Enum para el estado de matrícula (valores 1-6)
 /// </summary>
-public enum EstadoMatricula
+public enum EstadoModulo
 {
     /// <summary>1: Matrícula registrada pero no ha iniciado el curso</summary>
     Registrada = 1,

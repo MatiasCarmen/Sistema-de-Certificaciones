@@ -71,4 +71,26 @@ public class CursoRepository : ICursoRepository
             commandType: CommandType.StoredProcedure
         );
     }
+
+    public async Task<bool> ActualizarCursoAsync(Curso curso)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var result = await connection.ExecuteAsync(
+            "USP_Cursos_Actualizar",
+            new
+            {
+                curso.IdCurso,
+                curso.Nombre,
+                curso.Sumilla,
+                curso.Costo,
+                curso.FechaInicio,
+                curso.FechaFin,
+                curso.IdProfesor,
+                curso.Imagen,
+                UsuarioModifica = curso.UsuarioModifica
+            },
+            commandType: CommandType.StoredProcedure
+        );
+        return result > 0;
+    }
 }

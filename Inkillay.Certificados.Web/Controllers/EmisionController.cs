@@ -11,7 +11,7 @@ namespace Inkillay.Certificados.Web.Controllers;
 public class EmisionController : Controller
 {
     private readonly ICursoRepository _cursoRepository;
-    private readonly IMatriculaRepository _matriculaRepository;
+    private readonly IModuloRepository _ModuloRepository;
     private readonly ISeguridadRepository _seguridadRepository;
     private readonly ICertificadoService _certificadoService;
     private readonly AuditoriaService _auditoriaService;
@@ -20,7 +20,7 @@ public class EmisionController : Controller
 
     public EmisionController(
         ICursoRepository cursoRepository,
-        IMatriculaRepository matriculaRepository,
+        IModuloRepository ModuloRepository,
         ISeguridadRepository seguridadRepository,
         ICertificadoService certificadoService,
         AuditoriaService auditoriaService,
@@ -28,7 +28,7 @@ public class EmisionController : Controller
         IHttpContextAccessor httpContextAccessor)
     {
         _cursoRepository = cursoRepository;
-        _matriculaRepository = matriculaRepository;
+        _ModuloRepository = ModuloRepository;
         _seguridadRepository = seguridadRepository;
         _certificadoService = certificadoService;
         _auditoriaService = auditoriaService;
@@ -42,8 +42,8 @@ public class EmisionController : Controller
         var cursos = await _cursoRepository.ListarCursosActivosAsync();
         var plantillas = await _seguridadRepository.ListarPlantillasAsync();
         var alumnos = idCurso.HasValue
-            ? await _matriculaRepository.ListarAlumnosPorCursoAsync(idCurso.Value)
-            : Enumerable.Empty<Models.Entities.Matricula>();
+            ? await _ModuloRepository.ListarAlumnosPorCursoAsync(idCurso.Value)
+            : Enumerable.Empty<Models.Entities.Modulo>();
 
         var vm = new EmisionIndexViewModel
         {
@@ -67,7 +67,7 @@ public class EmisionController : Controller
         if (idPlantilla <= 0)
             return Json(new { success = false, message = "Por favor, seleccione una plantilla." });
 
-        var alumnos = (await _matriculaRepository.ListarAlumnosPorCursoAsync(idCurso)).ToList();
+        var alumnos = (await _ModuloRepository.ListarAlumnosPorCursoAsync(idCurso)).ToList();
         var curso = await _cursoRepository.ObtenerPorIdAsync(idCurso);
 
         if (curso == null)
@@ -121,7 +121,7 @@ public class EmisionController : Controller
                 );
             }
 
-            var nombreArchivo = $"{alumno.IdAlumno}_{SanitizeFileName(alumno.NombreAlumno)}.jpg";
+            var nombreArchivo = $"{alumno.IdUsuario}_{SanitizeFileName(alumno.NombreAlumno)}.jpg";
             var rutaSalida = Path.Combine(carpetaSalida, nombreArchivo);
             await System.IO.File.WriteAllBytesAsync(rutaSalida, bytes);
             generados++;
@@ -148,23 +148,23 @@ public class EmisionController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> DescargarPdf(int idMatricula)
+    public async Task<IActionResult> DescargarPdf(int idModulo)
     {
-        if (idMatricula <= 0)
+        if (idModulo <= 0)
             return BadRequest("ID de matrícula inválido.");
 
         // 1. Buscar la matrícula en todos los cursos
         // Intentar obtener datos del alumno usando el id del usuario logueado
-        Matricula? matricula = null;
+        Modulo? Modulo = null;
         var cursos = await _cursoRepository.ListarCursosActivosAsync();
         foreach (var curso in cursos)
         {
-            var alumnos = await _matriculaRepository.ListarAlumnosPorCursoAsync(curso.IdCurso);
-            matricula = alumnos.FirstOrDefault(m => m.IdMatricula == idMatricula);
-            if (matricula != null) break;
+            var alumnos = await _ModuloRepository.ListarAlumnosPorCursoAsync(curso.IdCurso);
+            Modulo = alumnos.FirstOrDefault(m => m.IdModulo == idModulo);
+            if (Modulo != null) break;
         }
 
-        if (matricula == null)
+        if (Modulo == null)
             return NotFound("Matrícula no encontrada.");
 
         // 2. Validar reglas de negocio (Pagado y Aprobado) - BYPASS para Administrador
@@ -177,7 +177,7 @@ public class EmisionController : Controller
                        (idUsuarioStr == "1");
 
         // Si NO es admin, aplicar validaciones de negocio
-        if (!esAdmin && (!matricula.Aprobado || matricula.TotalPagado < matricula.CostoCurso))
+        if (!esAdmin && (!Modulo.Aprobado || Modulo.TotalPagado < Modulo.CostoCurso))
         {
             return BadRequest("El alumno no cumple con los requisitos para descargar el certificado (debe estar aprobado y haber pagado el costo completo)");
         }
@@ -200,7 +200,7 @@ public class EmisionController : Controller
             {
                 imagenCertificado = _certificadoService.GenerarImagenCertificadoMulticapa(
                     plantilla.RutaImagen,
-                    matricula.NombreAlumno,
+                    Modulo.NombreAlumno,
                     detalles
                 );
             }
@@ -208,7 +208,7 @@ public class EmisionController : Controller
             {
                 imagenCertificado = _certificadoService.GenerarImagenCertificado(
                     plantilla.RutaImagen,
-                    matricula.NombreAlumno,
+                    Modulo.NombreAlumno,
                     plantilla.EjeX,
                     plantilla.EjeY,
                     plantilla.FontSize,
@@ -220,7 +220,7 @@ public class EmisionController : Controller
             byte[] pdfBytes = _certificadoService.GenerarPdfDesdeImagen(imagenCertificado);
 
             // 6. Retornar archivo con nombre profesional
-            string nombreArchivo = $"Certificado_{SanitizeFileName(matricula.NombreAlumno)}.pdf";
+            string nombreArchivo = $"Certificado_{SanitizeFileName(Modulo.NombreAlumno)}.pdf";
 
             // Registrar auditoría (reutilizar idUsuario ya declarado)
             var ip = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "DESCONOCIDA";
@@ -229,7 +229,7 @@ public class EmisionController : Controller
                 idUsuario > 0 ? idUsuario : null,
                 "DESCARGA PDF",
                 "Certificados",
-                $"Alumno: {matricula.NombreAlumno} - Curso: {matricula.NombreCurso}",
+                $"Alumno: {Modulo.NombreAlumno} - Curso: {Modulo.NombreCurso}",
                 ip
             );
 

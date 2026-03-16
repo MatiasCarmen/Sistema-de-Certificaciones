@@ -72,10 +72,10 @@
                     @foreach (var item in Model.Alumnos)
                     {
                         <tr class="hover:bg-slate-50">
-                            <td class="px-4 py-3 border-r border-slate-200">@item.IdMatricula</td>
+                            <td class="px-4 py-3 border-r border-slate-200">@item.IdModulo</td>
                             <td class="px-4 py-3 border-r border-slate-200 font-medium">@item.NombreAlumno</td>
                             <td class="px-4 py-3 border-r border-slate-200">@item.NombreCurso</td>
-                            <td class="px-4 py-3 border-r border-slate-200">@item.FechaMatricula.ToString("dd/MM/yyyy")</td>
+                            <td class="px-4 py-3 border-r border-slate-200">@item.FechaModulo.ToString("dd/MM/yyyy")</td>
                             <td class="px-4 py-3 border-r border-slate-200">
                                 <span class="text-xs font-bold @(item.Aprobado ? "text-green-700" : "text-red-700")">
                                     @(item.Aprobado ? "SÍ" : "NO")
@@ -98,7 +98,7 @@
                             <td class="px-4 py-3 text-center">
                                 @if (item.Aprobado && item.TotalPagado >= item.CostoCurso)
                                 {
-                                    <a href="@Url.Action("DescargarPdf", "Emision", new { idMatricula = item.IdMatricula })" 
+                                    <a href="@Url.Action("DescargarPdf", "Emision", new { idModulo = item.IdModulo })" 
                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-sky-800 text-white text-xs font-bold rounded-sm transition-colors"
                                        title="Descargar Certificado PDF">
                                         <span class="material-symbols-outlined text-sm">download</span> PDF

@@ -1,4 +1,4 @@
-@model IEnumerable<Inkillay.Certificados.Web.Models.Entities.Matricula>
+@model IEnumerable<Inkillay.Certificados.Web.Models.Entities.Modulo>
 @{
     ViewData["Title"] = "Alumnos del Curso";
 }
@@ -6,12 +6,12 @@
 <div class="bg-white border border-slate-300 rounded-sm shadow-sm">
     <div class="p-4 border-b border-slate-300 bg-slate-50 flex justify-between items-center">
         <div>
-            <h3 class="text-xs font-bold uppercase text-slate-600 tracking-wider">Alumnos Matriculados</h3>
+            <h3 class="text-xs font-bold uppercase text-slate-600 tracking-wider">Alumnos Modulodos</h3>
             <p class="text-xs text-slate-500 mt-1">@ViewData["NombreCurso"]</p>
         </div>
-        <a href="@Url.Action("Matricular")"
+        <a href="@Url.Action("Modulor")"
            class="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-sm hover:bg-sky-800 flex items-center gap-2">
-            <span class="material-symbols-outlined text-base">person_add</span> Matricular Alumno
+            <span class="material-symbols-outlined text-base">person_add</span> Modulor Alumno
         </a>
     </div>
 
@@ -32,7 +32,7 @@
                 {
                     <tr>
                         <td colspan="6" class="px-4 py-6 text-sm text-slate-500 text-center">
-                            No hay alumnos matriculados en este curso.
+                            No hay alumnos Modulodos en este curso.
                         </td>
                     </tr>
                 }
@@ -41,9 +41,9 @@
                     @foreach (var item in Model)
                     {
                         <tr class="hover:bg-slate-50">
-                            <td class="px-4 py-2 border-r border-slate-200 font-mono text-xs">#@item.IdMatricula</td>
+                            <td class="px-4 py-2 border-r border-slate-200 font-mono text-xs">#@item.IdModulo</td>
                             <td class="px-4 py-2 border-r border-slate-200 font-medium text-slate-800">@item.NombreAlumno</td>
-                            <td class="px-4 py-2 border-r border-slate-200">@item.FechaMatricula.ToString("dd/MM/yyyy")</td>
+                            <td class="px-4 py-2 border-r border-slate-200">@item.FechaModulo.ToString("dd/MM/yyyy")</td>
                             <td class="px-4 py-2 border-r border-slate-200">
                                 <span class="text-xs font-bold @(item.Aprobado ? "text-green-700" : "text-red-700")">
                                     @(item.Aprobado ? "SÍ" : "NO")
@@ -57,7 +57,7 @@
                             <td class="px-4 py-2 text-center">
                                 @if (item.Aprobado && item.TotalPagado >= item.CostoCurso)
                                 {
-                                    <a href="@Url.Action("DescargarPdf", "Emision", new { idMatricula = item.IdMatricula })"
+                                    <a href="@Url.Action("DescargarPdf", "Emision", new { idModulo = item.IdModulo })"
                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-sky-800 text-white text-xs font-bold rounded-sm transition-colors">
                                         <span class="material-symbols-outlined text-sm">download</span> PDF
                                     </a>

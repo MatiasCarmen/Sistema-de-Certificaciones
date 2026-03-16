@@ -71,9 +71,9 @@
                             <span class="material-symbols-outlined text-base mr-3">people</span>
                             Usuarios
                         </a>
-                        <a href="/Cursos/Index" class="@ActiveClass("Cursos")">
-                            <span class="material-symbols-outlined text-base mr-3">school</span>
-                            Cursos
+                        <a asp-controller="Cursos" asp-action="Index" class="flex items-center p-2 text-gray-700 hover:bg-blue-50 rounded-lg group">
+                            <i class="fas fa-book-open w-6"></i>
+                            <span class="ml-3">Gestión de Cursos</span>
                         </a>
                     }
 
@@ -90,9 +90,9 @@
                             <span class="material-symbols-outlined text-base mr-3">assignment</span>
                             Panel Docente
                         </a>
-                        <a href="/Docentes/Matricular" class="@ActiveClass("Docentes", "Matricular")">
+                        <a href="/Docentes/Modulor" class="@ActiveClass("Docentes", "Modulor")">
                             <span class="material-symbols-outlined text-base mr-3">person_add</span>
-                            Matricular Alumno
+                            Modulor Alumno
                         </a>
                     }
 

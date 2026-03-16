@@ -20,24 +20,24 @@ public class PagosController : Controller
     }
 
     [HttpGet]
-    public IActionResult Registrar(int idMatricula)
+    public IActionResult Registrar(int idModulo)
     {
-        ViewBag.IdMatricula = idMatricula;
+        ViewBag.IdModulo = idModulo;
         return View();
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Registrar(int idMatricula, decimal monto, string referencia, string formaPago, string tipoPago)
+    public async Task<IActionResult> Registrar(int idModulo, decimal monto, string referencia, string formaPago, string tipoPago)
     {
         var nombreUsuario = User.Identity?.Name ?? "Sistema";
-        if (idMatricula <= 0 || monto <= 0 || string.IsNullOrWhiteSpace(referencia))
+        if (idModulo <= 0 || monto <= 0 || string.IsNullOrWhiteSpace(referencia))
         {
             return Json(new { success = false, message = "Datos de pago invalidos." });
         }
 
         var ok = await _pagoRepository.RegistrarPagoAsync(
-            idMatricula,
+            idModulo,
             monto,
             referencia.Trim(),
             formaPago: "Efectivo",
@@ -55,7 +55,7 @@ public class PagosController : Controller
                 idUsuario != null ? int.Parse(idUsuario.Value) : null,
                 "REGISTRO PAGO",
                 "Pagos",
-                $"Matrícula #{idMatricula} - Monto: S/ {monto:F2} - Ref: {referencia}",
+                $"Matrícula #{idModulo} - Monto: S/ {monto:F2} - Ref: {referencia}",
                 ip
             );
         }

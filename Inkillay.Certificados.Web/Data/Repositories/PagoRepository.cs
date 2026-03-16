@@ -12,7 +12,7 @@ public class PagoRepository : IPagoRepository
         _connectionFactory = connectionFactory;
     }
 
-    public async Task<bool> RegistrarPagoAsync(int idMatricula, decimal monto, string referencia, 
+    public async Task<bool> RegistrarPagoAsync(int idModulo, decimal monto, string referencia, 
         string formaPago = "Efectivo", string tipoPago = "Contado", string usuarioRegistro = "Sistema")
     {
         using var connection = _connectionFactory.CreateConnection();
@@ -21,7 +21,7 @@ public class PagoRepository : IPagoRepository
             "USP_Pagos_Registrar",
             new
             {
-                IdMatricula = idMatricula,
+                IdModulo = idModulo,
                 Monto = monto,
                 Referencia = referencia,
                 FormaPago = formaPago,

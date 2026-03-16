@@ -3,46 +3,138 @@
     ViewData["Title"] = "Gestión de Cursos";
 }
 
-<div class="bg-white border border-slate-300 shadow-sm rounded-sm">
-    <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
-        <h3 class="text-xs font-bold uppercase text-slate-600 tracking-wider">Catálogo de Cursos</h3>
-        <a href="@Url.Action("Create")" 
-           class="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-sm hover:bg-sky-800 transition-none flex items-center gap-2">
-            <span class="material-symbols-outlined text-base">add</span> Nuevo Curso
-        </a>
-    </div>
+<div class="min-h-screen bg-slate-50/50 px-4 py-8 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-7xl">
 
-    <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm border-collapse">
-            <thead class="bg-slate-100 border-b border-slate-300 text-slate-700">
-                <tr>
-                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">ID</th>
-                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Nombre del Curso</th>
-                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Costo</th>
-                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Inicio</th>
-                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Estado</th>
-                    <th class="px-4 py-2 font-semibold text-xs uppercase text-center">Acciones</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-200 text-slate-600">
-                @foreach (var item in Model)
-                {
-                    <tr class="hover:bg-slate-50">
-                        <td class="px-4 py-2 border-r border-slate-200 font-mono text-xs">#@item.IdCurso</td>
-                        <td class="px-4 py-2 border-r border-slate-200 font-medium text-slate-800">@item.Nombre</td>
-                        <td class="px-4 py-2 border-r border-slate-200">S/ @item.Costo.ToString("N2")</td>
-                        <td class="px-4 py-2 border-r border-slate-200">@item.FechaInicio?.ToString("dd/MM/yyyy")</td>
-                        <td class="px-4 py-2 border-r border-slate-200">
-                            <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded-sm border @(item.EstadoActivo ? "bg-green-50 text-green-700 border-green-200" : "bg-red-50 text-red-700 border-red-200")">
-                                @(item.EstadoActivo ? "Activo" : "Cerrado")
-                            </span>
-                        </td>
-                        <td class="px-4 py-2 text-center">
-                            <span class="text-slate-400 text-xs italic" title="Funcionalidad próximamente">Próximamente</span>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+        @if (TempData["Success"] is string successMessage)
+        {
+            <div class="mb-6 rounded-xl border border-green-200 bg-green-50/80 px-5 py-4 text-sm text-green-800 shadow-sm backdrop-blur-sm">
+                <div class="flex items-center gap-3">
+                    <svg class="h-5 w-5 flex-shrink-0 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                    @successMessage
+                </div>
+            </div>
+        }
+
+        <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+            <!-- Header -->
+            <div class="flex flex-col gap-4 border-b border-slate-200 bg-slate-50/80 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight text-slate-900">Cursos</h1>
+                    <p class="mt-1 text-sm text-slate-600">Gestiona todos los cursos disponibles en la plataforma</p>
+                </div>
+
+                <a asp-controller="Cursos" asp-action="Create"
+                   class="inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-indigo-700 hover:shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 active:bg-indigo-800">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Nuevo Curso
+                </a>
+            </div>
+
+            <!-- Tabla -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-slate-200 table-auto">
+                    <thead class="bg-slate-100">
+                        <tr>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">ID</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Imagen</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Nombre del Curso</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Costo</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Inicio</th>
+                            <th scope="col" class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-slate-600">Estado</th>
+                            <th scope="col" class="relative px-6 py-4 text-right text-xs font-semibold uppercase tracking-wider text-slate-600">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 bg-white">
+                        @foreach (var item in Model)
+                        {
+                            <tr class="group hover:bg-indigo-50/40 transition-colors duration-150">
+                                <td class="whitespace-nowrap px-6 py-4 text-sm font-mono text-slate-500">
+                                    #@item.IdCurso
+                                </td>
+                                <td class="whitespace-nowrap px-6 py-4">
+                                    @if (!string.IsNullOrWhiteSpace(item.Imagen))
+                                    {
+                                        <img src="@Url.Action("Imagen", "Cursos", new { id = item.IdCurso })"
+                                             alt="@item.Nombre"
+                                             class="h-10 w-16 rounded object-cover" />
+                                    }
+                                    else
+                                    {
+                                        <span class="text-xs italic text-slate-400">Sin imagen</span>
+                                    }
+                                </td>
+                                <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-slate-900">
+                                    @item.Nombre
+                                </td>
+                                <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-700">
+                                    S/ @item.Costo.ToString("N2")
+                                </td>
+                                <td class="whitespace-nowrap px-6 py-4 text-sm text-slate-600">
+                                    @(item.FechaInicio?.ToString("dd MMM yyyy") ?? "—")
+                                </td>
+                                <td class="whitespace-nowrap px-6 py-4">
+                                    <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium
+                                            @(item.EstadoActivo
+                                                                                      ? "bg-green-100 text-green-800 ring-1 ring-inset ring-green-600/20"
+                                                                                      : "bg-rose-100 text-rose-800 ring-1 ring-inset ring-rose-600/20")">
+                                        <span class="h-2 w-2 rounded-full @(item.EstadoActivo ? "bg-green-500" : "bg-rose-500")"></span>
+                                        @(item.EstadoActivo ? "Activo" : "Cerrado")
+                                    </span>
+                                </td>
+                                <td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+                                    <div class="flex items-center justify-end gap-3 opacity-70 group-hover:opacity-100 transition-opacity">
+                                        <a asp-action="Edit" asp-route-id="@item.IdCurso"
+                                           class="text-indigo-600 hover:text-indigo-800 transition-colors">
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </a>
+
+                                        <a asp-action="Details" asp-route-id="@item.IdCurso"
+                                           class="text-sky-600 hover:text-sky-800 transition-colors">
+                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                        </a>
+
+                                        <form asp-action="Delete" asp-route-id="@item.IdCurso" method="post" class="inline">
+                                            <button type="submit" onclick="return confirm('¿Realmente deseas eliminar este curso?');"
+                                                    class="text-rose-600 hover:text-rose-800 transition-colors">
+                                                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="7" class="px-6 py-16 text-center text-slate-500">
+                                    <svg class="mx-auto h-12 w-12 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <p class="mt-4 text-base font-medium">No hay cursos registrados aún</p>
+                                    <a asp-action="Create" class="mt-2 inline-block text-indigo-600 hover:text-indigo-800">
+                                        Crear tu primer curso →
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+         
+        </div>
     </div>
 </div>

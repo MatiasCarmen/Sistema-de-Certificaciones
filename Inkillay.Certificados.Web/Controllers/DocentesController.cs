@@ -9,16 +9,16 @@ namespace Inkillay.Certificados.Web.Controllers;
 public class DocentesController : Controller
 {
     private readonly ICursoRepository _cursoRepository;
-    private readonly IMatriculaRepository _matriculaRepository;
+    private readonly IModuloRepository _ModuloRepository;
     private readonly ISeguridadRepository _seguridadRepository;
 
     public DocentesController(
         ICursoRepository cursoRepository,
-        IMatriculaRepository matriculaRepository,
+        IModuloRepository ModuloRepository,
         ISeguridadRepository seguridadRepository)
     {
         _cursoRepository = cursoRepository;
-        _matriculaRepository = matriculaRepository;
+        _ModuloRepository = ModuloRepository;
         _seguridadRepository = seguridadRepository;
     }
 
@@ -34,7 +34,7 @@ public class DocentesController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Matricular()
+    public async Task<IActionResult> Modulor()
     {
         var cursos = await _cursoRepository.ListarCursosActivosAsync();
         var usuarios = await _seguridadRepository.ListarUsuariosAsync();
@@ -48,7 +48,7 @@ public class DocentesController : Controller
             })
             .ToList();
 
-        var vm = new MatricularViewModel
+        var vm = new ModulorViewModel
         {
             Cursos = cursos,
             Alumnos = alumnos
@@ -59,7 +59,7 @@ public class DocentesController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Matricular(int idAlumno, int idCurso, char modalidad)
+    public async Task<IActionResult> Modulor(int idAlumno, int idCurso, char modalidad)
     {
         if (idAlumno <= 0)
             return Json(new { success = false, mensaje = "Seleccione un alumno." });
@@ -72,17 +72,17 @@ public class DocentesController : Controller
 
         try
         {
-            // Verificar que no esté ya matriculado
-            var matriculasExistentes = await _matriculaRepository.ListarAlumnosPorCursoAsync(idCurso);
-            if (matriculasExistentes.Any(m => m.IdAlumno == idAlumno))
-                return Json(new { success = false, mensaje = "El alumno ya está matriculado en este curso." });
+            // Verificar que no esté ya Modulodo
+            var ModulosExistentes = await _ModuloRepository.ListarAlumnosPorCursoAsync(idCurso);
+            if (ModulosExistentes.Any(m => m.IdUsuario == idAlumno))
+                return Json(new { success = false, mensaje = "El alumno ya está Modulodo en este curso." });
 
             // ✅ AUDITORÍA: Capturar usuario actual
             var nombreUsuario = User.Identity?.Name ?? "Sistema";
 
-            var resultado = await _matriculaRepository.RegistrarMatriculaAsync(idAlumno, idCurso, modalidad, nombreUsuario);
+            var resultado = await _ModuloRepository.RegistrarModuloAsync(idAlumno, idCurso, modalidad, nombreUsuario);
             if (resultado)
-                return Json(new { success = true, mensaje = "Alumno matriculado exitosamente." });
+                return Json(new { success = true, mensaje = "Alumno Modulodo exitosamente." });
 
             return Json(new { success = false, mensaje = "No se pudo registrar la matrícula." });
         }
@@ -98,7 +98,7 @@ public class DocentesController : Controller
         if (idCurso <= 0)
             return Json(new { success = false, mensaje = "Curso no válido." });
 
-        var alumnos = await _matriculaRepository.ListarAlumnosPorCursoAsync(idCurso);
+        var alumnos = await _ModuloRepository.ListarAlumnosPorCursoAsync(idCurso);
         var curso = await _cursoRepository.ObtenerPorIdAsync(idCurso);
 
         ViewData["NombreCurso"] = curso?.Nombre ?? "Curso";
