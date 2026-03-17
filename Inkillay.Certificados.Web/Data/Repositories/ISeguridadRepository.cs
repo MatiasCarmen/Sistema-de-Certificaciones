@@ -6,16 +6,23 @@ namespace Inkillay.Certificados.Web.Data.Repositories;
 
 public interface ISeguridadRepository
 {
-    // Módulos
+    // Módulos de Seguridad
     Task<IEnumerable<Seg_Modulo>> ListarModulosAsync();
 
     // Usuarios
     Task<Usuarios?> ValidarUsuarioAsync(string correo);
     Task<Usuarios> ObtenerUsuarioPorCorreoAsync(string correo);
     Task<Usuarios?> ObtenerUsuarioPorIdAsync(int id);
+
+    // --- AGREGAR ESTA LÍNEA PARA EL CONTROLADOR DE MÓDULOS ---
+    Task<IEnumerable<Usuarios>> ListarTodosAsync();
+
     Task<IEnumerable<Usuarios>> ListarUsuariosAsync();
     Task<bool> CorreoExisteAsync(string correo);
     Task<bool> RegistrarUsuarioAsync(Usuarios usuario);
+    Task<bool> RegistrarAlumnoCompletoAsync(CrearUsuarioViewModel modelo, string usuarioRegistro);
+    Task<EditarAlumnoViewModel> ObtenerAlumnoPorIdAsync(int idUsuario);
+    Task<bool> ActualizarAlumnoCompletoAsync(EditarAlumnoViewModel modelo, string usuarioModifica);
     Task<int> CambiarEstadoUsuarioAsync(int id, bool estado);
     Task<AdminDashboardViewModel?> ObtenerEstadisticasDashboardAsync();
 

@@ -10,36 +10,53 @@ public class ModulosController : Controller
 {
     private readonly IModuloRepository _moduloRepository;
     private readonly ICursoRepository _cursoRepository;
+    private readonly ISeguridadRepository _seguridadRepository; // Usamos Seguridad para los Docentes
 
-    public ModulosController(IModuloRepository moduloRepository, ICursoRepository cursoRepository)
+    public ModulosController(
+        IModuloRepository moduloRepository,
+        ICursoRepository cursoRepository,
+        ISeguridadRepository seguridadRepository)
     {
         _moduloRepository = moduloRepository;
         _cursoRepository = cursoRepository;
+        _seguridadRepository = seguridadRepository;
     }
 
-    // 1. Ver todos los Módulos
+    // Listado de Módulos
     public async Task<IActionResult> Index()
     {
         var modulos = await _moduloRepository.ListarTodosAsync();
         return View(modulos);
     }
 
-    // 2. Formulario de Creación de Módulo
     [HttpGet]
     public async Task<IActionResult> Create()
     {
+        // 1. Cargamos los Cursos para el buscador de la pantalla
         ViewBag.Cursos = await _cursoRepository.ListarCursosActivosAsync();
-        return View(new Modulo { FechaInicioMatricula = DateTime.Now });
+
+        // 2. Cargamos los Docentes (IdRol 2 según vimos en tu búnker)
+        // Nota: Asegúrate que ListarTodosAsync() exista en ISeguridadRepository
+        var usuarios = await _seguridadRepository.ListarTodosAsync();
+        ViewBag.Docentes = usuarios.Where(u => u.IdRol == 2 && u.Estado == 'A');
+
+        return View(new Modulo
+        {
+            FechaInicioMatricula = DateTime.Now,
+            EstadoMatricula = '1' // Estado inicial "Creado"
+        });
     }
 
-    // 3. Crear Módulo (Grupo)
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(Modulo modulo)
     {
         if (ModelState.IsValid)
         {
+            // Auditoría: Quién está creando el registro
             modulo.UsuarioRegistro = User.Identity?.Name ?? "Sistema";
+
+            // Llamamos al repositorio que ya configuramos con el SP: USP_Modulos_Insertar
             var idGenerado = await _moduloRepository.RegistrarModuloAsync(modulo);
 
             if (idGenerado > 0)
@@ -47,9 +64,15 @@ public class ModulosController : Controller
                 TempData["Success"] = "¡Módulo creado exitosamente!";
                 return RedirectToAction(nameof(Index));
             }
+
+            ModelState.AddModelError("", "Error al intentar guardar en la base de datos.");
         }
 
+        // Si el modelo es inválido, recargamos los ViewBags para que no explote la vista
         ViewBag.Cursos = await _cursoRepository.ListarCursosActivosAsync();
+        var usuariosRedo = await _seguridadRepository.ListarTodosAsync();
+        ViewBag.Docentes = usuariosRedo.Where(u => u.IdRol == 2 && u.Estado == 'A');
+
         return View(modulo);
     }
 }

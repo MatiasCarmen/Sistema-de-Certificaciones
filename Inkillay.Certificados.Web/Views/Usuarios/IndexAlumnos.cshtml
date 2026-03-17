@@ -1,0 +1,213 @@
+@model IEnumerable<UsuarioViewModel>
+@{
+    ViewData["Title"] = "Directorio de Alumnos";
+}
+
+<div class="container mx-auto px-4 py-8">
+    @Html.AntiForgeryToken()
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">Directorio de Alumnos</h1>
+            <p class="text-sm text-slate-500 mt-1">Gestión y visualización del padrón general de estudiantes inscritos</p>
+        </div>
+        <a href="@Url.Action("Create", "Usuarios")" class="inline-flex items-center gap-2 px-4 py-2 bg-primary text-white text-sm font-semibold rounded-md hover:bg-sky-800 transition-colors shadow-sm">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Nuevo Alumno
+        </a>
+    </div>
+
+    <!-- Buscador / Filtro -->
+    <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 mb-6 flex gap-4 items-center">
+        <div class="relative flex-1">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="w-5 h-5 text-slate-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <input type="text" id="buscadorAlumnos" placeholder="Buscar por nombre o correo electrónico..." class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-md focus:ring-primary focus:border-primary text-sm shadow-sm">
+        </div>
+        <div class="text-sm text-slate-500 whitespace-nowrap hidden sm:block">
+            Mostrando <span id="contador">@Model.Count()</span> alumnos
+        </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full whitespace-nowrap" id="tablaAlumnos">
+                <thead class="bg-slate-50 border-b border-slate-200">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">Nombre Completo</th>
+                        <th class="px-6 py-4 text-left text-xs font-bold text-slate-600 uppercase tracking-wider">Correo</th>
+                        <th class="px-6 py-4 text-center text-xs font-bold text-slate-600 uppercase tracking-wider">Estado</th>
+                        <th class="px-6 py-4 text-right text-xs font-bold text-slate-600 uppercase tracking-wider">Fecha Registro</th>
+                        <th class="px-6 py-4 text-center text-xs font-bold text-slate-600 uppercase tracking-wider">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @if (!Model.Any())
+                    {
+                        <tr class="alumno-row">
+                            <td colspan="5" class="px-6 py-8 text-center text-sm text-slate-500">
+                                No se encontraron alumnos registrados en el sistema.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var alumno in Model)
+                        {
+                            <tr class="alumno-row hover:bg-slate-50 transition-colors" data-nombre="@alumno.Nombre.ToLower()" data-correo="@alumno.Correo.ToLower()">
+                                <td class="px-6 py-4 border-b border-slate-50">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-xs ring-2 ring-white">
+                                            @((!string.IsNullOrEmpty(alumno.Nombre) ? alumno.Nombre.Substring(0, 1) : "?").ToUpper())
+                                        </div>
+                                        <div>
+                                            <p class="font-medium text-slate-900 text-sm">@alumno.Nombre</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 border-b border-slate-50 text-sm text-slate-600">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                        @alumno.Correo
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 border-b border-slate-50 text-center">
+                                    @if (alumno.Estado)
+                                    {
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-1.5"></span>
+                                            Activo
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800">
+                                            <span class="w-1.5 h-1.5 bg-rose-500 rounded-full mr-1.5"></span>
+                                            Inactivo
+                                        </span>
+                                    }
+                                </td>
+                                <td class="px-6 py-4 border-b border-slate-50 text-sm text-slate-500 text-right">
+                                    @alumno.FechaRegistro.ToString("dd MMM yyyy")
+                                </td>
+                                <td class="px-6 py-4 border-b border-slate-50 text-center">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <a href="@Url.Action("EditAlumno", "Usuarios", new { id = alumno.IdUsuario })" class="p-1 text-slate-400 hover:text-sky-600 transition-colors" title="Editar">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                        </a>
+                                        <button type="button" onclick="cambiarEstado(@alumno.IdUsuario, @((!alumno.Estado).ToString().ToLower()), '@alumno.Nombre')" class="p-1 @(alumno.Estado ? "text-slate-400 hover:text-rose-600" : "text-slate-400 hover:text-emerald-600") transition-colors" title="@(alumno.Estado ? "Dar de Baja" : "Activar")">
+                                            @if (alumno.Estado)
+                                            {
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                            }
+                                            else
+                                            {
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            }
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+            <!-- Fila cuando no hay resultados en la búsqueda -->
+            <div id="noResultados" class="hidden px-6 py-8 text-center text-sm text-slate-500">
+                No se encontraron alumnos que coincidan con la búsqueda.
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const buscadorInput = document.getElementById('buscadorAlumnos');
+            const filas = document.querySelectorAll('.alumno-row');
+            const contadorDisplay = document.getElementById('contador');
+            const noResultadosCaja = document.getElementById('noResultados');
+
+            buscadorInput.addEventListener('input', function(e) {
+                const term = e.target.value.toLowerCase().trim();
+                let matchCount = 0;
+
+                filas.forEach(fila => {
+                    // Si es la fila de matriz vacía inicial, la ignoramos.
+                    if(!fila.dataset.nombre) return; 
+
+                    const nombre = fila.dataset.nombre;
+                    const correo = fila.dataset.correo;
+
+                    if (nombre.includes(term) || correo.includes(term)) {
+                        fila.style.display = '';
+                        matchCount++;
+                    } else {
+                        fila.style.display = 'none';
+                    }
+                });
+
+                contadorDisplay.textContent = matchCount;
+
+                if (matchCount === 0 && filas.length > 0 && term !== "") {
+                    noResultadosCaja.classList.remove('hidden');
+                } else {
+                    noResultadosCaja.classList.add('hidden');
+                }
+            });
+        });
+
+        function cambiarEstado(id, nuevoEstado, nombre) {
+            const accion = nuevoEstado ? 'reactivar' : 'dar de baja';
+            const accionConfirmButton = nuevoEstado ? 'Sí, reactivar' : 'Sí, dar de baja';
+            
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: `¿Deseas ${accion} a ${nombre}?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#0369a1',
+                cancelButtonColor: '#64748b',
+                confirmButtonText: accionConfirmButton,
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                    const formData = new FormData();
+                    formData.append('idUsuario', id);
+                    formData.append('estado', nuevoEstado);
+                    if(token) formData.append('__RequestVerificationToken', token);
+
+                    fetch('@Url.Action("CambiarEstado", "Usuarios")', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                title: '¡Actualizado!',
+                                text: data.mensaje,
+                                icon: 'success',
+                                confirmButtonColor: '#0369a1'
+                            }).then(() => {
+                                window.location.reload();
+                            });
+                        } else {
+                            Swal.fire('Error', data.mensaje, 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        Swal.fire('Error', 'Ocurrió un error inesperado', 'error');
+                    });
+                }
+            });
+        }
+    </script>
+}

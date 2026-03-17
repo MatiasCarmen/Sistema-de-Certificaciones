@@ -46,6 +46,8 @@ public class ModuloRepository : IModuloRepository
     {
         using var connection = _connectionFactory.CreateConnection();
         var parameter = new DynamicParameters();
+
+        
         parameter.Add("@IdCurso", modulo.IdCurso);
         parameter.Add("@IdDocente", modulo.IdDocente);
         parameter.Add("@EdicionCurso", modulo.EdicionCurso);
@@ -54,12 +56,16 @@ public class ModuloRepository : IModuloRepository
         parameter.Add("@FechaInicioClases", modulo.FechaInicioClases);
         parameter.Add("@CostoCurso", modulo.CostoCurso);
         parameter.Add("@CapacidadAlumno", modulo.CapacidadAlumno);
-        parameter.Add("@Modalidad", modulo.Modalidad);
+        parameter.Add("@Modalidad", modulo.Modalidad.ToString()); 
+        parameter.Add("@EstadoMatricula", modulo.EstadoMatricula.ToString()); 
         parameter.Add("@UsuarioRegistro", modulo.UsuarioRegistro);
-        parameter.Add("@IdModulo", dbType: DbType.Int32, direction: ParameterDirection.Output);
 
-        await connection.ExecuteAsync("USP_Modulos_Registrar", parameter, commandType: CommandType.StoredProcedure);
-        return parameter.Get<int>("@IdModulo");
+        
+        return await connection.QuerySingleAsync<int>(
+            "USP_Modulos_Insertar",
+            parameter,
+            commandType: CommandType.StoredProcedure
+        );
     }
 
     public async Task<bool> ActualizarModuloAsync(Modulo modulo)

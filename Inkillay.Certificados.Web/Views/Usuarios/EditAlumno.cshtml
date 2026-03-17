@@ -1,0 +1,249 @@
+@model EditarAlumnoViewModel
+@{
+    ViewData["Title"] = "Editar Alumno";
+}
+
+<div class="max-w-lg mx-auto">
+    <div class="bg-white border border-slate-300 rounded-sm shadow-sm">
+        <div class="p-4 border-b border-slate-300 bg-slate-50 flex justify-between items-center">
+            <h3 class="text-xs font-bold text-slate-600 uppercase tracking-wider">Editar Perfil del Alumno</h3>
+            @if (Model.Estado)
+            {
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                    ACTIVO
+                </span>
+            }
+            else
+            {
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800">
+                    INACTIVO
+                </span>
+            }
+        </div>
+
+        <form id="formEditarAlumno" method="post" class="p-6 space-y-5">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="IdUsuario" />
+
+            <!-- Nombres -->
+            <div class="space-y-2">
+                <label asp-for="Nombres" class="block text-xs font-bold text-slate-600 uppercase tracking-wider">Nombres</label>
+                <input asp-for="Nombres" class="w-full px-3 py-2 border border-slate-300 rounded-sm text-sm focus:ring-1 focus:ring-primary focus:border-primary" required>
+            </div>
+
+            <!-- Apellidos -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-2">
+                    <label asp-for="ApellidoPaterno" class="block text-xs font-bold text-slate-600 uppercase tracking-wider">Apellido Paterno</label>
+                    <input asp-for="ApellidoPaterno" class="w-full px-3 py-2 border border-slate-300 rounded-sm text-sm focus:ring-1 focus:ring-primary focus:border-primary" required>
+                </div>
+                <div class="space-y-2">
+                    <label asp-for="ApellidoMaterno" class="block text-xs font-bold text-slate-600 uppercase tracking-wider">Apellido Materno</label>
+                    <input asp-for="ApellidoMaterno" class="w-full px-3 py-2 border border-slate-300 rounded-sm text-sm focus:ring-1 focus:ring-primary focus:border-primary" required>
+                </div>
+            </div>
+
+            <!-- Correo -->
+            <div class="space-y-2 border-t border-slate-100 pt-4">
+                <label asp-for="Correo" class="block text-xs font-bold text-slate-600 uppercase tracking-wider">Correo Electrónico</label>
+                <input asp-for="Correo" type="email" class="w-full px-3 py-2 border border-slate-300 rounded-sm text-sm bg-slate-50 focus:ring-1 focus:ring-primary focus:border-primary" required>
+            </div>
+
+            <!-- Documento -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-2">
+                    <label asp-for="TipoDocumento" class="block text-xs font-bold text-slate-600 uppercase tracking-wider">Tipo Documento</label>
+                    <select asp-for="TipoDocumento" id="TipoDocumento" class="w-full px-3 py-2 border border-slate-300 rounded-sm text-sm focus:ring-1 focus:ring-primary focus:border-primary">
+                        <option value="">Seleccionar</option>
+                        <option value="DNI">DNI</option>
+                        <option value="CE">Carné de Extranjería</option>
+                        <option value="PASAPORTE">Pasaporte</option>
+                    </select>
+                </div>
+                <div class="space-y-2">
+                    <label asp-for="NumeroDocumento" class="block text-xs font-bold text-slate-600 uppercase tracking-wider">Núm. Documento</label>
+                    <input asp-for="NumeroDocumento" id="NumeroDocumento" class="w-full px-3 py-2 border border-slate-300 rounded-sm text-sm focus:ring-1 focus:ring-primary focus:border-primary" placeholder="Ej: 71234568" maxlength="15">
+                    <p id="docError" class="text-[10px] text-red-500 hidden font-medium">Formato no válido</p>
+                </div>
+            </div>
+
+            <!-- Nacimiento y Telf -->
+            <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-2">
+                    <label asp-for="FechaNacimiento" class="block text-xs font-bold text-slate-600 uppercase tracking-wider">F. Nacimiento</label>
+                    <input asp-for="FechaNacimiento" type="date" class="w-full px-3 py-2 border border-slate-300 rounded-sm text-sm focus:ring-1 focus:ring-primary focus:border-primary">
+                </div>
+                <div class="space-y-2">
+                    <label asp-for="Telefono" class="block text-xs font-bold text-slate-600 uppercase tracking-wider">Teléfono / Celular</label>
+                    <input asp-for="Telefono" id="Telefono" class="w-full px-3 py-2 border border-slate-300 rounded-sm text-sm focus:ring-1 focus:ring-primary focus:border-primary" placeholder="Ej: 987654321" maxlength="12" oninput="this.value = this.value.replace(/[^0-9+\s-]/g, '');">
+                </div>
+            </div>
+
+            <!-- Ciudad -->
+            <div class="space-y-2">
+                <label asp-for="Ciudad" class="block text-xs font-bold text-slate-600 uppercase tracking-wider">Ubicación / Distrito (Lima)</label>
+                <select asp-for="Ciudad" class="w-full px-3 py-2 border border-slate-300 rounded-sm text-sm focus:ring-1 focus:ring-primary focus:border-primary">
+                    <option value="">Selecciona un Distrito...</option>
+                    <optgroup label="Lima Metropolitana">
+                        <option value="Lima">Lima (Cercado)</option>
+                        <option value="Ancon">Ancón</option>
+                        <option value="Ate">Ate</option>
+                        <option value="Barranco">Barranco</option>
+                        <option value="Brena">Breña</option>
+                        <option value="Carabayllo">Carabayllo</option>
+                        <option value="Chaclacayo">Chaclacayo</option>
+                        <option value="Chorrillos">Chorrillos</option>
+                        <option value="Cieneguilla">Cieneguilla</option>
+                        <option value="Comas">Comas</option>
+                        <option value="El Agustino">El Agustino</option>
+                        <option value="Independencia">Independencia</option>
+                        <option value="Jesus Maria">Jesús María</option>
+                        <option value="La Molina">La Molina</option>
+                        <option value="La Victoria">La Victoria</option>
+                        <option value="Lince">Lince</option>
+                        <option value="Los Olivos">Los Olivos</option>
+                        <option value="Lurigancho">Lurigancho (Chosica)</option>
+                        <option value="Lurin">Lurín</option>
+                        <option value="Magdalena del Mar">Magdalena del Mar</option>
+                        <option value="Miraflores">Miraflores</option>
+                        <option value="Pachacamac">Pachacámac</option>
+                        <option value="Pucusana">Pucusana</option>
+                        <option value="Pueblo Libre">Pueblo Libre</option>
+                        <option value="Puente Piedra">Puente Piedra</option>
+                        <option value="Punta Hermosa">Punta Hermosa</option>
+                        <option value="Punta Negra">Punta Negra</option>
+                        <option value="Rimac">Rímac</option>
+                        <option value="San Bartolo">San Bartolo</option>
+                        <option value="San Borja">San Borja</option>
+                        <option value="San Isidro">San Isidro</option>
+                        <option value="San Juan de Lurigancho">San Juan de Lurigancho</option>
+                        <option value="San Juan de Miraflores">San Juan de Miraflores</option>
+                        <option value="San Luis">San Luis</option>
+                        <option value="San Martin de Porres">San Martín de Porres</option>
+                        <option value="San Miguel">San Miguel</option>
+                        <option value="Santa Anita">Santa Anita</option>
+                        <option value="Santa Maria del Mar">Santa María del Mar</option>
+                        <option value="Santa Rosa">Santa Rosa</option>
+                        <option value="Santiago de Surco">Santiago de Surco</option>
+                        <option value="Surquillo">Surquillo</option>
+                        <option value="Villa El Salvador">Villa El Salvador</option>
+                        <option value="Villa Maria del Triunfo">Villa María del Triunfo</option>
+                    </optgroup>
+                    <optgroup label="Callao">
+                        <option value="Callao">Callao</option>
+                        <option value="Bellavista">Bellavista</option>
+                        <option value="Carmen de La Legua">Carmen de La Legua</option>
+                        <option value="La Perla">La Perla</option>
+                        <option value="La Punta">La Punta</option>
+                        <option value="Mi Peru">Mi Perú</option>
+                        <option value="Ventanilla">Ventanilla</option>
+                    </optgroup>
+                    <optgroup label="Exterior">
+                        <option value="Provincias">Otras Provincias (Fuera de Lima)</option>
+                        <option value="Extranjero">Extranjero</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <!-- Clave de Reseteo (Opcional) -->
+            <div class="space-y-2 border-t border-slate-100 pt-4">
+                <label asp-for="ClaveNueva" class="block text-xs font-bold text-amber-700 uppercase tracking-wider">Nueva Contraseña (Opcional)</label>
+                <input asp-for="ClaveNueva" type="password" class="w-full px-3 py-2 border border-slate-300 rounded-sm text-sm focus:ring-1 focus:ring-amber-500 focus:border-amber-500" placeholder="Dejar en blanco para no cambiar">
+                <p class="text-[10px] text-slate-400">Sólo llena este campo si deseas blanquear o cambiar la contraseña del alumno.</p>
+            </div>
+
+            <div class="pt-4 border-t border-slate-300 flex gap-3">
+                <button type="submit" class="flex-1 py-2 bg-primary text-white text-xs font-bold uppercase rounded-sm hover:bg-sky-800">
+                    Guardar Cambios
+                </button>
+                <a href="@Url.Action("IndexAlumnos")" class="flex-1 py-2 bg-slate-200 text-slate-700 text-xs font-bold uppercase rounded-sm hover:bg-slate-300 text-center">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const selectTipoDoc = document.getElementById('TipoDocumento');
+            const inputNumDoc = document.getElementById('NumeroDocumento');
+            const docError = document.getElementById('docError');
+
+            // Set constraints on load based on current selection
+            if (selectTipoDoc && inputNumDoc) {
+                function updateConstraints() {
+                    const tipo = selectTipoDoc.value;
+                    docError.classList.add('hidden');
+                    
+                    if (tipo === 'DNI') {
+                        inputNumDoc.setAttribute('maxlength', '8');
+                    } else if (tipo === 'CE') {
+                        inputNumDoc.setAttribute('maxlength', '12');
+                    } else {
+                        inputNumDoc.setAttribute('maxlength', '15');
+                    }
+                }
+
+                updateConstraints();
+
+                selectTipoDoc.addEventListener('change', function() {
+                    inputNumDoc.value = '';
+                    updateConstraints();
+                });
+
+                inputNumDoc.addEventListener('input', function() {
+                    let tipo = selectTipoDoc.value;
+                    if (tipo === 'DNI') {
+                        this.value = this.value.replace(/[^0-9]/g, '');
+                        if (this.value.length > 0 && this.value.length < 8) {
+                            docError.classList.remove('hidden');
+                            docError.textContent = "El DNI debe tener exactamente 8 números";
+                        } else {
+                            docError.classList.add('hidden');
+                        }
+                    } else {
+                        this.value = this.value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+                        docError.classList.add('hidden');
+                    }
+                });
+            }
+        });
+
+        document.getElementById('formEditarAlumno').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const tipoDoc = document.getElementById('TipoDocumento')?.value;
+            const numDoc = document.getElementById('NumeroDocumento')?.value;
+            
+            if (tipoDoc === 'DNI' && numDoc.length !== 8) {
+                document.getElementById('docError').classList.remove('hidden');
+                Swal.fire('Validación', 'El DNI debe tener exactamente 8 caracteres numéricos.', 'warning');
+                return;
+            }
+
+            const formData = new FormData(this);
+
+            try {
+                const response = await fetch('@Url.Action("EditAlumno")', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    await Swal.fire('¡Actualizado!', data.mensaje, 'success');
+                    window.location.href = data.redirectUrl || '@Url.Action("IndexAlumnos")';
+                } else {
+                    Swal.fire('Error', data.mensaje, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                Swal.fire('Error', 'No se pudo editar el usuario', 'error');
+            }
+        });
+    </script>
+}

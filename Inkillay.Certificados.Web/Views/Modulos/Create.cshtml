@@ -1,61 +1,106 @@
 @model Inkillay.Certificados.Web.Models.Entities.Modulo
+
 @{
     ViewData["Title"] = "Crear Nuevo Módulo";
 }
 
-<div class="max-w-xl mx-auto py-8">
-    <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-200 bg-slate-50">
-            <h2 class="text-lg font-semibold text-slate-800">Registrar Grupo de Curso</h2>
-        </div>
-        
-        <form asp-action="Create" class="p-6 space-y-4">
-            <div class="grid grid-cols-2 gap-4">
-                <div class="col-span-2">
-                    <label class="block text-sm font-medium text-slate-700">Curso</label>
-                    <select asp-for="IdCurso" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                        <option value="">-- Seleccionar --</option>
-                        @foreach(var curso in ViewBag.Cursos)
+<div class="container-fluid px-4 py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2 fw-bold text-primary">Crear Nuevo Módulo</h1>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Volver al listado
+        </a>
+    </div>
+
+    <form asp-action="Create" method="post" class="card shadow-sm border-0 rounded-3">
+        @Html.AntiForgeryToken()
+
+        <div class="card-body p-4">
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger shadow-sm">
+                    <div asp-validation-summary="All" class="text-danger small"></div>
+                </div>
+            }
+
+            <h5 class="text-secondary mb-4 border-bottom pb-2">
+                <i class="fas fa-info-circle me-2"></i>Información del Módulo
+            </h5>
+
+            <div class="row g-4 mb-5">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Nombre del Curso *</label>
+                    <select asp-for="IdCurso" class="form-select select2-custom" required>
+                        <option value="">Seleccione un curso...</option>
+                        @foreach (var curso in ViewBag.Cursos)
                         {
                             <option value="@curso.IdCurso">@curso.Nombre</option>
                         }
                     </select>
                 </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-slate-700">ID Docente</label>
-                    <input asp-for="IdDocente" type="number" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Docente Asignado *</label>
+                    <select asp-for="IdDocente" class="form-select select2-custom" required>
+                        <option value="">Buscar docente...</option>
+                        @foreach (var docente in ViewBag.Docentes)
+                        {
+                            <option value="@docente.IdUsuario">@docente.Nombre</option>
+                        }
+                    </select>
                 </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-slate-700">Edición</label>
-                    <input asp-for="EdicionCurso" type="text" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="Ej. 2026-I" />
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Edición *</label>
+                    <input asp-for="EdicionCurso" class="form-control" placeholder="Ej: 2026-I" required />
                 </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-slate-700">Costo Curso (S/)</label>
-                    <input asp-for="CostoCurso" type="number" step="0.01" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+            </div>
+
+            <h5 class="text-secondary mb-4 border-bottom pb-2">
+                <i class="fas fa-calendar-alt me-2"></i>Planificación y Costos
+            </h5>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Inicio Matrícula</label>
+                    <input asp-for="FechaInicioMatricula" type="date" class="form-control" />
                 </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-slate-700">Capacidad Alumnos</label>
-                    <input asp-for="CapacidadAlumno" type="number" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Fin Matrícula</label>
+                    <input asp-for="FechaFinMatricula" type="date" class="form-control" />
                 </div>
-                
-                <div class="col-span-2">
-                    <label class="block text-sm font-medium text-slate-700">Modalidad</label>
-                    <select asp-for="Modalidad" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Inicio Clases *</label>
+                    <input asp-for="FechaInicioClases" type="date" class="form-control" required />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Modalidad</label>
+                    <select asp-for="Modalidad" class="form-select">
                         <option value="P">Presencial</option>
+                        <option value="R">Remoto</option>
                         <option value="H">Híbrido</option>
-                        <option value="R">Remoto / Virtual</option>
                     </select>
                 </div>
             </div>
 
-            <div class="mt-6 flex justify-end gap-3">
-                <a asp-action="Index" class="px-4 py-2 border border-slate-300 text-slate-700 rounded-md hover:bg-slate-50">Cancelar</a>
-                <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Guardar</button>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Inversión (Costo) *</label>
+                    <div class="input-group">
+                        <span class="input-group-text">S/</span>
+                        <input asp-for="CostoCurso" type="number" step="0.01" class="form-control" placeholder="0.00" required />
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Capacidad Alumnos *</label>
+                    <input asp-for="CapacidadAlumno" type="number" class="form-control" placeholder="0" required />
+                </div>
             </div>
-        </form>
-    </div>
+        </div>
+
+        <div class="card-footer bg-light p-4 border-0 d-flex justify-content-end">
+            <button type="button" class="btn btn-link text-secondary me-3 text-decoration-none" onclick="history.back()">Cancelar</button>
+            <button type="submit" class="btn btn-primary px-5 py-2 fw-bold shadow">
+                <i class="fas fa-save me-2"></i>Guardar Módulo
+            </button>
+        </div>
+    </form>
 </div>
