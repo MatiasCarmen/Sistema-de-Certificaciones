@@ -5,5 +5,5 @@ namespace Inkillay.Certificados.Web.Data.Repositories;
 public interface IDashboardRepository
 {
     Task<AdminDashboardViewModel?> ObtenerEstadisticasDashboardAsync();
-    Task<IEnumerable<RecentActivityViewModel>> ListarActividadRecienteAsync();
+    Task<IEnumerable<ActividadReciente>> ListarActividadRecienteAsync();
 }

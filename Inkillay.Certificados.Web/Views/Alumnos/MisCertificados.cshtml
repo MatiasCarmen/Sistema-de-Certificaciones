@@ -1,4 +1,4 @@
-@model IEnumerable<Inkillay.Certificados.Web.Models.Entities.Modulo>
+@model IEnumerable<Inkillay.Certificados.Web.Models.Entities.Matricula>
 @{
     ViewData["Title"] = "Expediente de Certificados";
 }
@@ -54,12 +54,12 @@
                     {
                         var listo = item.Aprobado && item.TotalPagado >= item.CostoCurso;
                         <tr class="hover:bg-slate-50">
-                            <td class="px-4 py-2 border-r border-slate-200 font-mono text-[11px]">#MAT-@item.IdModulo</td>
+                            <td class="px-4 py-2 border-r border-slate-200 font-mono text-[11px]">#MAT-@item.IdMatricula</td>
                             <td class="px-4 py-2 border-r border-slate-200">
                                 <div class="font-bold text-slate-800 text-sm">@item.NombreCurso</div>
                                 <div class="text-[10px] text-slate-400 uppercase">Acreditación Académica</div>
                             </td>
-                            <td class="px-4 py-2 border-r border-slate-200 text-[12px]">@item.FechaModulo?.ToString("dd/MM/yyyy")</td>
+                            <td class="px-4 py-2 border-r border-slate-200 text-[12px]">@(item.FechaRegistro?.ToString("dd/MM/yyyy"))</td>
                             <td class="px-4 py-2 border-r border-slate-200 text-center">
                                 @if (listo)
                                 {
@@ -73,7 +73,7 @@
                             <td class="px-4 py-2 text-center">
                                 @if (listo)
                                 {
-                                    <a href="@Url.Action("DescargarPdf", "Emision", new { idModulo = item.IdModulo })" 
+                                    <a href="@Url.Action("DescargarPdf", "Emision", new { idModulo = item.IdMatricula })" 
                                        class="inline-flex items-center px-3 py-1 bg-blue-600 text-white text-[11px] font-bold rounded-sm hover:bg-blue-700 transition-none">
                                         <span class="material-symbols-outlined text-sm mr-1">download</span> PDF
                                     </a>

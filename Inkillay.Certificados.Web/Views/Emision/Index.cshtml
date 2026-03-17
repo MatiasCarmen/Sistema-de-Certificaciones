@@ -69,45 +69,48 @@
                 }
                 else
                 {
-                    @foreach (var item in Model.Alumnos)
+                    @foreach (var alumno in Model.Alumnos)
                     {
-                        <tr class="hover:bg-slate-50">
-                            <td class="px-4 py-3 border-r border-slate-200">@item.IdModulo</td>
-                            <td class="px-4 py-3 border-r border-slate-200 font-medium">@item.NombreAlumno</td>
-                            <td class="px-4 py-3 border-r border-slate-200">@item.NombreCurso</td>
-                            <td class="px-4 py-3 border-r border-slate-200">@(item.FechaModulo != null ? ((DateTime)item.FechaModulo).ToString("dd/MM/yyyy") : "-")</td>
-                            <td class="px-4 py-3 border-r border-slate-200">
-                                <span class="text-xs font-bold @(item.Aprobado ? "text-green-700" : "text-red-700")">
-                                    @(item.Aprobado ? "SÍ" : "NO")
-                                </span>
+                        <tr class="hover:bg-gray-50 transition-colors border-b last:border-0">
+                            <td class="px-6 py-4 border-r border-slate-200">@alumno.IdMatricula</td>
+                            <td class="px-6 py-4 border-r border-slate-200">
+                                <div class="font-medium text-gray-900">@alumno.NombreAlumno</div>
                             </td>
-                            <td class="px-4 py-3 border-r border-slate-200">
-                                @if (item.Aprobado && item.TotalPagado >= item.CostoCurso)
+                            <td class="px-6 py-4 border-r border-slate-200">@alumno.NombreCurso</td>
+                            <td class="px-6 py-4 border-r border-slate-200">-</td>
+                            <td class="px-6 py-4 border-r border-slate-200">
+                                @if (alumno.Aprobado)
                                 {
-                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs font-bold uppercase rounded-sm border border-green-300">Aprobado</span>
-                                }
-                                else if (item.Aprobado && item.TotalPagado < item.CostoCurso)
-                                {
-                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-bold uppercase rounded-sm border border-yellow-300">Pendiente</span>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        Aprobado
+                                    </span>
                                 }
                                 else
                                 {
-                                    <span class="px-2 py-1 bg-red-100 text-red-800 text-xs font-bold uppercase rounded-sm border border-red-300">Rechazo</span>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        No Aprobado
+                                    </span>
                                 }
                             </td>
-                            <td class="px-4 py-3 text-center">
-                                @if (item.Aprobado && item.TotalPagado >= item.CostoCurso)
+                            <td class="px-6 py-4 border-r border-slate-200">
+                                <span class="text-sm @(alumno.TotalPagado >= alumno.CostoCurso ? "text-green-600 font-semibold" : "text-amber-600")">
+                                    S/ @alumno.TotalPagado.ToString("F2") / S/ @alumno.CostoCurso.ToString("F2")
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                @if (alumno.Aprobado && alumno.TotalPagado >= alumno.CostoCurso)
                                 {
-                                    <a href="@Url.Action("DescargarPdf", "Emision", new { idModulo = item.IdModulo })" 
-                                       class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-sky-800 text-white text-xs font-bold rounded-sm transition-colors"
-                                       title="Descargar Certificado PDF">
-                                        <span class="material-symbols-outlined text-sm">download</span> PDF
+                                    <a href="/Emision/DescargarPdf?idModulo=@alumno.IdMatricula" 
+                                       class="btn-emitir inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-all shadow-sm">
+                                        <span class="material-symbols-outlined text-sm">download</span>
+                                        Descargar
                                     </a>
                                 }
                                 else
                                 {
-                                    <button disabled class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-300 text-slate-500 text-xs font-bold rounded-sm cursor-not-allowed opacity-50">
-                                        <span class="material-symbols-outlined text-sm">lock</span> PDF
+                                    <button disabled class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-400 text-xs font-bold rounded-lg cursor-not-allowed">
+                                        <span class="material-symbols-outlined text-sm">lock</span>
+                                        Pendiente
                                     </button>
                                 }
                             </td>

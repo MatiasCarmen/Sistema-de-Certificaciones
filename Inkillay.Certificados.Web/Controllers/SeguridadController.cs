@@ -1,4 +1,5 @@
 using Inkillay.Certificados.Web.Data.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Inkillay.Certificados.Web.Controllers;

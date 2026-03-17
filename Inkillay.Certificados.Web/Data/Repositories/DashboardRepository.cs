@@ -22,10 +22,10 @@ public class DashboardRepository : IDashboardRepository
         );
     }
 
-    public async Task<IEnumerable<RecentActivityViewModel>> ListarActividadRecienteAsync()
+    public async Task<IEnumerable<ActividadReciente>> ListarActividadRecienteAsync()
     {
         using var connection = _connectionFactory.CreateConnection();
-        return await connection.QueryAsync<RecentActivityViewModel>(
+        return await connection.QueryAsync<ActividadReciente>(
             "USP_Diplomas_ListarRecientes",
             commandType: CommandType.StoredProcedure
         );

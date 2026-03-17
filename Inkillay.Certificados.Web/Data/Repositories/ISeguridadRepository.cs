@@ -6,8 +6,10 @@ namespace Inkillay.Certificados.Web.Data.Repositories;
 public interface ISeguridadRepository
 {
     // Usuarios
+    Task<IEnumerable<Usuarios>> ListarTodosAsync();
     Task<IEnumerable<Usuarios>> ListarUsuariosAsync();
     Task<Usuarios?> ObtenerUsuarioPorIdAsync(int idUsuario);
+    Task<Usuarios?> ObtenerUsuarioPorCorreoAsync(string correo);
     Task<bool> CorreoExisteAsync(string correo);
     Task<bool> RegistrarUsuarioAsync(Usuarios usuario);
     Task<int> CambiarEstadoUsuarioAsync(int idUsuario, bool estado);
@@ -18,6 +20,5 @@ public interface ISeguridadRepository
     Task<bool> RegistrarAlumnoCompletoAsync(CrearUsuarioViewModel model, string usuarioAdmin);
 
     // Roles y Modulos de Seguridad
-    Task<IEnumerable<Rol>> ListarRolesAsync();
-    Task<IEnumerable<Seg_Modulo>> ListarSegModulosAsync();
+    Task<IEnumerable<Seg_Modulo>> ListarModulosAsync();
 }

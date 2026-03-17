@@ -55,7 +55,7 @@ public class SeguridadRepository : ISeguridadRepository
         );
     }
 
-    public async Task<Usuarios> ObtenerUsuarioPorCorreoAsync(string correo)
+    public async Task<Usuarios?> ObtenerUsuarioPorCorreoAsync(string correo)
     {
         using var connection = _connectionFactory.CreateConnection();
         return await connection.QueryFirstOrDefaultAsync<Usuarios>(
@@ -96,7 +96,7 @@ public class SeguridadRepository : ISeguridadRepository
 
     // --- MÉTODOS DE ALUMNOS (FICHA COMPLETA) ---
 
-    public async Task<EditarAlumnoViewModel> ObtenerAlumnoPorIdAsync(int idUsuario)
+    public async Task<EditarAlumnoViewModel?> ObtenerAlumnoPorIdAsync(int idUsuario)
     {
         using var connection = _connectionFactory.CreateConnection();
         return await connection.QueryFirstOrDefaultAsync<EditarAlumnoViewModel>(
