@@ -22,17 +22,11 @@ public class Modulo : AuditoriaBase
     // Valores: 1-Creado, 2-En Matricula, etc.
     public char EstadoMatricula { get; set; } = '1';
 
-    // 5. Propiedades de Apoyo (Para mostrar nombres en la lista, no se guardan en Modulos)
+    // 5. Propiedades de Apoyo (Para mostrar nombres en la lista, no    // Propiedades de apoyo (JOINs en SP)
     public string NombreCurso { get; set; } = string.Empty;
     public string NombreDocente { get; set; } = string.Empty;
-    public int TotalInscritos { get; set; }
+    public int TotalInscritos { get; set; } // Nuevo campo que debería devolver USP_Modulos_ListarTodos
 
     // --- Mantenemos lo necesario para no romper el resto del sistema ---
-    public bool Aprobado { get; set; }
-    public decimal TotalPagado { get; set; }
-
-    public int IdUsuario { get; set; } // Para DocentesController
     public char Estado { get => EstadoMatricula; set => EstadoMatricula = value; }
-    public DateTime? FechaModulo { get; set; }
-    public string NombreAlumno { get; set; } = string.Empty;
 }

@@ -12,13 +12,13 @@ namespace Inkillay.Certificados.Web.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    private readonly ISeguridadRepository _seguridadRepository;
+    private readonly IDashboardRepository _dashboardRepository;
     private readonly AuditoriaService _auditoriaService;
 
-    public HomeController(ILogger<HomeController> logger, ISeguridadRepository seguridadRepository, AuditoriaService auditoriaService)
+    public HomeController(ILogger<HomeController> logger, IDashboardRepository dashboardRepository, AuditoriaService auditoriaService)
     {
         _logger = logger;
-        _seguridadRepository = seguridadRepository;
+        _dashboardRepository = dashboardRepository;
         _auditoriaService = auditoriaService;
     }
 
@@ -29,7 +29,7 @@ public class HomeController : Controller
         {
             try
             {
-                var dashboard = await _seguridadRepository.ObtenerEstadisticasDashboardAsync();
+                var dashboard = await _dashboardRepository.ObtenerEstadisticasDashboardAsync();
 
                 // Obtener actividad reciente
                 var actividad = await _auditoriaService.ObtenerUltimosAsync(5);
@@ -45,13 +45,13 @@ public class HomeController : Controller
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error al cargar estadísticas del dashboard");
-                var actividad = await _seguridadRepository.ListarActividadRecienteAsync();
+                var actividad = await _dashboardRepository.ListarActividadRecienteAsync();
                 return View("Index", actividad);
             }
         }
 
         // Si es Docente o Alumno, mostrar actividad reciente
-        var recentActivity = await _seguridadRepository.ListarActividadRecienteAsync();
+        var recentActivity = await _dashboardRepository.ListarActividadRecienteAsync();
         return View(recentActivity);
     }
 

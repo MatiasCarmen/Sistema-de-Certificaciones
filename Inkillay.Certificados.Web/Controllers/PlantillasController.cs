@@ -8,21 +8,22 @@ using System.Text.Json;
 
 namespace Inkillay.Certificados.Web.Controllers;
 
+[Authorize(Roles = "Admin")]
 public class PlantillasController : Controller
 {
     private readonly IWebHostEnvironment _hostEnvironment;
-    private readonly ISeguridadRepository _seguridadRepository;
+    private readonly IPlantillaRepository _plantillaRepository;
     private readonly ICertificadoService _certificadoService;
     private readonly ILogger<PlantillasController> _logger;
 
     public PlantillasController(
         IWebHostEnvironment hostEnvironment,
-        ISeguridadRepository seguridadRepository,
+        IPlantillaRepository plantillaRepository,
         ICertificadoService certificadoService,
         ILogger<PlantillasController> logger)
     {
         _hostEnvironment = hostEnvironment;
-        _seguridadRepository = seguridadRepository;
+        _plantillaRepository = plantillaRepository;
         _certificadoService = certificadoService;
         _logger = logger;
     }
@@ -30,7 +31,7 @@ public class PlantillasController : Controller
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var lista = await _seguridadRepository.ListarPlantillasAsync();
+        var lista = await _plantillaRepository.ListarPlantillasAsync();
         return View(lista);
     }
 
@@ -44,11 +45,11 @@ public class PlantillasController : Controller
     [HttpGet]
     public async Task<IActionResult> Editor(int id)
     {
-        var plantillas = await _seguridadRepository.ListarPlantillasAsync();
+        var plantillas = await _plantillaRepository.ListarPlantillasAsync();
         var plantilla = plantillas.FirstOrDefault(p => p.IdPlantilla == id);
         if (plantilla == null) return NotFound();
 
-        var detalles = (await _seguridadRepository.ListarDetallesPlantillaAsync(id)).ToList();
+        var detalles = (await _plantillaRepository.ListarDetallesPlantillaAsync(id)).ToList();
 
         // Backward compatibility: if no detalles exist but plantilla has coordinates, create a virtual layer
         if (detalles.Count == 0 && (plantilla.EjeX > 0 || plantilla.EjeY > 0))
@@ -77,13 +78,13 @@ public class PlantillasController : Controller
     [HttpGet]
     public async Task<IActionResult> Previsualizar(int id)
     {
-        var plantillas = await _seguridadRepository.ListarPlantillasAsync();
+        var plantillas = await _plantillaRepository.ListarPlantillasAsync();
         var plantilla = plantillas.FirstOrDefault(p => p.IdPlantilla == id);
         if (plantilla == null) return NotFound();
 
         try
         {
-            var detalles = (await _seguridadRepository.ListarDetallesPlantillaAsync(id)).ToList();
+            var detalles = (await _plantillaRepository.ListarDetallesPlantillaAsync(id)).ToList();
             byte[] imagenBytes;
 
             if (detalles.Count > 0)
@@ -161,7 +162,7 @@ public class PlantillasController : Controller
                 RutaImagen = nombreArchivo
             };
 
-            await _seguridadRepository.InsertarPlantillaAsync(plantilla);
+            await _plantillaRepository.InsertarPlantillaAsync(plantilla);
             return Json(new { success = true });
         }
         catch (Exception ex)
@@ -175,7 +176,7 @@ public class PlantillasController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ActualizarDiseno(int id, int x, int y, int fontSize, string fontColor)
     {
-        var filas = await _seguridadRepository.ActualizarDisenoPlantillaAsync(id, x, y, fontSize, fontColor);
+        var filas = await _plantillaRepository.ActualizarDisenoPlantillaAsync(id, x, y, fontSize, fontColor);
         return Json(new { success = filas > 0 });
     }
 
@@ -187,7 +188,7 @@ public class PlantillasController : Controller
 
         try
         {
-            var filas = await _seguridadRepository.ActualizarDisenoPlantillaAsync(
+            var filas = await _plantillaRepository.ActualizarDisenoPlantillaAsync(
                 request.id,
                 int.Parse(request.ejeX.ToString()),
                 int.Parse(request.ejeY.ToString()),
@@ -226,7 +227,7 @@ public class PlantillasController : Controller
             if (detalles == null || detalles.Count == 0)
                 return Json(new { success = false, mensaje = "No hay capas para guardar" });
 
-            var ok = await _seguridadRepository.GuardarDisenoCompletoAsync(id, detalles);
+            var ok = await _plantillaRepository.GuardarDisenoCompletoAsync(id, detalles);
             return Json(new { success = ok, mensaje = ok ? "Diseño guardado correctamente" : "No se pudieron guardar los cambios" });
         }
         catch (Exception ex)
@@ -240,17 +241,9 @@ public class PlantillasController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> CambiarEstado(int id)
     {
-        var filas = await _seguridadRepository.CambiarEstadoPlantillaAsync(id);
+        var filas = await _plantillaRepository.CambiarEstadoPlantillaAsync(id);
         return Json(new { success = filas > 0 });
     }
 }
 
-public class GuardarDisenoRequest
-{
-    public int id { get; set; }
-    public int ejeX { get; set; }
-    public int ejeY { get; set; }
-    public int fontSize { get; set; }
-    public string fontColor { get; set; } = "#000000";
-    public bool estado { get; set; }
-}
+

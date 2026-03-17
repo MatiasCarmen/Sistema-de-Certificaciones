@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Inkillay.Certificados.Web.Controllers;
 
+[Authorize(Roles = "Admin")]
 public class SeguridadController : Controller
 {
     private readonly ISeguridadRepository _seguridadRepository;

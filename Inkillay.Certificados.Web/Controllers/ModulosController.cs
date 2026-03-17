@@ -32,19 +32,19 @@ public class ModulosController : Controller
     [HttpGet]
     public async Task<IActionResult> Create()
     {
-        // 1. Cargamos los Cursos para el buscador de la pantalla
-        ViewBag.Cursos = await _cursoRepository.ListarCursosActivosAsync();
+        var cursos = await _cursoRepository.ListarCursosActivosAsync();
+        var usuarios = await _seguridadRepository.ListarUsuariosAsync();
+        var docentes = usuarios.Where(u => u.IdRol == 2 && u.Estado == 'A').ToList();
 
-        // 2. Cargamos los Docentes (IdRol 2 según vimos en tu búnker)
-        // Nota: Asegúrate que ListarTodosAsync() exista en ISeguridadRepository
-        var usuarios = await _seguridadRepository.ListarTodosAsync();
-        ViewBag.Docentes = usuarios.Where(u => u.IdRol == 2 && u.Estado == 'A');
-
-        return View(new Modulo
+        var vm = new CrearModuloViewModel
         {
+            Cursos = cursos,
+            Docentes = docentes,
             FechaInicioMatricula = DateTime.Now,
             EstadoMatricula = '1' // Estado inicial "Creado"
-        });
+        };
+
+        return View(vm);
     }
 
     [HttpPost]

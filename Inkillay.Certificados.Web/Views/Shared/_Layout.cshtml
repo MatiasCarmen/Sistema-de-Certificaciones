@@ -71,32 +71,34 @@
                             <span class="material-symbols-outlined text-base mr-3">admin_panel_settings</span>
                             Personal / Admin
                         </a>
-                        <a href="/Usuarios/IndexAlumnos" class="@ActiveClass("Usuarios", "IndexAlumnos")">
+                        <a href="/Alumnos/Padron" class="@ActiveClass("Alumnos", "Padron")">
                             <span class="material-symbols-outlined text-base mr-3">groups</span>
                             Padrón Alumnos
                         </a>
-                        <a asp-controller="Cursos" asp-action="Index" class="flex items-center p-2 text-gray-700 hover:bg-blue-50 rounded-lg group">
-                            <i class="fas fa-book-open w-6"></i>
-                            <span class="ml-3">Gestión de Cursos</span>
+                        <a href="/Cursos/Index" class="@ActiveClass("Cursos")">
+                            <span class="material-symbols-outlined text-base mr-3">menu_book</span>
+                            Gestión de Cursos
                         </a>
                     }
+                </div>
 
-                    @if (User.IsInRole("Docente") || User.IsInRole("Admin"))
+                <!-- Sección: Operaciones -->
+                <div class="mb-6">
+                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-2">Operaciones</p>
+                    
+                    @if (User.IsInRole("Admin") || User.IsInRole("Docente"))
                     {
-                        <div class="pt-4 pb-2 px-3 border-t border-slate-700">
-                            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Operaciones</p>
-                        </div>
+                        <a href="/Matriculas/Registrar" class="@ActiveClass("Matriculas", "Registrar")">
+                            <span class="material-symbols-outlined text-base mr-3">person_add</span>
+                            Matricular Alumno
+                        </a>
                         <a href="/Emision/Index" class="@ActiveClass("Emision")">
                             <span class="material-symbols-outlined text-base mr-3">verified</span>
-                            Emisión
+                            Emitir Certificados
                         </a>
-                        <a href="/Docentes/Index" class="@ActiveClass("Docentes", "Index")">
-                            <span class="material-symbols-outlined text-base mr-3">assignment</span>
-                            Panel Docente
-                        </a>
-                        <a href="/Docentes/Modulor" class="@ActiveClass("Docentes", "Modulor")">
-                            <span class="material-symbols-outlined text-base mr-3">person_add</span>
-                            Modulor Alumno
+                        <a href="/Pagos/Index" class="@ActiveClass("Pagos")">
+                            <span class="material-symbols-outlined text-base mr-3">payments</span>
+                            Registro de Pagos
                         </a>
                     }
 

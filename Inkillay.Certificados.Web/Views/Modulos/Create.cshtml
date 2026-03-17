@@ -1,7 +1,7 @@
-@model Inkillay.Certificados.Web.Models.Entities.Modulo
+@model Inkillay.Certificados.Web.Models.ViewModels.CrearModuloViewModel
 
 @{
-    Layout = "_Layout"; // O null si quieres que use todo el HTML que pasaste
+    Layout = "_Layout";
     ViewData["Title"] = "SGA - Crear Nuevo Módulo";
 }
 
@@ -24,15 +24,11 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-x-6 gap-y-4">
-                    <div class="md:col-span-3">
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wide"># Módulo *</label>
-                        <input type="text" asp-for="IdModulo" readonly class="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-2.5 outline-none cursor-not-allowed" placeholder="AUTO-GENERADO">
-                    </div>
-                    <div class="md:col-span-6">
+                    <div class="md:col-span-9">
                         <label class="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wide">Nombre del Curso *</label>
                         <select asp-for="IdCurso" required class="w-full bg-[#f9fafb] border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all appearance-none cursor-pointer">
                             <option value="">Seleccione un curso...</option>
-                            @foreach (var curso in ViewBag.Cursos)
+                            @foreach (var curso in Model.Cursos)
                             {
                                 <option value="@curso.IdCurso">@curso.Nombre</option>
                             }
@@ -40,10 +36,11 @@
                         <span asp-validation-for="IdCurso" class="text-red-500 text-xs mt-1"></span>
                     </div>
                     <div class="md:col-span-3">
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wide">Estado *</label>
-                        <select asp-for="EstadoMatricula" required class="w-full bg-[#f9fafb] border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:border-blue-500 appearance-none cursor-pointer">
-                            <option value="1">Activo / Creado</option>
-                            <option value="0">Inactivo</option>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wide">Modalidad *</label>
+                        <select asp-for="Modalidad" required class="w-full bg-[#f9fafb] border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:border-blue-500 appearance-none">
+                            <option value="P">Presencial</option>
+                            <option value="R">Remoto</option>
+                            <option value="H">Híbrido</option>
                         </select>
                     </div>
                 </div>
@@ -60,7 +57,7 @@
                         <label class="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wide">Docente Asignado *</label>
                         <select asp-for="IdDocente" required class="w-full bg-[#f9fafb] border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all appearance-none cursor-pointer">
                             <option value="">Buscar docente por nombre...</option>
-                            @foreach (var docente in ViewBag.Docentes)
+                            @foreach (var docente in Model.Docentes)
                             {
                                 <option value="@docente.IdUsuario">@docente.Nombre</option>
                             }
@@ -79,24 +76,16 @@
                         <label class="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wide">Fecha Inicio Clases *</label>
                         <input type="date" asp-for="FechaInicioClases" required class="w-full bg-[#f9fafb] border border-gray-300 rounded-lg px-4 py-2.5 focus:border-blue-500 outline-none">
                     </div>
-                    <div class="md:col-span-4">
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wide">Modalidad *</label>
-                        <select asp-for="Modalidad" required class="w-full bg-[#f9fafb] border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:border-blue-500 appearance-none">
-                            <option value="P">Presencial</option>
-                            <option value="R">Remoto</option>
-                            <option value="H">Híbrido</option>
-                        </select>
-                    </div>
 
-                    <div class="md:col-span-4">
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wide">Inversión (Costo) *</label>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wide">Inversión *</label>
                         <div class="relative">
                             <span class="absolute left-4 top-2.5 text-gray-400">S/</span>
                             <input type="number" asp-for="CostoCurso" step="0.01" required class="w-full bg-[#f9fafb] border border-gray-300 rounded-lg pl-8 pr-4 py-2.5 focus:border-blue-500 outline-none" placeholder="0.00">
                         </div>
                     </div>
-                    <div class="md:col-span-4">
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wide">Capacidad Alumnos *</label>
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wide">Capacidad *</label>
                         <input type="number" asp-for="CapacidadAlumno" required class="w-full bg-[#f9fafb] border border-gray-300 rounded-lg px-4 py-2.5 focus:border-blue-500 outline-none" placeholder="0">
                     </div>
                 </div>
@@ -104,9 +93,9 @@
 
             <div class="pt-8 border-t border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
-                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Usuario Registro</span>
+                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Creado por</span>
                     <div class="flex justify-between mt-1 text-sm">
-                        <span class="font-bold text-gray-700">@User.Identity.Name</span>
+                        <span class="font-bold text-gray-700">@User.Identity?.Name</span>
                         <span class="text-gray-400 italic">@DateTime.Now.ToString("dd/MM/yyyy")</span>
                     </div>
                 </div>

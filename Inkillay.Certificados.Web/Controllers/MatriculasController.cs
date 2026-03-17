@@ -1,0 +1,73 @@
+using Inkillay.Certificados.Web.Data.Repositories;
+using Inkillay.Certificados.Web.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Inkillay.Certificados.Web.Controllers;
+
+[Authorize(Roles = "Docente,Admin")]
+public class MatriculasController : Controller
+{
+    private readonly ICursoRepository _cursoRepository;
+    private readonly IMatriculaRepository _matriculaRepository;
+    private readonly ISeguridadRepository _seguridadRepository;
+
+    public MatriculasController(
+        ICursoRepository cursoRepository,
+        IMatriculaRepository matriculaRepository,
+        ISeguridadRepository seguridadRepository)
+    {
+        _cursoRepository = cursoRepository;
+        _matriculaRepository = matriculaRepository;
+        _seguridadRepository = seguridadRepository;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Registrar()
+    {
+        var cursos = await _cursoRepository.ListarCursosActivosAsync();
+        var alumnos = await _seguridadRepository.ListarUsuariosAsync();
+        
+        var vm = new MatricularViewModel
+        {
+            Cursos = cursos,
+            Alumnos = alumnos.Where(u => u.IdRol == 3)
+        };
+
+        return View(vm);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Registrar(int idAlumno, int idModulo)
+    {
+        if (idAlumno <= 0 || idModulo <= 0)
+            return Json(new { success = false, mensaje = "Seleccione alumno y módulo válidos." });
+
+        try
+        {
+            // Usando el nuevo repositorio y SPs de la Fase 3
+            var nombreUsuario = User.Identity?.Name ?? "Sistema";
+            var resultado = await _matriculaRepository.RegistrarMatriculaAsync(idModulo, idAlumno, nombreUsuario);
+            
+            if (resultado)
+                return Json(new { success = true, mensaje = "Alumno matriculado exitosamente." });
+
+            return Json(new { success = false, mensaje = "No se pudo registrar la matrícula." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, mensaje = $"Error: {ex.Message}" });
+        }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> VerAlumnos(int idModulo)
+    {
+        if (idModulo <= 0)
+            return PartialView("_TablaAlumnos", Enumerable.Empty<Inkillay.Certificados.Web.Models.Entities.Matricula>());
+
+        var matriculas = await _matriculaRepository.ListarAlumnosPorModuloAsync(idModulo);
+        return PartialView("_TablaAlumnos", matriculas);
+    }
+}

@@ -12,35 +12,41 @@ public class EmisionController : Controller
 {
     private readonly ICursoRepository _cursoRepository;
     private readonly IModuloRepository _ModuloRepository;
-    private readonly ISeguridadRepository _seguridadRepository;
+    private readonly IMatriculaRepository _matriculaRepository;
+    private readonly IPlantillaRepository _plantillaRepository;
     private readonly ICertificadoService _certificadoService;
     private readonly AuditoriaService _auditoriaService;
     private readonly IWebHostEnvironment _hostEnvironment;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ILogger<EmisionController> _logger;
 
     public EmisionController(
         ICursoRepository cursoRepository,
         IModuloRepository ModuloRepository,
-        ISeguridadRepository seguridadRepository,
+        IMatriculaRepository matriculaRepository,
+        IPlantillaRepository plantillaRepository,
         ICertificadoService certificadoService,
         AuditoriaService auditoriaService,
         IWebHostEnvironment hostEnvironment,
-        IHttpContextAccessor httpContextAccessor)
+        IHttpContextAccessor httpContextAccessor,
+        ILogger<EmisionController> logger)
     {
         _cursoRepository = cursoRepository;
         _ModuloRepository = ModuloRepository;
-        _seguridadRepository = seguridadRepository;
+        _matriculaRepository = matriculaRepository;
+        _plantillaRepository = plantillaRepository;
         _certificadoService = certificadoService;
         _auditoriaService = auditoriaService;
         _hostEnvironment = hostEnvironment;
         _httpContextAccessor = httpContextAccessor;
+        _logger = logger;
     }
 
     [HttpGet]
     public async Task<IActionResult> Index(int? idCurso)
     {
         var cursos = await _cursoRepository.ListarCursosActivosAsync();
-        var plantillas = await _seguridadRepository.ListarPlantillasAsync();
+        var plantillas = await _plantillaRepository.ListarPlantillasAsync();
         var alumnos = idCurso.HasValue
             ? await _ModuloRepository.ListarAlumnosPorCursoAsync(idCurso.Value)
             : Enumerable.Empty<Models.Entities.Modulo>();
@@ -76,7 +82,7 @@ public class EmisionController : Controller
         if (!alumnos.Any())
             return Json(new { success = false, message = "No hay alumnos para emitir." });
 
-        var plantillas = await _seguridadRepository.ListarPlantillasAsync();
+        var plantillas = await _plantillaRepository.ListarPlantillasAsync();
         var plantilla = plantillas.FirstOrDefault(x => x.IdPlantilla == idPlantilla);
         if (plantilla == null)
             return Json(new { success = false, message = "Plantilla no encontrada." });
@@ -90,7 +96,7 @@ public class EmisionController : Controller
         int generados = 0;
         int omitidos = 0;
 
-        var detalles = (await _seguridadRepository.ListarDetallesPlantillaAsync(idPlantilla)).ToList();
+        var detalles = (await _plantillaRepository.ListarDetallesPlantillaAsync(idPlantilla)).ToList();
 
         foreach (var alumno in alumnos)
         {
@@ -180,43 +186,42 @@ public class EmisionController : Controller
         if (!esAdmin && (!Modulo.Aprobado || Modulo.TotalPagado < Modulo.CostoCurso))
         {
             return BadRequest("El alumno no cumple con los requisitos para descargar el certificado (debe estar aprobado y haber pagado el costo completo)");
-        }
-
-        var idUsuario = int.TryParse(idUsuarioStr, out var id) ? id : 0;
-
+    public async Task<IActionResult> DescargarPdf(int idModulo, int idPlantilla)
+    {
         try
         {
-            // 3. Obtener la plantilla activa (la primera disponible)
-            var plantillas = await _seguridadRepository.ListarPlantillasAsync();
-            var plantilla = plantillas.FirstOrDefault();
+            // 1. Obtener los datos de la matrícula directamente (Optimizado)
+            var matricula = await _matriculaRepository.ObtenerPorIdAsync(idModulo);
+
+            if (matricula == null)
+                return NotFound("No se encontró la matrícula.");
+
+            // 2. Validar reglas de negocio (Pagado y Aprobado) - BYPASS para Administrador
+            var idUsuarioStr = User.FindFirst("IdUsuario")?.Value;
+            var idRolStr = User.FindFirst("IdRol")?.Value;
+            var roleClaim = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+
+            bool esAdmin = (idRolStr == "1") ||
+                           (roleClaim == "Admin") ||
+                           (idUsuarioStr == "1");
+
+            // Si NO es admin, aplicar validaciones de negocio
+            if (!esAdmin && (!matricula.Aprobado || matricula.TotalPagado < matricula.CostoCurso))
+            {
+                return BadRequest("El alumno no cumple con los requisitos para descargar el certificado (debe estar aprobado y haber pagado el costo completo)");
+            }
+
+            // 3. Obtener la plantilla (o la primera si no se especifica)
+            var plantillas = await _plantillaRepository.ListarPlantillasAsync();
+            var plantilla = idPlantilla > 0
+                ? plantillas.FirstOrDefault(x => x.IdPlantilla == idPlantilla)
+                : plantillas.FirstOrDefault();
+
             if (plantilla == null)
-                return NotFound("No hay plantillas disponibles");
+                return NotFound("No hay plantillas disponibles.");
 
-            // 4. Generar la imagen del certificado
-            var detalles = (await _seguridadRepository.ListarDetallesPlantillaAsync(plantilla.IdPlantilla)).ToList();
-            byte[] imagenCertificado;
-
-            if (detalles.Count > 0)
-            {
-                imagenCertificado = _certificadoService.GenerarImagenCertificadoMulticapa(
-                    plantilla.RutaImagen,
-                    Modulo.NombreAlumno,
-                    detalles
-                );
-            }
-            else
-            {
-                imagenCertificado = _certificadoService.GenerarImagenCertificado(
-                    plantilla.RutaImagen,
-                    Modulo.NombreAlumno,
-                    plantilla.EjeX,
-                    plantilla.EjeY,
-                    plantilla.FontSize,
-                    plantilla.FontColor
-                );
-            }
-
-            // 5. Convertir imagen a PDF
+            // 4. Obtener los detalles de la plantilla
+            var detalles = (await _plantillaRepository.ListarDetallesPlantillaAsync(plantilla.IdPlantilla)).ToList();
             byte[] pdfBytes = _certificadoService.GenerarPdfDesdeImagen(imagenCertificado);
 
             // 6. Retornar archivo con nombre profesional

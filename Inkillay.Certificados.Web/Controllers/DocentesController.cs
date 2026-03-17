@@ -9,17 +9,9 @@ namespace Inkillay.Certificados.Web.Controllers;
 public class DocentesController : Controller
 {
     private readonly ICursoRepository _cursoRepository;
-    private readonly IModuloRepository _ModuloRepository;
-    private readonly ISeguridadRepository _seguridadRepository;
-
-    public DocentesController(
-        ICursoRepository cursoRepository,
-        IModuloRepository ModuloRepository,
-        ISeguridadRepository seguridadRepository)
+    public DocentesController(ICursoRepository cursoRepository)
     {
         _cursoRepository = cursoRepository;
-        _ModuloRepository = ModuloRepository;
-        _seguridadRepository = seguridadRepository;
     }
 
     public async Task<IActionResult> Index()
@@ -31,79 +23,5 @@ public class DocentesController : Controller
 
         var reporte = await _cursoRepository.ObtenerReporteDocenteAsync(idProfesor);
         return View(reporte);
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> Modulor()
-    {
-        var cursos = await _cursoRepository.ListarCursosActivosAsync();
-        var usuarios = await _seguridadRepository.ListarUsuariosAsync();
-        var alumnos = usuarios
-            .Where(u => u.IdRol == 3)
-            .Select(u => new UsuarioViewModel
-            {
-                IdUsuario = u.IdUsuario,
-                Nombre = u.Nombre,
-                Correo = u.Correo
-            })
-            .ToList();
-
-        var vm = new ModulorViewModel
-        {
-            Cursos = cursos,
-            Alumnos = alumnos
-        };
-
-        return View(vm);
-    }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Modulor(int idAlumno, int idCurso, char modalidad)
-    {
-        if (idAlumno <= 0)
-            return Json(new { success = false, mensaje = "Seleccione un alumno." });
-
-        if (idCurso <= 0)
-            return Json(new { success = false, mensaje = "Seleccione un curso." });
-
-        if (modalidad == '\0')
-            return Json(new { success = false, mensaje = "Seleccione una modalidad." });
-
-        try
-        {
-            // Verificar que no esté ya Modulodo
-            var ModulosExistentes = await _ModuloRepository.ListarAlumnosPorCursoAsync(idCurso);
-            if (ModulosExistentes.Any(m => m.IdUsuario == idAlumno))
-                return Json(new { success = false, mensaje = "El alumno ya está Modulodo en este curso." });
-
-            // ✅ AUDITORÍA: Capturar usuario actual
-            var nombreUsuario = User.Identity?.Name ?? "Sistema";
-
-            var resultado = await _ModuloRepository.RegistrarModuloAsync(idAlumno, idCurso, modalidad, nombreUsuario);
-            if (resultado)
-                return Json(new { success = true, mensaje = "Alumno Modulodo exitosamente." });
-
-            return Json(new { success = false, mensaje = "No se pudo registrar la matrícula." });
-        }
-        catch (Exception ex)
-        {
-            return Json(new { success = false, mensaje = $"Error: {ex.Message}" });
-        }
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> VerAlumnos(int idCurso)
-    {
-        if (idCurso <= 0)
-            return Json(new { success = false, mensaje = "Curso no válido." });
-
-        var alumnos = await _ModuloRepository.ListarAlumnosPorCursoAsync(idCurso);
-        var curso = await _cursoRepository.ObtenerPorIdAsync(idCurso);
-
-        ViewData["NombreCurso"] = curso?.Nombre ?? "Curso";
-        ViewData["IdCurso"] = idCurso;
-
-        return View(alumnos);
     }
 }
