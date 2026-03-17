@@ -59,7 +59,7 @@
                                 <div class="font-bold text-slate-800 text-sm">@item.NombreCurso</div>
                                 <div class="text-[10px] text-slate-400 uppercase">Acreditación Académica</div>
                             </td>
-                            <td class="px-4 py-2 border-r border-slate-200 text-[12px]">@item.FechaModulo.ToString("dd/MM/yyyy")</td>
+                            <td class="px-4 py-2 border-r border-slate-200 text-[12px]">@item.FechaModulo?.ToString("dd/MM/yyyy")</td>
                             <td class="px-4 py-2 border-r border-slate-200 text-center">
                                 @if (listo)
                                 {

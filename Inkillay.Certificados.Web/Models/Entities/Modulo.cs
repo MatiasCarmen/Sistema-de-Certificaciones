@@ -11,6 +11,7 @@ public class Modulo : AuditoriaBase
     public decimal CostoCurso { get; set; }
     public int CapacidadAlumno { get; set; }
     public char Modalidad { get; set; } = 'P'; // 'P'=Presencial, 'R'=Remoto, 'H'=Híbrido
+    public string Sumilla { get; set; } = string.Empty;
 
     // 3. Cronograma 
     public DateTime? FechaInicioMatricula { get; set; }
@@ -32,4 +33,6 @@ public class Modulo : AuditoriaBase
 
     public int IdUsuario { get; set; } // Para DocentesController
     public char Estado { get => EstadoMatricula; set => EstadoMatricula = value; }
+    public DateTime? FechaModulo { get; set; }
+    public string NombreAlumno { get; set; } = string.Empty;
 }

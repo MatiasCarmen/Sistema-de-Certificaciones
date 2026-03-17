@@ -75,7 +75,7 @@
                             <td class="px-4 py-3 border-r border-slate-200">@item.IdModulo</td>
                             <td class="px-4 py-3 border-r border-slate-200 font-medium">@item.NombreAlumno</td>
                             <td class="px-4 py-3 border-r border-slate-200">@item.NombreCurso</td>
-                            <td class="px-4 py-3 border-r border-slate-200">@item.FechaModulo.ToString("dd/MM/yyyy")</td>
+                            <td class="px-4 py-3 border-r border-slate-200">@(item.FechaModulo != null ? ((DateTime)item.FechaModulo).ToString("dd/MM/yyyy") : "-")</td>
                             <td class="px-4 py-3 border-r border-slate-200">
                                 <span class="text-xs font-bold @(item.Aprobado ? "text-green-700" : "text-red-700")">
                                     @(item.Aprobado ? "SÍ" : "NO")

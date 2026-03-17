@@ -1,106 +1,124 @@
 @model Inkillay.Certificados.Web.Models.Entities.Modulo
 
 @{
-    ViewData["Title"] = "Crear Nuevo Módulo";
+    Layout = "_Layout"; // O null si quieres que use todo el HTML que pasaste
+    ViewData["Title"] = "SGA - Crear Nuevo Módulo";
 }
 
-<div class="container-fluid px-4 py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h2 fw-bold text-primary">Crear Nuevo Módulo</h1>
-        <a asp-action="Index" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-2"></i>Volver al listado
+<div class="max-w-6xl mx-auto space-y-6 p-4 md:p-8">
+
+    <div class="flex justify-end">
+        <a asp-action="Index" class="text-blue-600 text-sm font-semibold hover:underline flex items-center gap-1">
+            ← Volver al listado
         </a>
     </div>
 
-    <form asp-action="Create" method="post" class="card shadow-sm border-0 rounded-3">
-        @Html.AntiForgeryToken()
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-8">
+        <form asp-action="Create" method="post" id="moduleForm" novalidate>
+            @Html.AntiForgeryToken()
 
-        <div class="card-body p-4">
-            @if (!ViewData.ModelState.IsValid)
-            {
-                <div class="alert alert-danger shadow-sm">
-                    <div asp-validation-summary="All" class="text-danger small"></div>
+            <div class="mb-10">
+                <div class="flex items-center gap-2 mb-6 text-blue-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <h2 class="font-bold text-lg tracking-tight">Información del Módulo</h2>
                 </div>
-            }
 
-            <h5 class="text-secondary mb-4 border-bottom pb-2">
-                <i class="fas fa-info-circle me-2"></i>Información del Módulo
-            </h5>
-
-            <div class="row g-4 mb-5">
-                <div class="col-md-4">
-                    <label class="form-label fw-bold">Nombre del Curso *</label>
-                    <select asp-for="IdCurso" class="form-select select2-custom" required>
-                        <option value="">Seleccione un curso...</option>
-                        @foreach (var curso in ViewBag.Cursos)
-                        {
-                            <option value="@curso.IdCurso">@curso.Nombre</option>
-                        }
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label fw-bold">Docente Asignado *</label>
-                    <select asp-for="IdDocente" class="form-select select2-custom" required>
-                        <option value="">Buscar docente...</option>
-                        @foreach (var docente in ViewBag.Docentes)
-                        {
-                            <option value="@docente.IdUsuario">@docente.Nombre</option>
-                        }
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label fw-bold">Edición *</label>
-                    <input asp-for="EdicionCurso" class="form-control" placeholder="Ej: 2026-I" required />
-                </div>
-            </div>
-
-            <h5 class="text-secondary mb-4 border-bottom pb-2">
-                <i class="fas fa-calendar-alt me-2"></i>Planificación y Costos
-            </h5>
-
-            <div class="row g-4 mb-4">
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Inicio Matrícula</label>
-                    <input asp-for="FechaInicioMatricula" type="date" class="form-control" />
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Fin Matrícula</label>
-                    <input asp-for="FechaFinMatricula" type="date" class="form-control" />
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Inicio Clases *</label>
-                    <input asp-for="FechaInicioClases" type="date" class="form-control" required />
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Modalidad</label>
-                    <select asp-for="Modalidad" class="form-select">
-                        <option value="P">Presencial</option>
-                        <option value="R">Remoto</option>
-                        <option value="H">Híbrido</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="row g-4">
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">Inversión (Costo) *</label>
-                    <div class="input-group">
-                        <span class="input-group-text">S/</span>
-                        <input asp-for="CostoCurso" type="number" step="0.01" class="form-control" placeholder="0.00" required />
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-x-6 gap-y-4">
+                    <div class="md:col-span-3">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wide"># Módulo *</label>
+                        <input type="text" asp-for="IdModulo" readonly class="w-full bg-gray-100 border border-gray-300 rounded-lg px-4 py-2.5 outline-none cursor-not-allowed" placeholder="AUTO-GENERADO">
+                    </div>
+                    <div class="md:col-span-6">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wide">Nombre del Curso *</label>
+                        <select asp-for="IdCurso" required class="w-full bg-[#f9fafb] border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all appearance-none cursor-pointer">
+                            <option value="">Seleccione un curso...</option>
+                            @foreach (var curso in ViewBag.Cursos)
+                            {
+                                <option value="@curso.IdCurso">@curso.Nombre</option>
+                            }
+                        </select>
+                        <span asp-validation-for="IdCurso" class="text-red-500 text-xs mt-1"></span>
+                    </div>
+                    <div class="md:col-span-3">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wide">Estado *</label>
+                        <select asp-for="EstadoMatricula" required class="w-full bg-[#f9fafb] border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:border-blue-500 appearance-none cursor-pointer">
+                            <option value="1">Activo / Creado</option>
+                            <option value="0">Inactivo</option>
+                        </select>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">Capacidad Alumnos *</label>
-                    <input asp-for="CapacidadAlumno" type="number" class="form-control" placeholder="0" required />
+            </div>
+
+            <div class="mb-10">
+                <div class="flex items-center gap-2 mb-6 text-blue-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <h2 class="font-bold text-lg tracking-tight">Planificación y Asignación</h2>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-x-6 gap-y-4">
+                    <div class="md:col-span-8">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wide">Docente Asignado *</label>
+                        <select asp-for="IdDocente" required class="w-full bg-[#f9fafb] border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all appearance-none cursor-pointer">
+                            <option value="">Buscar docente por nombre...</option>
+                            @foreach (var docente in ViewBag.Docentes)
+                            {
+                                <option value="@docente.IdUsuario">@docente.Nombre</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="md:col-span-4">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wide">Edición *</label>
+                        <input type="text" asp-for="EdicionCurso" required class="w-full bg-[#f9fafb] border border-gray-300 rounded-lg px-4 py-2.5 focus:border-blue-500 outline-none" placeholder="Ej: 2024-I">
+                    </div>
+
+                    <div class="md:col-span-4">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wide">Fecha Inicio Matrícula *</label>
+                        <input type="date" asp-for="FechaInicioMatricula" required class="w-full bg-[#f9fafb] border border-gray-300 rounded-lg px-4 py-2.5 focus:border-blue-500 outline-none">
+                    </div>
+                    <div class="md:col-span-4">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wide">Fecha Inicio Clases *</label>
+                        <input type="date" asp-for="FechaInicioClases" required class="w-full bg-[#f9fafb] border border-gray-300 rounded-lg px-4 py-2.5 focus:border-blue-500 outline-none">
+                    </div>
+                    <div class="md:col-span-4">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wide">Modalidad *</label>
+                        <select asp-for="Modalidad" required class="w-full bg-[#f9fafb] border border-gray-300 rounded-lg px-4 py-2.5 outline-none focus:border-blue-500 appearance-none">
+                            <option value="P">Presencial</option>
+                            <option value="R">Remoto</option>
+                            <option value="H">Híbrido</option>
+                        </select>
+                    </div>
+
+                    <div class="md:col-span-4">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wide">Inversión (Costo) *</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-2.5 text-gray-400">S/</span>
+                            <input type="number" asp-for="CostoCurso" step="0.01" required class="w-full bg-[#f9fafb] border border-gray-300 rounded-lg pl-8 pr-4 py-2.5 focus:border-blue-500 outline-none" placeholder="0.00">
+                        </div>
+                    </div>
+                    <div class="md:col-span-4">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2 tracking-wide">Capacidad Alumnos *</label>
+                        <input type="number" asp-for="CapacidadAlumno" required class="w-full bg-[#f9fafb] border border-gray-300 rounded-lg px-4 py-2.5 focus:border-blue-500 outline-none" placeholder="0">
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="card-footer bg-light p-4 border-0 d-flex justify-content-end">
-            <button type="button" class="btn btn-link text-secondary me-3 text-decoration-none" onclick="history.back()">Cancelar</button>
-            <button type="submit" class="btn btn-primary px-5 py-2 fw-bold shadow">
-                <i class="fas fa-save me-2"></i>Guardar Módulo
-            </button>
-        </div>
-    </form>
+            <div class="pt-8 border-t border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="p-4 bg-gray-50 rounded-lg border border-gray-100">
+                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Usuario Registro</span>
+                    <div class="flex justify-between mt-1 text-sm">
+                        <span class="font-bold text-gray-700">@User.Identity.Name</span>
+                        <span class="text-gray-400 italic">@DateTime.Now.ToString("dd/MM/yyyy")</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-10 flex flex-col sm:flex-row justify-end gap-3 border-t pt-6">
+                <button type="button" onclick="history.back()" class="px-8 py-3 text-sm font-bold text-gray-500 hover:bg-gray-100 rounded-lg transition-all">Cancelar</button>
+                <button type="submit" class="px-10 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg shadow-lg shadow-blue-200 transition-all flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                    Guardar Módulo
+                </button>
+            </div>
+        </form>
+    </div>
 </div>

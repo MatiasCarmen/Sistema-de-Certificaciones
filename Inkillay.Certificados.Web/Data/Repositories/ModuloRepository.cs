@@ -144,7 +144,7 @@ public class ModuloRepository : IModuloRepository
     {
         using var connection = _connectionFactory.CreateConnection();
         return await connection.QueryAsync<Modulo>(
-            "USP_Modulos_ListarAlumnosPorCurso",
+            "USP_Modulos_ListarPorCurso",
             new { IdCurso = idCurso },
             commandType: CommandType.StoredProcedure
         );
