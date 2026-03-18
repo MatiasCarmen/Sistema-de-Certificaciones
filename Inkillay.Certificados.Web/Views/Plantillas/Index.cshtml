@@ -4,6 +4,9 @@
 }
 
 <div class="px-4 py-8">
+    <form id="antiforgery-form" method="post" class="hidden">
+        @Html.AntiForgeryToken()
+    </form>
     
     @if (TempData["Success"] != null)
     {
@@ -145,17 +148,21 @@
                                         <span class="material-symbols-outlined text-[20px] group-hover/btn:scale-110 transition-transform">design_services</span>
                                     </a>
                                     
-                                    <form method="post" action="@Url.Action("CambiarEstado")" class="inline m-0 p-0">
-                                        @Html.AntiForgeryToken()
-                                        <input type="hidden" name="id" value="@item.IdPlantilla" />
-                                        <button type="submit" onclick="return confirm('¿Deseas modificar el estado de disponibilidad de esta plantilla?');"
-                                                class="p-2 @(item.EstadoActivo ? "text-amber-600 hover:bg-amber-100" : "text-emerald-600 hover:bg-emerald-100") rounded-lg transition-colors group/btn tooltip" 
-                                                title="@(item.EstadoActivo ? "Desactivar Plantilla" : "Activar Plantilla")">
-                                            <span class="material-symbols-outlined text-[20px] group-hover/btn:scale-110 transition-transform">
-                                                @(item.EstadoActivo ? "hide_source" : "check_circle")
-                                            </span>
-                                        </button>
-                                    </form>
+                                    <button type="button"
+                                            onclick="abrirModalEstado(@item.IdPlantilla)"
+                                            class="p-2 @(item.EstadoActivo ? "text-amber-600 hover:bg-amber-100" : "text-emerald-600 hover:bg-emerald-100") rounded-lg transition-colors group/btn tooltip"
+                                            title="@(item.EstadoActivo ? "Desactivar Plantilla" : "Activar Plantilla")">
+                                        <span class="material-symbols-outlined text-[20px] group-hover/btn:scale-110 transition-transform">
+                                            @(item.EstadoActivo ? "hide_source" : "check_circle")
+                                        </span>
+                                    </button>
+
+                                    <button type="button"
+                                            onclick="eliminarPlantilla(@item.IdPlantilla)"
+                                            class="p-2 text-rose-600 hover:bg-rose-100 rounded-lg transition-colors group/btn tooltip"
+                                            title="Eliminar Plantilla">
+                                        <span class="material-symbols-outlined text-[20px] group-hover/btn:scale-110 transition-transform">delete</span>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -165,3 +172,142 @@
         </table>
     </div>
 </div>
+
+<div id="estado-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 p-4">
+    <div class="w-full max-w-md rounded-xl bg-white shadow-2xl border border-slate-200">
+        <div class="px-5 py-4 border-b border-slate-100">
+            <h3 class="text-base font-bold text-slate-800">Confirmar cambio de estado</h3>
+            <p class="mt-1 text-sm text-slate-600">¿Deseas modificar el estado de disponibilidad de esta plantilla?</p>
+        </div>
+        <div class="flex justify-end gap-2 px-5 py-4">
+            <button type="button" onclick="cerrarModalEstado()" class="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 text-sm font-semibold hover:bg-slate-50">
+                Cancelar
+            </button>
+            <button id="estado-confirmar-btn" type="button" onclick="confirmarCambioEstado()" class="px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700">
+                Confirmar
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let plantillaPendienteEstado = null;
+
+    function abrirModalEstado(id) {
+        plantillaPendienteEstado = id;
+        const modal = document.getElementById('estado-modal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function cerrarModalEstado() {
+        plantillaPendienteEstado = null;
+        const modal = document.getElementById('estado-modal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    function confirmarCambioEstado() {
+        if (!plantillaPendienteEstado) return;
+
+        const tokenInput = document.querySelector('#antiforgery-form input[name="__RequestVerificationToken"]');
+        if (!tokenInput) {
+            alert('No se encontró el token de seguridad.');
+            return;
+        }
+
+        const confirmarBtn = document.getElementById('estado-confirmar-btn');
+        confirmarBtn.disabled = true;
+        confirmarBtn.textContent = 'Procesando...';
+
+        const body = new URLSearchParams();
+        body.append('id', plantillaPendienteEstado);
+        body.append('__RequestVerificationToken', tokenInput.value);
+
+        fetch('@Url.Action("CambiarEstado", "Plantillas")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                'Accept': 'application/json'
+            },
+            body: body.toString()
+        })
+        .then(async res => {
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.json();
+        })
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error al cambiar el estado');
+            }
+        })
+        .catch((error) => {
+            console.error('Error CambiarEstado:', error);
+            alert('Error al cambiar el estado');
+        })
+        .finally(() => {
+            confirmarBtn.disabled = false;
+            confirmarBtn.textContent = 'Confirmar';
+            cerrarModalEstado();
+        });
+    }
+
+    function eliminarPlantilla(id) {
+        Swal.fire({
+            title: '¿Eliminar Plantilla?',
+            text: 'Esta acción borrará el diseño y la plantilla permanentemente. No se puede deshacer.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#e11d48',
+            cancelButtonColor: '#94a3b8',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            customClass: {
+                popup: 'rounded-2xl shadow-xl border border-slate-200',
+                confirmButton: 'rounded-lg px-6 py-2.5 font-bold',
+                cancelButton: 'rounded-lg px-6 py-2.5 font-bold text-slate-700 bg-slate-100 hover:bg-slate-200'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const tokenInput = document.querySelector('#antiforgery-form input[name="__RequestVerificationToken"]');
+                const body = new URLSearchParams();
+                body.append('id', id);
+                body.append('__RequestVerificationToken', tokenInput.value);
+
+                fetch('@Url.Action("Eliminar", "Plantillas")', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: body.toString()
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Eliminada',
+                            text: 'La plantilla fue eliminada correctamente.',
+                            icon: 'success',
+                            confirmButtonColor: '#4f46e5'
+                        }).then(() => location.reload());
+                    } else {
+                        Swal.fire({
+                            title: 'Atención',
+                            text: data.mensaje || 'Error al eliminar la plantilla. Es probable que esté en uso por certificados emitidos.',
+                            icon: 'error',
+                            confirmButtonColor: '#4f46e5'
+                        });
+                    }
+                })
+                .catch(() => {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Ocurrió un error al contactar al servidor.',
+                        icon: 'error',
+                        confirmButtonColor: '#4f46e5'
+                    });
+                });
+            }
+        });
+    }
+</script>

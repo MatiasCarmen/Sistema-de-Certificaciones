@@ -6,14 +6,9 @@ using System.Text.Json;
 
 namespace Inkillay.Certificados.Web.Data.Repositories;
 
-public class PlantillaRepository : IPlantillaRepository
+public class PlantillaRepository(DbConnectionFactory _connectionFactory) : IPlantillaRepository
 {
-    private readonly DbConnectionFactory _connectionFactory;
-
-    public PlantillaRepository(DbConnectionFactory connectionFactory)
-    {
-        _connectionFactory = connectionFactory;
-    }
+    private static readonly JsonSerializerOptions _jsonOptions = new() { PropertyNamingPolicy = null };
 
     public async Task<IEnumerable<Plantilla>> ListarPlantillasAsync()
     {
@@ -29,7 +24,7 @@ public class PlantillaRepository : IPlantillaRepository
         using var connection = _connectionFactory.CreateConnection();
         return await connection.ExecuteAsync(
             "USP_Plantillas_Insertar",
-            new { Nombre = plantilla.Nombre, RutaImagen = plantilla.RutaImagen },
+            new { plantilla.Nombre, plantilla.RutaImagen },
             commandType: CommandType.StoredProcedure
         );
     }
@@ -67,8 +62,7 @@ public class PlantillaRepository : IPlantillaRepository
     public async Task<bool> GuardarDisenoCompletoAsync(int idPlantilla, List<PlantillaDetalleDTO> detalles)
     {
         using var connection = _connectionFactory.CreateConnection();
-        var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = null };
-        var json = JsonSerializer.Serialize(detalles, jsonOptions);
+        var json = JsonSerializer.Serialize(detalles, _jsonOptions);
 
         await connection.ExecuteAsync(
             "USP_Plantillas_GuardarDisenoCompleto",
@@ -87,5 +81,15 @@ public class PlantillaRepository : IPlantillaRepository
             new { IdPlantilla = id },
             commandType: CommandType.StoredProcedure
         );
+    }
+
+    public async Task<int> EliminarPlantillaAsync(int id)
+    {
+        using var connection = _connectionFactory.CreateConnection();
+        var sql = @"
+            DELETE FROM PlantillaDetalle WHERE IdPlantilla = @IdPlantilla;
+            DELETE FROM Plantillas WHERE IdPlantilla = @IdPlantilla;
+        ";
+        return await connection.ExecuteAsync(sql, new { IdPlantilla = id });
     }
 }

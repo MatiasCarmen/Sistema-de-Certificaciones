@@ -2,7 +2,7 @@
 
 @{
     Layout = "_Layout";
-    ViewData["Title"] = "Crear Nuevo Módulo";
+    ViewData["Title"] = "Editar Módulo";
 }
 
 <style>
@@ -33,7 +33,8 @@
 
         <!-- CARD FORMULARIO -->
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-8">
-            <form asp-action="Create" method="post" id="moduleForm" novalidate>
+            <form asp-action="Edit" method="post" id="moduleForm" novalidate>
+                <input type="hidden" name="idModulo" value="@ViewBag.IdModulo" />
                 @Html.AntiForgeryToken()
                 
                 @if (!ViewData.ModelState.IsValid)
@@ -177,9 +178,9 @@
                 <!-- ACCIONES -->
                 <div class="mt-10 flex flex-col sm:flex-row justify-end gap-3 border-t pt-6">
                     <a asp-action="Index" class="px-8 py-3 text-sm font-bold text-gray-500 hover:bg-gray-100 rounded-lg transition-all text-center">Cancelar</a>
-                    <button type="submit" class="px-10 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-lg shadow-lg shadow-blue-200 transition-all flex items-center justify-center gap-2 uppercase tracking-wide">
-                        <span class="material-symbols-outlined text-[18px]">add_circle</span>
-                        Guardar Módulo
+                    <button type="submit" class="px-10 py-3 bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold rounded-lg shadow-lg shadow-amber-200 transition-all flex items-center justify-center gap-2 uppercase tracking-wide">
+                        <span class="material-symbols-outlined text-[18px]">save</span>
+                        Actualizar Módulo
                     </button>
                 </div>
 

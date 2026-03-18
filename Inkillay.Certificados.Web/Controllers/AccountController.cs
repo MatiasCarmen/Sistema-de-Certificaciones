@@ -61,7 +61,7 @@ public class AccountController : Controller
 
                 var redirectUrl = roleName switch
                 {
-                    "Admin" => Url.Action("Index", "Plantillas"),
+                    "Admin" => Url.Action("AdminDashboard", "Home"),
                     "Docente" => Url.Action("Index", "Docentes"),
                     "Alumno" => Url.Action("MisCursos", "Alumnos"),
                     _ => Url.Action("Index", "Home")

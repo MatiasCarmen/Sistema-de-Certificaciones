@@ -23,6 +23,7 @@
         border: 2px solid transparent; padding: 2px 4px;
         white-space: nowrap; user-select: none; line-height: 1;
         transition: border-color 0.1s;
+        transform: translateX(-50%);
     }
     .layer-handle:hover { border-color: rgba(3,105,161,0.4); }
     .layer-handle.selected { border-color: #0369a1; background: rgba(3,105,161,0.06); }
@@ -477,7 +478,7 @@
 
     // --- PDF Test ---
     document.getElementById('btnPdf').addEventListener('click', function () {
-        window.open('/Emision/DescargarPdf?idModulo=1', '_blank');
+        window.open('/Plantillas/DescargarPdfPrueba?id=@Model.Plantilla.IdPlantilla', '_blank');
     });
 
     // --- Toast notification (see full implementation below) ---

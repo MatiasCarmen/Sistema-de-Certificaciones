@@ -70,7 +70,7 @@ public class CertificadoService : ICertificadoService
             Color = color,
             IsAntialias = true,
             Style = SKPaintStyle.Fill,
-            TextAlign = SKTextAlign.Left,
+            TextAlign = SKTextAlign.Center,
             TextSize = fontSize,
             Typeface = ResolveTypeface()
         };
@@ -130,7 +130,7 @@ public class CertificadoService : ICertificadoService
                 Color = color,
                 IsAntialias = true,
                 Style = SKPaintStyle.Fill,
-                TextAlign = SKTextAlign.Left,
+                TextAlign = SKTextAlign.Center,
                 TextSize = capa.FontSize > 0 ? capa.FontSize : 40,
                 Typeface = ResolveTypeface()
             };
@@ -162,25 +162,15 @@ public class CertificadoService : ICertificadoService
             throw new InvalidOperationException("No se pudo decodificar la imagen proporcionada");
         }
 
-        using (var document = new PdfDocument())
-        {
-            var page = document.AddPage();
-
-            // Configurar el tamaño de la página según las dimensiones de la imagen
-            page.Width = XUnit.FromPoint(bitmap.Width);
-            page.Height = XUnit.FromPoint(bitmap.Height);
-
-            using (var gfx = XGraphics.FromPdfPage(page))
-            {
-                using var tempStream = new MemoryStream(imagenBytes);
-                var xImage = XImage.FromStream(tempStream);
-                gfx.DrawImage(xImage, 0, 0, page.Width.Point, page.Height.Point);
-            }
-
-            using var pdfStream = new MemoryStream();
-            document.Save(pdfStream, false);
-            return pdfStream.ToArray();
-        }
+        using var pdfStream = new MemoryStream();
+        using var pdfDocument = SKDocument.CreatePdf(pdfStream);
+        
+        using var canvas = pdfDocument.BeginPage(bitmap.Width, bitmap.Height);
+        canvas.DrawBitmap(bitmap, 0, 0);
+        pdfDocument.EndPage();
+        pdfDocument.Close();
+        
+        return pdfStream.ToArray();
     }
 
     private static string EnsureTrailingSeparator(string path)

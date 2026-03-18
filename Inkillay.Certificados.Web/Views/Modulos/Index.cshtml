@@ -120,13 +120,16 @@
 
                         <!-- Columna: Acciones -->
                         <td class="px-6 py-4 text-right">
-                            <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <a href="#" class="p-2 text-indigo-600 hover:bg-indigo-100 rounded-lg transition-colors group/btn tooltip" title="Ver Alumnos">
                                     <span class="material-symbols-outlined text-[20px] group-hover/btn:scale-110 transition-transform">groups</span>
                                 </a>
-                                <a href="#" class="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-200 rounded-lg transition-colors group/btn tooltip" title="Detalles">
-                                    <span class="material-symbols-outlined text-[20px] group-hover/btn:scale-110 transition-transform">visibility</span>
+                                <a href="@Url.Action("Edit", "Modulos", new { id = item.IdModulo })" class="p-2 text-amber-600 hover:bg-amber-100 rounded-lg transition-colors group/btn tooltip" title="Editar">
+                                    <span class="material-symbols-outlined text-[20px] group-hover/btn:scale-110 transition-transform">edit</span>
                                 </a>
+                                <button type="button" onclick="eliminarModulo(@item.IdModulo)" class="p-2 text-rose-600 hover:bg-rose-100 rounded-lg transition-colors group/btn tooltip" title="Eliminar">
+                                    <span class="material-symbols-outlined text-[20px] group-hover/btn:scale-110 transition-transform">delete</span>
+                                </button>
                             </div>
                             <!-- Botón visible en móviles -->
                             <div class="flex items-center justify-end sm:hidden">
@@ -158,3 +161,68 @@
         </div>
     }
 </div>
+
+<form id="antiforgery-form" method="post" class="hidden">
+    @Html.AntiForgeryToken()
+</form>
+
+@section Scripts {
+<script>
+    function eliminarModulo(id) {
+        Swal.fire({
+            title: '¿Eliminar Módulo?',
+            text: 'Esta acción es irreversible y borrará el módulo. Fallará si el módulo tiene alumnos o pagos vinculados.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#e11d48',
+            cancelButtonColor: '#94a3b8',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar',
+            customClass: {
+                popup: 'rounded-2xl shadow-xl border border-slate-200',
+                confirmButton: 'rounded-lg px-6 py-2.5 font-bold',
+                cancelButton: 'rounded-lg px-6 py-2.5 font-bold text-slate-700 bg-slate-100 hover:bg-slate-200'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const tokenInput = document.querySelector('#antiforgery-form input[name="__RequestVerificationToken"]');
+                const body = new URLSearchParams();
+                body.append('id', id);
+                body.append('__RequestVerificationToken', tokenInput.value);
+
+                fetch('@Url.Action("Eliminar", "Modulos")', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: body.toString()
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Eliminado',
+                            text: 'El módulo fue eliminado correctamente.',
+                            icon: 'success',
+                            confirmButtonColor: '#4f46e5'
+                        }).then(() => location.reload());
+                    } else {
+                        Swal.fire({
+                            title: 'Atención',
+                            text: data.mensaje || 'Error al eliminar el módulo.',
+                            icon: 'error',
+                            confirmButtonColor: '#4f46e5'
+                        });
+                    }
+                })
+                .catch(() => {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Ocurrió un error al contactar al servidor.',
+                        icon: 'error',
+                        confirmButtonColor: '#4f46e5'
+                    });
+                });
+            }
+        });
+    }
+</script>
+}

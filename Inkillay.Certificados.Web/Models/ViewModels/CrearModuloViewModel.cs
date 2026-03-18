@@ -18,4 +18,5 @@ public class CrearModuloViewModel
     public DateTime FechaInicioClases { get; set; } = DateTime.Now.AddDays(20);
     public char Modalidad { get; set; } = 'P';
     public char EstadoMatricula { get; set; } = '1';
+    public string Sumilla { get; set; } = string.Empty;
 }

@@ -4,14 +4,8 @@ using System.Data;
 
 namespace Inkillay.Certificados.Web.Data.Repositories;
 
-public class ModuloRepository : IModuloRepository
+public class ModuloRepository(DbConnectionFactory _connectionFactory) : IModuloRepository
 {
-    private readonly DbConnectionFactory _connectionFactory;
-
-    public ModuloRepository(DbConnectionFactory connectionFactory)
-    {
-        _connectionFactory = connectionFactory;
-    }
 
     public async Task<IEnumerable<Modulo>> ListarTodosAsync()
     {
@@ -22,7 +16,8 @@ public class ModuloRepository : IModuloRepository
     public async Task<Modulo?> ObtenerPorIdAsync(int idModulo)
     {
         using var connection = _connectionFactory.CreateConnection();
-        return await connection.QueryFirstOrDefaultAsync<Modulo>("USP_Modulos_ObtenerPorId", new { idModulo }, commandType: CommandType.StoredProcedure);
+        var sql = "SELECT * FROM Modulos WHERE IdModulo = @idModulo";
+        return await connection.QueryFirstOrDefaultAsync<Modulo>(sql, new { idModulo });
     }
 
     public async Task<IEnumerable<Modulo>> ListarPorCursoAsync(int idCurso)
@@ -57,25 +52,32 @@ public class ModuloRepository : IModuloRepository
     public async Task<bool> ActualizarModuloAsync(Modulo modulo)
     {
         using var connection = _connectionFactory.CreateConnection();
+        var sql = @"
+            UPDATE Modulos SET 
+                IdCurso = @IdCurso,
+                IdDocente = @IdDocente,
+                EdicionCurso = @EdicionCurso,
+                CostoCurso = @CostoCurso,
+                CapacidadAlumno = @CapacidadAlumno,
+                FechaInicioMatricula = @FechaInicioMatricula,
+                FechaFinMatricula = @FechaFinMatricula,
+                FechaInicioClases = @FechaInicioClases,
+                Modalidad = @Modalidad,
+                EstadoMatricula = @EstadoMatricula,
+                UsuarioModifica = @UsuarioModifica,
+                FechaModificacion = GETDATE()
+            WHERE IdModulo = @IdModulo";
+
+        var filas = await connection.ExecuteAsync(sql, modulo);
+        return filas > 0;
+    }
+
+    public async Task<bool> EliminarModuloAsync(int idModulo)
+    {
+        using var connection = _connectionFactory.CreateConnection();
         var filas = await connection.ExecuteAsync(
-            "USP_Modulos_Actualizar",
-            new
-            {
-                modulo.IdModulo,
-                modulo.IdCurso,
-                modulo.IdDocente,
-                modulo.EdicionCurso,
-                modulo.CostoCurso,
-                modulo.CapacidadAlumno,
-                modulo.FechaInicioMatricula,
-                modulo.FechaFinMatricula,
-                modulo.FechaInicioClases,
-                modulo.Modalidad,
-                modulo.EstadoMatricula,
-                modulo.UsuarioModifica
-            },
-            commandType: CommandType.StoredProcedure
-        );
+            "DELETE FROM Modulos WHERE IdModulo = @idModulo",
+            new { idModulo });
         return filas > 0;
     }
 }

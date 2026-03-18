@@ -9,24 +9,13 @@ using System.Text.Json;
 namespace Inkillay.Certificados.Web.Controllers;
 
 [Authorize(Roles = "Admin")]
-public class PlantillasController : Controller
+public class PlantillasController(
+    IWebHostEnvironment _hostEnvironment,
+    IPlantillaRepository _plantillaRepository,
+    ICertificadoService _certificadoService,
+    ILogger<PlantillasController> _logger) : Controller
 {
-    private readonly IWebHostEnvironment _hostEnvironment;
-    private readonly IPlantillaRepository _plantillaRepository;
-    private readonly ICertificadoService _certificadoService;
-    private readonly ILogger<PlantillasController> _logger;
-
-    public PlantillasController(
-        IWebHostEnvironment hostEnvironment,
-        IPlantillaRepository plantillaRepository,
-        ICertificadoService certificadoService,
-        ILogger<PlantillasController> logger)
-    {
-        _hostEnvironment = hostEnvironment;
-        _plantillaRepository = plantillaRepository;
-        _certificadoService = certificadoService;
-        _logger = logger;
-    }
+    private static readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
 
     [HttpGet]
     public async Task<IActionResult> Index()
@@ -51,7 +40,7 @@ public class PlantillasController : Controller
 
         var detalles = (await _plantillaRepository.ListarDetallesPlantillaAsync(id)).ToList();
 
-        // Backward compatibility: if no detalles exist but plantilla has coordinates, create a virtual layer
+        
         if (detalles.Count == 0 && (plantilla.EjeX > 0 || plantilla.EjeY > 0))
         {
             detalles.Add(new PlantillaDetalleDTO
@@ -118,6 +107,51 @@ public class PlantillasController : Controller
         {
             _logger.LogWarning(ex, "Intento de acceso a ruta no permitida. IdPlantilla={IdPlantilla}", plantilla.IdPlantilla);
             return BadRequest("Ruta de plantilla invalida.");
+        }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> DescargarPdfPrueba(int id)
+    {
+        var plantillas = await _plantillaRepository.ListarPlantillasAsync();
+        var plantilla = plantillas.FirstOrDefault(p => p.IdPlantilla == id);
+        if (plantilla == null) return NotFound("Plantilla no encontrada");
+
+        try
+        {
+            var detalles = (await _plantillaRepository.ListarDetallesPlantillaAsync(id)).ToList();
+            byte[] imagenBytes;
+
+            if (detalles.Count > 0)
+            {
+                imagenBytes = _certificadoService.GenerarImagenCertificadoMulticapa(
+                    plantilla.RutaImagen,
+                    "NOMBRE DE PRUEBA",
+                    detalles
+                );
+            }
+            else
+            {
+                imagenBytes = _certificadoService.GenerarImagenCertificado(
+                    plantilla.RutaImagen,
+                    "NOMBRE DE PRUEBA",
+                    plantilla.EjeX,
+                    plantilla.EjeY,
+                    plantilla.FontSize,
+                    plantilla.FontColor
+                );
+            }
+
+            var pdfBytes = _certificadoService.GenerarPdfDesdeImagen(imagenBytes);
+            return File(pdfBytes, "application/pdf", $"Cortesia_{plantilla.Nombre.Replace(" ", "_")}.pdf");
+        }
+        catch (Exception ex)
+        {
+            if (_logger.IsEnabled(LogLevel.Error))
+            {
+                _logger.LogError(ex, "Error al generar PDF de prueba. Id={Id}", id);
+            }
+            return StatusCode(500, "Error interno al generar pdf: " + ex.Message);
         }
     }
 
@@ -198,7 +232,10 @@ public class PlantillasController : Controller
 
             if (filas > 0)
             {
-                _logger.LogInformation("Diseño de plantilla actualizado. IdPlantilla={IdPlantilla}", request.id);
+                if (_logger.IsEnabled(LogLevel.Information))
+                {
+                    _logger.LogInformation("Diseño de plantilla actualizado. IdPlantilla={IdPlantilla}", request.id);
+                }
                 return Json(new { success = true, mensaje = "Diseño actualizado correctamente" });
             }
 
@@ -222,8 +259,7 @@ public class PlantillasController : Controller
                 return Json(new { success = false, mensaje = "No se recibieron datos de capas" });
 
             // Validate it's actual JSON before sending to DB
-            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            var detalles = JsonSerializer.Deserialize<List<PlantillaDetalleDTO>>(json, options);
+            var detalles = JsonSerializer.Deserialize<List<PlantillaDetalleDTO>>(json, _jsonOptions);
             if (detalles == null || detalles.Count == 0)
                 return Json(new { success = false, mensaje = "No hay capas para guardar" });
 
@@ -241,8 +277,32 @@ public class PlantillasController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> CambiarEstado(int id)
     {
-        var filas = await _plantillaRepository.CambiarEstadoPlantillaAsync(id);
-        return Json(new { success = filas > 0 });
+        try
+        {
+            await _plantillaRepository.CambiarEstadoPlantillaAsync(id);
+            return Json(new { success = true });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error crítico SQL al intentar cambiar estado de la plantilla Id={Id}", id);
+            return Json(new { success = false, mensaje = "Ocurrió un error interno al cambiar el estado." });
+        }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Eliminar(int id)
+    {
+        try
+        {
+            await _plantillaRepository.EliminarPlantillaAsync(id);
+            return Json(new { success = true });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al eliminar la plantilla Id={Id}", id);
+            return Json(new { success = false, mensaje = "La plantilla no se pudo eliminar. Podría estar asignada a un certificado." });
+        }
     }
 }
 

@@ -13,15 +13,8 @@ public interface IMatriculaRepository
     Task<bool> ActualizarNotaFinalAsync(int idMatricula, decimal notaFinal, string usuarioModifica);
 }
 
-public class MatriculaRepository : IMatriculaRepository
+public class MatriculaRepository(DbConnectionFactory _connectionFactory) : IMatriculaRepository
 {
-    private readonly DbConnectionFactory _connectionFactory;
-
-    public MatriculaRepository(DbConnectionFactory connectionFactory)
-    {
-        _connectionFactory = connectionFactory;
-    }
-
     public async Task<IEnumerable<Matricula>> ListarAlumnosPorModuloAsync(int idModulo)
     {
         using var connection = _connectionFactory.CreateConnection();
@@ -56,7 +49,7 @@ public class MatriculaRepository : IMatriculaRepository
     {
         using var connection = _connectionFactory.CreateConnection();
         var filas = await connection.ExecuteAsync(
-            "USP_Matriculas_Registrar", // Usando el SP de tu imagen
+            "USP_Matriculas_Registrar", 
             new { IdModulo = idModulo, IdUsuario = idUsuario, UsuarioRegistro = usuarioRegistro },
             commandType: CommandType.StoredProcedure
         );
@@ -67,7 +60,7 @@ public class MatriculaRepository : IMatriculaRepository
     {
         using var connection = _connectionFactory.CreateConnection();
         var filas = await connection.ExecuteAsync(
-            "USP_ModuloAlumnos_ActualizarNota", // Si no tienes USP_Matriculas_ActualizarNota, mantengo el actual
+            "USP_ModuloAlumnos_ActualizarNota", 
             new { IdModuloAlumno = idMatricula, NotaFinal = notaFinal, UsuarioModifica = usuarioModifica },
             commandType: CommandType.StoredProcedure
         );

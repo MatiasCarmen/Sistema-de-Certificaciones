@@ -10,4 +10,5 @@ public interface IModuloRepository
     Task<IEnumerable<Modulo>> ListarPorCursoAsync(int idCurso);
     Task<int> RegistrarModuloAsync(Modulo modulo);
     Task<bool> ActualizarModuloAsync(Modulo modulo);
+    Task<bool> EliminarModuloAsync(int idModulo);
 }

@@ -262,11 +262,14 @@
     </div>
 </div>
 
-<!-- Chart.js Setup -->
+<script type="application/json" id="datosRecaudacionVal">
+    @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoRecaudacion))
+</script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const datos = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoRecaudacion));
+        const datosEl = document.getElementById('datosRecaudacionVal');
+        const datos = JSON.parse(datosEl.textContent);
 
         if (!datos || datos.length === 0) return;
 

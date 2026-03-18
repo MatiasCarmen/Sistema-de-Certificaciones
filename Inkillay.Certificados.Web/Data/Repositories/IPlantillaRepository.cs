@@ -12,4 +12,5 @@ public interface IPlantillaRepository
     Task<bool> GuardarDisenoCompletoAsync(int idPlantilla, List<PlantillaDetalleDTO> detalles);
     Task<IEnumerable<PlantillaDetalleDTO>> ListarDetallesPlantillaAsync(int idPlantilla);
     Task<int> CambiarEstadoPlantillaAsync(int id);
+    Task<int> EliminarPlantillaAsync(int id);
 }
