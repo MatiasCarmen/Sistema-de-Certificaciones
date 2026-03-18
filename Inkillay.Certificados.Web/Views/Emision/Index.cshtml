@@ -1,118 +1,190 @@
 @model Inkillay.Certificados.Web.Models.ViewModels.EmisionIndexViewModel
 @{
-    ViewData["Title"] = "Emision de Certificados";
+    ViewData["Title"] = "Emisión de Certificados";
 }
 
-<div class="bg-white rounded-sm border border-slate-300 shadow-sm">
-    <div class="p-6 border-b border-slate-300">
-        <div class="flex flex-col md:flex-row gap-4 items-end justify-between">
-            <form method="get" asp-controller="Emision" asp-action="Index" class="flex flex-col md:flex-row gap-3 items-end">
-                <div>
-                    <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Curso</label>
-                    <select name="idCurso" class="px-3 py-2 border border-slate-300 rounded-sm text-sm text-slate-700 focus:ring-1 focus:ring-primary focus:border-primary">
-                        <option value="">Seleccionar curso...</option>
-                        @foreach (var curso in Model.Cursos)
-                        {
-                            if (Model.IdCursoSeleccionado == curso.IdCurso)
-                            {
-                                <option value="@curso.IdCurso" selected>@curso.Nombre</option>
-                            }
-                            else
-                            {
-                                <option value="@curso.IdCurso">@curso.Nombre</option>
-                            }
-                        }
-                    </select>
-                </div>
-                <button type="submit" class="px-4 py-2 bg-primary text-white text-xs font-bold rounded-sm hover:bg-sky-800">Ver Alumnos</button>
-            </form>
+<div class="px-4 py-8">
+    
+    <!-- Encabezado y Acción Principal -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-800 flex items-center gap-2">
+                <span class="material-symbols-outlined text-indigo-600">verified</span>
+                Emisión de Certificados
+            </h1>
+            <p class="text-sm text-slate-500 mt-1">Genera y emite los documentos finales para los estudiantes aprobados.</p>
+        </div>
+        
+        <!-- Formulario de Generación en lote (Módulo de Acción) -->
+        <form id="formGenerar" asp-controller="Emision" asp-action="GenerarCertificados" method="post" class="flex items-center gap-3 bg-indigo-50/50 p-2 rounded-xl border border-indigo-100 shrink-0">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="idCurso" id="hiddenIdCurso" value="@(Model.IdCursoSeleccionado ?? 0)" />
+            
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-indigo-400 pointer-events-none">
+                    <span class="material-symbols-outlined text-[16px]">palette</span>
+                </span>
+                <select name="idPlantilla" required class="w-48 pl-9 pr-8 py-2 text-sm font-medium border border-indigo-200 bg-white rounded-lg text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition shadow-sm appearance-none outline-none">
+                    <option value="" disabled selected>Elegir plantilla...</option>
+                    @foreach (var p in Model.Plantillas.Where(p => p.EstadoActivo))
+                    {
+                        <option value="@p.IdPlantilla">@p.Nombre</option>
+                    }
+                </select>
+            </div>
+            
+            <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-bold text-white shadow transition hover:bg-emerald-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 tracking-wide disabled:opacity-50 disabled:cursor-not-allowed">
+                <span class="material-symbols-outlined text-[18px]">publish</span>
+                Generar
+            </button>
+        </form>
+    </div>
 
-            <form id="formGenerar" asp-controller="Emision" asp-action="GenerarCertificados" method="post" class="flex flex-col md:flex-row gap-3 items-end">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="idCurso" id="hiddenIdCurso" value="@(Model.IdCursoSeleccionado ?? 0)" />
-                <div>
-                    <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Plantilla</label>
-                    <select name="idPlantilla" required class="px-3 py-2 border border-slate-300 rounded-sm text-sm text-slate-700 focus:ring-1 focus:ring-primary focus:border-primary">
-                        <option value="">Seleccionar plantilla...</option>
-                        @foreach (var p in Model.Plantillas.Where(p => p.EstadoActivo))
+    <!-- Filtros / Búsqueda -->
+    <div class="bg-white rounded-t-xl border-x border-t border-slate-200 p-4 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        
+        <form method="get" asp-controller="Emision" asp-action="Index" class="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full sm:w-auto">
+            <div class="relative w-full sm:w-72">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 pointer-events-none">
+                    <span class="material-symbols-outlined text-[18px]">filter_list</span>
+                </span>
+                <select name="idCurso" onchange="this.form.submit()" class="w-full pl-10 pr-8 py-2 text-sm font-medium border border-slate-300 rounded-lg text-slate-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition shadow-sm appearance-none outline-none">
+                    <option value="" disabled selected>Filtrar alumnos por curso...</option>
+                    @foreach (var curso in Model.Cursos)
+                    {
+                        if (Model.IdCursoSeleccionado == curso.IdCurso)
                         {
-                            <option value="@p.IdPlantilla">[@p.IdPlantilla] @p.Nombre</option>
+                            <option value="@curso.IdCurso" selected>@curso.Nombre</option>
                         }
-                    </select>
+                        else
+                        {
+                            <option value="@curso.IdCurso">@curso.Nombre</option>
+                        }
+                    }
+                </select>
+                <!-- SVG Arrow for custom select -->
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                 </div>
-                <button type="submit" class="px-4 py-2 bg-green-700 text-white text-xs font-bold rounded-sm hover:bg-green-800">
-                    Generar Certificados
-                </button>
-            </form>
+            </div>
+        </form>
+
+        <div class="text-sm text-slate-500 font-medium whitespace-nowrap hidden sm:block">
+            Candidatos: <span class="text-slate-900 font-bold">@Model.Alumnos.Count()</span> encontrados
         </div>
     </div>
 
-    <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm border-collapse">
-            <thead class="bg-slate-100 border-b border-slate-300 text-slate-700">
+    <!-- Tabla Principal (Gold Standard) -->
+    <div class="bg-white shadow-sm border border-slate-200 rounded-b-xl overflow-hidden overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200 align-middle text-sm whitespace-nowrap">
+            <thead class="bg-slate-50 border-b border-slate-200 hidden sm:table-header-group">
                 <tr>
-                    <th class="px-4 py-3 border-r border-slate-200 font-semibold text-xs uppercase tracking-wide">ID</th>
-                    <th class="px-4 py-3 border-r border-slate-200 font-semibold text-xs uppercase tracking-wide">Alumno</th>
-                    <th class="px-4 py-3 border-r border-slate-200 font-semibold text-xs uppercase tracking-wide">Curso</th>
-                    <th class="px-4 py-3 border-r border-slate-200 font-semibold text-xs uppercase tracking-wide">Fecha</th>
-                    <th class="px-4 py-3 border-r border-slate-200 font-semibold text-xs uppercase tracking-wide">Aprobado</th>
-                    <th class="px-4 py-3 border-r border-slate-200 font-semibold text-xs uppercase tracking-wide">Estado</th>
-                    <th class="px-4 py-3 text-center font-semibold text-xs uppercase tracking-wide">Acción</th>
+                    <th scope="col" class="px-6 py-4 text-left font-bold text-slate-500 uppercase tracking-widest text-[10px]">Identificador</th>
+                    <th scope="col" class="px-6 py-4 text-left font-bold text-slate-500 uppercase tracking-widest text-[10px]">Estudiante / Avatar</th>
+                    <th scope="col" class="px-6 py-4 text-left font-bold text-slate-500 uppercase tracking-widest text-[10px]">Programa Base</th>
+                    <th scope="col" class="px-6 py-4 text-center font-bold text-slate-500 uppercase tracking-widest text-[10px]">Estado Académico</th>
+                    <th scope="col" class="px-6 py-4 text-center font-bold text-slate-500 uppercase tracking-widest text-[10px]">Verificación de Pagos</th>
+                    <th scope="col" class="px-6 py-4 text-right font-bold text-slate-500 uppercase tracking-widest text-[10px] rounded-tr-xl">Descarga</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-slate-200 text-slate-700">
+            <tbody class="divide-y divide-slate-100 bg-white">
+                
                 @if (!Model.Alumnos.Any())
                 {
                     <tr>
-                        <td colspan="7" class="px-4 py-6 text-sm text-slate-500 text-center">No hay alumnos para el curso seleccionado.</td>
+                        <td colspan="6" class="px-6 py-12 text-center">
+                            <div class="flex flex-col items-center justify-center text-slate-400">
+                                <span class="material-symbols-outlined text-6xl mb-3 text-slate-300">plagiarism</span>
+                                <p class="text-base font-medium text-slate-600">No hay candidatos para emisión</p>
+                                <p class="text-sm mt-1">Selecciona un curso en el filtro o inscribe alumnos.</p>
+                            </div>
+                        </td>
                     </tr>
                 }
                 else
                 {
                     @foreach (var alumno in Model.Alumnos)
                     {
-                        <tr class="hover:bg-gray-50 transition-colors border-b last:border-0">
-                            <td class="px-6 py-4 border-r border-slate-200">@alumno.IdMatricula</td>
-                            <td class="px-6 py-4 border-r border-slate-200">
-                                <div class="font-medium text-gray-900">@alumno.NombreAlumno</div>
+                        var aptoEmision = alumno.Aprobado && alumno.TotalPagado >= alumno.CostoCurso;
+                        
+                        <tr class="hover:bg-indigo-50/40 transition-colors group">
+                            
+                            <!-- Columna: ID Matricula -->
+                            <td class="px-6 py-4">
+                                <span class="inline-flex font-mono text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-1 rounded">
+                                    #@alumno.IdMatricula.ToString("D5")
+                                </span>
                             </td>
-                            <td class="px-6 py-4 border-r border-slate-200">@alumno.NombreCurso</td>
-                            <td class="px-6 py-4 border-r border-slate-200">-</td>
-                            <td class="px-6 py-4 border-r border-slate-200">
+                            
+                            <!-- Columna: Estudiante -->
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full @(aptoEmision ? "bg-indigo-100 text-indigo-700 border-indigo-200" : "bg-slate-100 text-slate-500 border-slate-200") flex items-center justify-center flex-shrink-0 shadow-sm border font-bold text-xs uppercase transition-colors">
+                                        @((!string.IsNullOrEmpty(alumno.NombreAlumno) ? alumno.NombreAlumno.Substring(0, 1) : "?").ToUpper())
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-slate-800">@alumno.NombreAlumno</span>
+                                        <span class="text-[11px] font-medium text-slate-500">Expediente Regular</span>
+                                    </div>
+                                </div>
+                            </td>
+                            
+                            <!-- Columna: Curso -->
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-2 text-slate-600 font-medium">
+                                    <span class="material-symbols-outlined text-[16px] text-slate-400">menu_book</span>
+                                    @alumno.NombreCurso
+                                </div>
+                            </td>
+
+                            <!-- Columna: Estado Academico -->
+                            <td class="px-6 py-4 text-center">
                                 @if (alumno.Aprobado)
                                 {
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-sm">
                                         Aprobado
                                     </span>
                                 }
                                 else
                                 {
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-200 shadow-sm">
                                         No Aprobado
                                     </span>
                                 }
                             </td>
-                            <td class="px-6 py-4 border-r border-slate-200">
-                                <span class="text-sm @(alumno.TotalPagado >= alumno.CostoCurso ? "text-green-600 font-semibold" : "text-amber-600")">
-                                    S/ @alumno.TotalPagado.ToString("F2") / S/ @alumno.CostoCurso.ToString("F2")
-                                </span>
-                            </td>
+
+                            <!-- Columna: Pagos -->
                             <td class="px-6 py-4 text-center">
-                                @if (alumno.Aprobado && alumno.TotalPagado >= alumno.CostoCurso)
+                                @if (alumno.TotalPagado >= alumno.CostoCurso)
                                 {
-                                    <a href="/Emision/DescargarPdf?idModulo=@alumno.IdMatricula" 
-                                       class="btn-emitir inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg transition-all shadow-sm">
-                                        <span class="material-symbols-outlined text-sm">download</span>
-                                        Descargar
-                                    </a>
+                                    <span class="font-bold text-emerald-600">S/ @alumno.TotalPagado.ToString("N2") <span class="text-slate-400 font-normal text-[11px] block mt-0.5">Cancelado Total</span></span>
                                 }
                                 else
                                 {
-                                    <button disabled class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-400 text-xs font-bold rounded-lg cursor-not-allowed">
-                                        <span class="material-symbols-outlined text-sm">lock</span>
-                                        Pendiente
-                                    </button>
+                                    <span class="font-bold text-amber-600">S/ @alumno.TotalPagado.ToString("N2") <span class="text-slate-400 font-normal text-[11px] block mt-0.5">Deuda Pendiente</span></span>
                                 }
+                            </td>
+
+                            <!-- Columna: Acciones (Descarga) -->
+                            <td class="px-6 py-4 text-right">
+                                <div class="flex items-center justify-end gap-1">
+                                    @if (aptoEmision)
+                                    {
+                                        <a href="/Emision/DescargarPdf?idModulo=@alumno.IdMatricula" 
+                                           class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white text-xs font-bold rounded-lg transition-colors border border-indigo-200 shadow-sm group/btn tooltip" 
+                                           title="Descargar Certificado Original">
+                                            <span class="material-symbols-outlined text-[18px]">workspace_premium</span>
+                                            Descargar
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <button disabled class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 text-slate-400 text-xs font-bold rounded-lg border border-slate-200 cursor-not-allowed tooltip" title="Inhabilitado por deudas o notas">
+                                            <span class="material-symbols-outlined text-[18px]">lock_clock</span>
+                                            Bloqueado
+                                        </button>
+                                    }
+                                </div>
                             </td>
                         </tr>
                     }
@@ -129,15 +201,52 @@
         $('#formGenerar').on('submit', function(e) {
             e.preventDefault();
             const $form = $(this);
+            const idCurso = $('#hiddenIdCurso').val();
+            
+            if (!idCurso || idCurso == 0) {
+                Swal.fire({ 
+                    title: 'Aviso', 
+                    text: 'Debes filtrar y seleccionar un curso primero antes de generar certificados.', 
+                    icon: 'warning', 
+                    confirmButtonColor: '#4f46e5',
+                    customClass: { popup: 'rounded-2xl shadow-xl border border-slate-200', confirmButton: 'rounded-lg px-6 py-2.5 font-bold' }
+                });
+                return;
+            }
+
+            Swal.fire({
+                title: 'Procesando certificaciones',
+                text: 'Esto puede tardar unos segundos...',
+                allowOutsideClick: false,
+                didOpen: () => { Swal.showLoading(); }
+            });
 
             $.post($form.attr('action'), $form.serialize(), function(res) {
                 if (res.success) {
-                    Swal.fire({ title: '✓ Éxito', text: 'Certificados generados: ' + res.totalGenerados, icon: 'success', confirmButtonColor: '#0369a1' }).then(() => location.reload());
+                    Swal.fire({ 
+                        title: 'Emisión Completada', 
+                        text: 'Certificados emitidos con éxito: ' + res.totalGenerados, 
+                        icon: 'success', 
+                        confirmButtonColor: '#4f46e5',
+                        customClass: { popup: 'rounded-2xl shadow-xl', confirmButton: 'rounded-lg px-6 py-2.5 font-bold' }
+                    }).then(() => location.reload());
                 } else {
-                    Swal.fire({ title: 'Error', text: res.message || 'No se pudo generar.', icon: 'error', confirmButtonColor: '#0369a1' });
+                    Swal.fire({ 
+                        title: 'Incidencia', 
+                        text: res.message || 'No se logró generar los certificados.', 
+                        icon: 'error', 
+                        confirmButtonColor: '#4f46e5',
+                        customClass: { popup: 'rounded-2xl shadow-xl border border-slate-200', confirmButton: 'rounded-lg px-6 py-2.5 font-bold' }
+                    });
                 }
             }).fail(function() {
-                Swal.fire({ title: 'Error', text: 'Error al generar certificados.', icon: 'error', confirmButtonColor: '#0369a1' });
+                Swal.fire({ 
+                    title: 'Error de Red', 
+                    text: 'Error fatal de comunicación con el servidor al generar certificados. Intenta nuevamente.', 
+                    icon: 'error', 
+                    confirmButtonColor: '#4f46e5',
+                    customClass: { popup: 'rounded-2xl shadow-xl' }
+                });
             });
         });
     </script>

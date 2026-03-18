@@ -2,52 +2,107 @@
     ViewData["Title"] = "Nueva Plantilla";
 }
 
-<div class="max-w-xl mx-auto">
-    <div class="bg-white border border-slate-300 shadow-sm rounded-sm">
-        <div class="p-4 border-b border-slate-200 bg-slate-50 flex items-center gap-2">
-            <span class="material-symbols-outlined text-base text-primary">add_photo_alternate</span>
-            <h3 class="text-xs font-bold uppercase text-slate-600 tracking-wider">Crear Nueva Plantilla</h3>
+<div class="min-h-screen bg-slate-50/50 py-8 px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-3xl">
+        
+        <!-- Card principal -->
+        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 px-8 py-6 text-white relative isolate">
+                <div class="absolute -top-12 -right-8 text-indigo-500/20 pointer-events-none">
+                    <span class="material-symbols-outlined text-[140px]">wallpaper</span>
+                </div>
+                
+                <div class="relative z-10 flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center gap-3">
+                            <a href="@Url.Action("Index")" class="flex items-center justify-center w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 transition-colors backdrop-blur-sm" title="Volver al listado">
+                                <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+                            </a>
+                            <h2 class="text-2xl font-bold tracking-tight">Crear Nueva Plantilla</h2>
+                        </div>
+                        <p class="mt-2 text-indigo-100 ml-11">Sube la imagen base para diseñar y emitir nuevos certificados</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario -->
+            <form id="formCrear" enctype="multipart/form-data" class="p-8">
+                @Html.AntiForgeryToken()
+
+                <div class="grid grid-cols-1 gap-8">
+                    
+                    <!-- Nombre de la plantilla -->
+                    <div class="relative">
+                        <input type="text" id="nombre" name="nombre" required
+                               class="peer block w-full rounded-lg border border-slate-300 bg-transparent px-4 py-3.5 text-slate-900 placeholder-transparent focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none transition-shadow hover:shadow-sm"
+                               placeholder=" " />
+                        <label for="nombre"
+                               class="absolute left-4 -top-2.5 bg-white px-1 text-sm font-medium text-slate-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-base peer-placeholder-shown:text-slate-400 peer-focus:-top-2.5 peer-focus:text-sm peer-focus:text-indigo-600 rounded">
+                            Nombre de la plantilla *
+                        </label>
+                        <p class="text-[11px] text-slate-400 mt-1.5 ml-1">Ej: Certificado de Participación 2024</p>
+                    </div>
+
+                    <!-- Subida de Imagen -->
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Imagen de Fondo (Diseño Base) *</label>
+                        
+                        <div class="relative rounded-xl border-2 border-dashed border-indigo-200 bg-indigo-50/30 p-6 text-center transition-all hover:bg-indigo-50/80 group">
+                            
+                            <!-- Input superpuesto invisible -->
+                            <input type="file" id="imagen" name="imagen" accept=".jpg,.jpeg,.png" required
+                                   class="absolute inset-0 z-50 w-full h-full opacity-0 cursor-pointer" />
+                            
+                            <!-- UI Visual del Dropzone -->
+                            <div class="flex flex-col items-center pointer-events-none">
+                                <div class="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-500 group-hover:scale-110 group-hover:bg-indigo-200 transition-transform duration-300 shadow-sm mb-4">
+                                    <span class="material-symbols-outlined text-[32px]">cloud_upload</span>
+                                </div>
+                                <h4 class="text-sm font-bold text-slate-700">Arrastra tu imagen aquí o haz clic para explorar</h4>
+                                <p class="text-xs text-slate-500 mt-1">Soporta <span class="font-semibold text-slate-700">JPG</span> o <span class="font-semibold text-slate-700">PNG</span>. Peso máximo recomendado: <span class="font-semibold text-slate-700">5 MB</span>.</p>
+                                
+                                <div class="mt-4 px-4 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-indigo-600 shadow-sm group-hover:border-indigo-300 transition-colors">
+                                    Seleccionar Archivo
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vista Previa Activa -->
+                    <div id="previewContainer" class="hidden mt-2 animate-[fadeIn_0.4s_ease-out]">
+                        <h4 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 border-b border-slate-100 pb-2 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[16px]">visibility</span> Vista Previa
+                        </h4>
+                        <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-inner flex justify-center">
+                            <img id="previewImg" class="max-h-64 object-contain rounded-lg shadow-md border border-slate-300" alt="Vista previa de la plantilla" />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones -->
+                <div class="mt-10 flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4 border-t border-slate-100 pt-6">
+                    <a href="@Url.Action("Index")" 
+                       class="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-6 py-3 text-sm font-bold text-slate-700 shadow-sm transition hover:bg-slate-50 hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 uppercase tracking-wide">
+                        Cancelar
+                    </a>
+                    <button type="submit" id="btnCrear"
+                            class="inline-flex items-center justify-center rounded-lg bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow transition hover:bg-indigo-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 uppercase tracking-wide">
+                        <span class="material-symbols-outlined mr-2 text-[20px]">save</span>
+                        Guardar Plantilla
+                    </button>
+                </div>
+            </form>
         </div>
-
-        <form id="formCrear" enctype="multipart/form-data" class="p-6 space-y-5">
-            @Html.AntiForgeryToken()
-
-            <div>
-                <label for="nombre" class="block text-xs font-bold uppercase text-slate-600 tracking-wider mb-1">
-                    Nombre de la plantilla
-                </label>
-                <input type="text" id="nombre" name="nombre" required
-                       placeholder="Ej: Certificado de Participación"
-                       class="w-full px-3 py-2 text-sm border border-slate-300 rounded-sm bg-slate-50 focus:bg-white focus:border-primary focus:outline-none transition-colors" />
-            </div>
-
-            <div>
-                <label for="imagen" class="block text-xs font-bold uppercase text-slate-600 tracking-wider mb-1">
-                    Imagen de fondo
-                </label>
-                <input type="file" id="imagen" name="imagen" accept=".jpg,.jpeg,.png" required
-                       class="w-full text-sm text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-sm file:border file:border-slate-300 file:text-xs file:font-bold file:uppercase file:bg-slate-50 file:text-slate-600 hover:file:bg-slate-100 file:cursor-pointer file:transition-colors" />
-                <p class="mt-1 text-[10px] text-slate-400">Solo JPG o PNG. Máximo 5 MB.</p>
-            </div>
-
-            <div id="previewContainer" class="hidden">
-                <label class="block text-xs font-bold uppercase text-slate-600 tracking-wider mb-1">Vista previa</label>
-                <img id="previewImg" class="max-h-48 rounded-sm border border-slate-200 shadow-sm" alt="Vista previa" />
-            </div>
-
-            <div class="flex items-center gap-3 pt-2 border-t border-slate-200">
-                <button type="submit" id="btnCrear"
-                        class="px-4 py-2 bg-primary text-white text-xs font-bold uppercase rounded-sm hover:bg-sky-800 transition-none flex items-center gap-2">
-                    <span class="material-symbols-outlined text-sm">save</span> Guardar Plantilla
-                </button>
-                <a href="@Url.Action("Index")"
-                   class="px-4 py-2 text-xs font-bold uppercase text-slate-600 border border-slate-300 rounded-sm hover:bg-slate-50 transition-none">
-                    Cancelar
-                </a>
-            </div>
-        </form>
     </div>
 </div>
+
+<style>
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
 
 <script>
 (function () {
@@ -75,9 +130,16 @@
     document.getElementById('formCrear').addEventListener('submit', function (e) {
         e.preventDefault();
 
+        // Si es invalido, que el nav se encargue (required fields)
+        if(!this.checkValidity()){
+            this.reportValidity();
+            return;
+        }
+
         var btn = document.getElementById('btnCrear');
+        var originalBtnContent = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = '<span class="material-symbols-outlined text-sm">hourglass_top</span> Guardando...';
+        btn.innerHTML = '<div class="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent mr-2"></div> Guardando...';
 
         var formData = new FormData(this);
 
@@ -104,8 +166,8 @@
                 Swal.fire({
                     icon: 'success',
                     title: '¡Plantilla creada!',
-                    text: 'La plantilla se creó correctamente.',
-                    confirmButtonColor: '#0369a1',
+                    text: 'La plantilla se guardó y subió correctamente en la nube.',
+                    confirmButtonColor: '#4f46e5',
                     timer: 2000,
                     showConfirmButton: false
                 }).then(function () {
@@ -114,23 +176,23 @@
             } else {
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error',
-                    text: res.mensaje || 'No se pudo crear la plantilla',
-                    confirmButtonColor: '#0369a1'
+                    title: 'Operación denegada',
+                    text: res.mensaje || 'No se pudo crear la plantilla por un problema interno',
+                    confirmButtonColor: '#4f46e5'
                 });
             }
         })
         .catch(function (err) {
             Swal.fire({
                 icon: 'error',
-                title: 'Error',
-                text: err.message || 'Error de conexión',
-                confirmButtonColor: '#0369a1'
+                title: 'Error de Red',
+                text: err.message || 'Error de conexión con el servidor',
+                confirmButtonColor: '#4f46e5'
             });
         })
         .then(function () {
             btn.disabled = false;
-            btn.innerHTML = '<span class="material-symbols-outlined text-sm">save</span> Guardar Plantilla';
+            btn.innerHTML = originalBtnContent;
         });
     });
 })();

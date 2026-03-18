@@ -24,35 +24,52 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
-        // Si es Admin, mostrar dashboard
+        // Administrador: Dashboard completo con métricas globales
         if (User.IsInRole("Admin"))
         {
-            try
-            {
-                var dashboard = await _dashboardRepository.ObtenerEstadisticasDashboardAsync();
-
-                // Obtener actividad reciente
-                var actividad = await _auditoriaService.ObtenerUltimosAsync(5);
-                dashboard.ActividadReciente = actividad.Select(a => new ActividadReciente
-                {
-                    Accion = a.accion,
-                    Detalles = a.detalles,
-                    Fecha = a.fecha
-                }).ToList();
-
-                return View("AdminDashboard", dashboard);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error al cargar estadísticas del dashboard");
-                var actividad = await _dashboardRepository.ListarActividadRecienteAsync();
-                return View("Index", actividad);
-            }
+            return RedirectToAction("AdminDashboard");
         }
 
-        // Si es Docente o Alumno, mostrar actividad reciente
+        // Docente: Dashboard de gestión de cursos y métricas de alumnos
+        if (User.IsInRole("Docente"))
+        {
+            return RedirectToAction("Index", "Docentes");
+        }
+
+        // Alumno: Portal de cursos matriculados y certificados
+        if (User.IsInRole("Alumno"))
+        {
+            return RedirectToAction("MisCursos", "Alumnos");
+        }
+
+        // Fallback genérico para roles no definidos (como Staff genérico o invitados validos)
         var recentActivity = await _dashboardRepository.ListarActividadRecienteAsync();
         return View(recentActivity);
+    }
+
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> AdminDashboard()
+    {
+        try
+        {
+            var dashboard = await _dashboardRepository.ObtenerEstadisticasDashboardAsync();
+            if (dashboard == null) dashboard = new AdminDashboardViewModel();
+
+            var actividad = await _auditoriaService.ObtenerUltimosAsync(5);
+            dashboard.ActividadReciente = actividad.Select(a => new ActividadReciente
+            {
+                Accion = a.accion,
+                Detalles = a.detalles,
+                Fecha = a.fecha
+            }).ToList();
+
+            return View(dashboard);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al cargar estadísticas del dashboard de Admin");
+            return RedirectToAction("Error");
+        }
     }
 
     public IActionResult Privacy()

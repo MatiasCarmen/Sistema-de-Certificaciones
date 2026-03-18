@@ -3,78 +3,165 @@
     ViewData["Title"] = "Gestión de Plantillas";
 }
 
-<div class="bg-white border border-slate-300 shadow-sm rounded-sm">
-    <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
-        <h3 class="text-xs font-bold uppercase text-slate-600 tracking-wider">Catálogo de Plantillas</h3>
-        <a href="@Url.Action("Create")" 
-           class="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-sm hover:bg-sky-800 transition-none flex items-center gap-2">
-            <span class="material-symbols-outlined text-base">add</span> Nueva Plantilla
+<div class="px-4 py-8">
+    
+    @if (TempData["Success"] != null)
+    {
+        <div class="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-800 shadow-sm flex items-center gap-3">
+            <span class="material-symbols-outlined text-emerald-600 text-[20px]">check_circle</span>
+            <span class="font-medium">@TempData["Success"]</span>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="mb-6 rounded-xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-800 shadow-sm flex items-center gap-3">
+            <span class="material-symbols-outlined text-rose-600 text-[20px]">error</span>
+            <span class="font-medium">@TempData["Error"]</span>
+        </div>
+    }
+
+    <!-- Encabezado y Acción Principal -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-800 flex items-center gap-2">
+                <span class="material-symbols-outlined text-indigo-600">collections</span>
+                Catálogo de Plantillas
+            </h1>
+            <p class="text-sm text-slate-500 mt-1">Sube fondos y diseña plantillas base para las certificaciones.</p>
+        </div>
+        
+        <a href="@Url.Action("Create")" class="inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow transition hover:bg-indigo-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 uppercase tracking-wide shrink-0">
+            <span class="material-symbols-outlined text-[18px]">add_photo_alternate</span>
+            Nueva Plantilla
         </a>
     </div>
 
-    <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm border-collapse">
-            <thead class="bg-slate-100 border-b border-slate-300 text-slate-700">
+    <!-- Filtros / Búsqueda (Placeholder Visual) -->
+    <div class="bg-white rounded-t-xl border-x border-t border-slate-200 p-4 shadow-sm flex items-center justify-between">
+        <div class="relative w-full max-w-sm">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                <span class="material-symbols-outlined text-[18px]">search</span>
+            </span>
+            <input type="text" placeholder="Buscar plantilla por nombre..." class="w-full pl-10 pr-4 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition shadow-sm outline-none">
+        </div>
+        <div class="text-sm text-slate-500 font-medium hidden sm:block">
+            Total: <span class="text-slate-900 font-bold">@(Model?.Count() ?? 0)</span> diseños
+        </div>
+    </div>
+
+    <!-- Tabla Principal (Gold Standard) -->
+    <div class="bg-white shadow-sm border border-slate-200 rounded-b-xl overflow-hidden overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200 align-middle text-sm whitespace-nowrap">
+            <thead class="bg-slate-50 border-b border-slate-200 hidden sm:table-header-group">
                 <tr>
-                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">ID</th>
-                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Nombre</th>
-                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Imagen</th>
-                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Estado</th>
-                    <th class="px-4 py-2 font-semibold text-xs uppercase text-center">Acciones</th>
+                    <th scope="col" class="px-6 py-4 text-left font-bold text-slate-500 uppercase tracking-widest text-[10px]">Identificador</th>
+                    <th scope="col" class="px-6 py-4 text-left font-bold text-slate-500 uppercase tracking-widest text-[10px]">Vista Previa</th>
+                    <th scope="col" class="px-6 py-4 text-left font-bold text-slate-500 uppercase tracking-widest text-[10px]">Nombre de Diseño</th>
+                    <th scope="col" class="px-6 py-4 text-center font-bold text-slate-500 uppercase tracking-widest text-[10px]">Disponibilidad</th>
+                    <th scope="col" class="px-6 py-4 text-right font-bold text-slate-500 uppercase tracking-widest text-[10px] rounded-tr-xl">Herramientas</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-slate-200 text-slate-600">
-                @foreach (var item in Model)
+            <tbody class="divide-y divide-slate-100 bg-white">
+                
+                @if (Model?.Any() != true)
                 {
-                    <tr class="hover:bg-slate-50">
-                        <td class="px-4 py-2 border-r border-slate-200 font-mono text-xs">#@item.IdPlantilla</td>
-                        <td class="px-4 py-2 border-r border-slate-200 font-medium text-slate-800">@item.Nombre</td>
-                        <td class="px-4 py-2 border-r border-slate-200">
-                            <img src="/uploads/@item.RutaImagen" alt="@item.Nombre" class="h-12 w-auto object-cover rounded-sm border border-slate-200" />
-                        </td>
-                        <td class="px-4 py-2 border-r border-slate-200">
-                            <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded-sm border @(item.EstadoActivo ? "bg-green-50 text-green-700 border-green-200" : "bg-red-50 text-red-700 border-red-200")">
-                                @(item.EstadoActivo ? "Activa" : "Inactiva")
-                            </span>
-                        </td>
-                        <td class="px-4 py-2 text-center">
-                            <div class="flex justify-center gap-2">
-                                <a href="@Url.Action("Editor", new { id = item.IdPlantilla })" 
-                                   class="px-3 py-1 bg-primary text-white text-xs font-bold rounded-sm hover:bg-sky-800 transition-none flex items-center gap-1"
-                                   title="Editar diseño">
-                                    <span class="material-symbols-outlined text-sm">edit</span> Editor
-                                </a>
-                                <a href="@Url.Action("Previsualizar", new { id = item.IdPlantilla })" 
-                                   target="_blank"
-                                   class="px-3 py-1 bg-slate-600 text-white text-xs font-bold rounded-sm hover:bg-slate-800 transition-none flex items-center gap-1"
-                                   title="Vista previa">
-                                    <span class="material-symbols-outlined text-sm">visibility</span> Preview
-                                </a>
-                                <form method="post" action="@Url.Action("CambiarEstado")" class="inline-block">
-                                    @Html.AntiForgeryToken()
-                                    <input type="hidden" name="id" value="@item.IdPlantilla" />
-                                    <button type="submit" 
-                                            onclick="return confirm('¿Cambiar el estado de esta plantilla?');"
-                                            class="px-3 py-1 text-xs font-bold rounded-sm border transition-none @(item.EstadoActivo ? "bg-red-50 text-red-700 border-red-200 hover:bg-red-100" : "bg-green-50 text-green-700 border-green-200 hover:bg-green-100")">
-                                        @(item.EstadoActivo ? "Desactivar" : "Activar")
-                                    </button>
-                                </form>
+                    <tr>
+                        <td colspan="5" class="px-6 py-12 text-center">
+                            <div class="flex flex-col items-center justify-center text-slate-400">
+                                <span class="material-symbols-outlined text-6xl mb-3 text-slate-300">image_not_supported</span>
+                                <p class="text-base font-medium text-slate-600">No hay plantillas registradas</p>
+                                <p class="text-sm mt-1">Crea tu primer diseño para asociarlo a los certificados.</p>
                             </div>
                         </td>
                     </tr>
                 }
+                else
+                {
+                    @foreach (var item in Model)
+                    {
+                        <tr class="hover:bg-indigo-50/40 transition-colors group">
+                            
+                            <!-- Columna: ID -->
+                            <td class="px-6 py-4">
+                                <span class="inline-flex font-mono text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-1 rounded">
+                                    #@item.IdPlantilla.ToString("D4")
+                                </span>
+                            </td>
+                            
+                            <!-- Columna: Imagen -->
+                            <td class="px-6 py-4">
+                                @if (!string.IsNullOrWhiteSpace(item.RutaImagen))
+                                {
+                                    <div class="relative group/img overflow-hidden rounded-md border border-slate-200 shadow-sm w-20 h-14 bg-slate-100 flex items-center justify-center">
+                                        <img src="/uploads/@item.RutaImagen" alt="@item.Nombre" class="w-full h-full object-cover transition-transform duration-300 group-hover/img:scale-105" />
+                                        <a href="/uploads/@item.RutaImagen" target="_blank" class="absolute inset-0 bg-slate-900/40 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity">
+                                            <span class="material-symbols-outlined text-white text-lg">zoom_in</span>
+                                        </a>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="w-20 h-14 bg-slate-100 rounded-md border border-slate-200 border-dashed flex items-center justify-center text-slate-400" title="Falta fondo">
+                                        <span class="material-symbols-outlined text-[18px]">hide_image</span>
+                                    </div>
+                                }
+                            </td>
+                            
+                            <!-- Columna: Nombre -->
+                            <td class="px-6 py-4">
+                                <span class="font-bold text-slate-800 text-sm">@item.Nombre</span>
+                                <div class="mt-0.5 text-[11px] font-medium text-slate-500 flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-[12px]">draw</span> Diseño Base
+                                </div>
+                            </td>
+
+                            <!-- Columna: Estado -->
+                            <td class="px-6 py-4 text-center">
+                                @if (item.EstadoActivo)
+                                {
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-sm">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-sm"></span>
+                                        Activa
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200 shadow-sm">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400 shadow-sm"></span>
+                                        Inactiva
+                                    </span>
+                                }
+                            </td>
+
+                            <!-- Columna: Acciones -->
+                            <td class="px-6 py-4 text-right">
+                                <div class="flex items-center justify-end gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                                    
+                                    <a href="@Url.Action("Previsualizar", new { id = item.IdPlantilla })" target="_blank" class="p-2 text-sky-600 hover:bg-sky-100 rounded-lg transition-colors group/btn tooltip" title="Vista Previa de Certificado">
+                                        <span class="material-symbols-outlined text-[20px] group-hover/btn:scale-110 transition-transform">visibility</span>
+                                    </a>
+
+                                    <a href="@Url.Action("Editor", new { id = item.IdPlantilla })" class="p-2 text-indigo-600 hover:bg-indigo-100 rounded-lg transition-colors group/btn tooltip" title="Abrir Editor Visual">
+                                        <span class="material-symbols-outlined text-[20px] group-hover/btn:scale-110 transition-transform">design_services</span>
+                                    </a>
+                                    
+                                    <form method="post" action="@Url.Action("CambiarEstado")" class="inline m-0 p-0">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@item.IdPlantilla" />
+                                        <button type="submit" onclick="return confirm('¿Deseas modificar el estado de disponibilidad de esta plantilla?');"
+                                                class="p-2 @(item.EstadoActivo ? "text-amber-600 hover:bg-amber-100" : "text-emerald-600 hover:bg-emerald-100") rounded-lg transition-colors group/btn tooltip" 
+                                                title="@(item.EstadoActivo ? "Desactivar Plantilla" : "Activar Plantilla")">
+                                            <span class="material-symbols-outlined text-[20px] group-hover/btn:scale-110 transition-transform">
+                                                @(item.EstadoActivo ? "hide_source" : "check_circle")
+                                            </span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
             </tbody>
         </table>
-
-        @if (!Model.Any())
-        {
-            <div class="p-8 text-center text-slate-500">
-                <span class="material-symbols-outlined text-4xl mb-2 block">inbox</span>
-                <p class="text-sm">No hay plantillas registradas</p>
-                <a href="@Url.Action("Create")" class="text-primary hover:underline text-xs font-bold mt-2 inline-block">
-                    Crear la primera plantilla
-                </a>
-            </div>
-        }
     </div>
 </div>

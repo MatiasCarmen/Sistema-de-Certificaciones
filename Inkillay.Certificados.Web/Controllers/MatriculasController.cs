@@ -62,12 +62,24 @@ public class MatriculasController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> VerAlumnos(int idModulo)
+    public async Task<IActionResult> VerAlumnos(int idCurso)
     {
-        if (idModulo <= 0)
-            return PartialView("_TablaAlumnos", Enumerable.Empty<Inkillay.Certificados.Web.Models.Entities.Matricula>());
+        if (idCurso <= 0)
+            return RedirectToAction("Index", "Docentes");
 
-        var matriculas = await _matriculaRepository.ListarAlumnosPorModuloAsync(idModulo);
-        return PartialView("_TablaAlumnos", matriculas);
+        try 
+        {
+            var cursoInfo = await _cursoRepository.ObtenerPorIdAsync(idCurso);
+            if (cursoInfo == null) return NotFound();
+
+            ViewData["NombreCurso"] = cursoInfo.Nombre;
+            var matriculas = await _matriculaRepository.ListarAlumnosPorModuloAsync(idCurso);
+            
+            return View(matriculas ?? Enumerable.Empty<Inkillay.Certificados.Web.Models.Entities.Matricula>());
+        }
+        catch (Exception)
+        {
+            return RedirectToAction("Index", "Docentes");
+        }
     }
 }

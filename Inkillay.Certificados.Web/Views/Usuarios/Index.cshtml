@@ -3,78 +3,160 @@
     ViewData["Title"] = "Gestión de Usuarios";
 }
 
-<div class="bg-white border border-slate-300 shadow-sm rounded-sm">
-    <div class="p-4 border-b border-slate-300 bg-slate-50 flex justify-between items-center">
-        <h3 class="text-xs font-bold uppercase text-slate-600 tracking-wider">Directorio de Usuarios</h3>
-        <a href="@Url.Action("Create")" 
-           class="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-sm hover:bg-sky-800 transition-none flex items-center gap-2">
-            <span class="material-symbols-outlined text-base">person_add</span> Nuevo Usuario
+<div class="px-4 py-8">
+    
+    @if (TempData["Success"] != null)
+    {
+        <div class="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-800 shadow-sm flex items-center gap-3">
+            <span class="material-symbols-outlined text-emerald-600 text-[20px]">check_circle</span>
+            <span class="font-medium">@TempData["Success"]</span>
+        </div>
+    }
+
+    <!-- Encabezado y Acción Principal -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-800 flex items-center gap-2">
+                <span class="material-symbols-outlined text-indigo-600">admin_panel_settings</span>
+                Directorio de Personal
+            </h1>
+            <p class="text-sm text-slate-500 mt-1">Administra los accesos de administradores y docentes.</p>
+        </div>
+        
+        <a href="@Url.Action("Create")" class="inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow transition hover:bg-indigo-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 uppercase tracking-wide shrink-0">
+            <span class="material-symbols-outlined text-[18px]">person_add</span>
+            Nuevo Usuario
         </a>
     </div>
 
-    <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm border-collapse">
-            <thead class="bg-slate-100 border-b border-slate-300 text-slate-700">
+    <!-- Filtros / Búsqueda (Placeholder Visual) -->
+    <div class="bg-white rounded-t-xl border-x border-t border-slate-200 p-4 shadow-sm flex items-center justify-between">
+        <div class="relative w-full max-w-sm">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                <span class="material-symbols-outlined text-[18px]">search</span>
+            </span>
+            <input type="text" placeholder="Buscar por nombre o correo..." class="w-full pl-10 pr-4 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition shadow-sm outline-none">
+        </div>
+        <div class="text-sm text-slate-500 font-medium hidden sm:block">
+            Total: <span class="text-slate-900 font-bold">@(Model?.Count() ?? 0)</span> cuentas
+        </div>
+    </div>
+
+    <!-- Tabla Principal (Gold Standard) -->
+    <div class="bg-white shadow-sm border border-slate-200 rounded-b-xl overflow-hidden overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200 align-middle text-sm whitespace-nowrap">
+            <thead class="bg-slate-50 border-b border-slate-200 hidden sm:table-header-group">
                 <tr>
-                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">ID</th>
-                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Nombre Completo</th>
-                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Correo</th>
-                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Rol</th>
-                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Fecha Registro</th>
-                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase text-center">Estado</th>
-                    <th class="px-4 py-2 font-semibold text-xs uppercase text-center">Acciones</th>
+                    <th scope="col" class="px-6 py-4 text-left font-bold text-slate-500 uppercase tracking-widest text-[10px]">Identificador</th>
+                    <th scope="col" class="px-6 py-4 text-left font-bold text-slate-500 uppercase tracking-widest text-[10px]">Usuario / Perfil</th>
+                    <th scope="col" class="px-6 py-4 text-left font-bold text-slate-500 uppercase tracking-widest text-[10px]">Credenciales</th>
+                    <th scope="col" class="px-6 py-4 text-left font-bold text-slate-500 uppercase tracking-widest text-[10px]">Alta del Sistema</th>
+                    <th scope="col" class="px-6 py-4 text-left font-bold text-slate-500 uppercase tracking-widest text-[10px]">Estado Operativo</th>
+                    <th scope="col" class="px-6 py-4 text-right font-bold text-slate-500 uppercase tracking-widest text-[10px] rounded-tr-xl">Acciones Rápidas</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-slate-200 text-slate-600">
-                @if (Model?.Any() == true)
+            <tbody class="divide-y divide-slate-100 bg-white">
+                
+                @if (Model?.Any() != true)
+                {
+                    <tr>
+                        <td colspan="6" class="px-6 py-12 text-center">
+                            <div class="flex flex-col items-center justify-center text-slate-400">
+                                <span class="material-symbols-outlined text-6xl mb-3 text-slate-300">group_off</span>
+                                <p class="text-base font-medium text-slate-600">No hay usuarios registrados</p>
+                                <p class="text-sm mt-1">Comienza agregando personal al sistema.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                else
                 {
                     @foreach (var usuario in Model)
                     {
-                        <tr class="hover:bg-slate-50">
-                            <td class="px-4 py-2 border-r border-slate-200 font-mono text-[11px]">#@usuario.IdUsuario</td>
-                            <td class="px-4 py-2 border-r border-slate-200 font-medium text-slate-800">@usuario.Nombre</td>
-                            <td class="px-4 py-2 border-r border-slate-200 text-[12px]">@usuario.Correo</td>
-                            <td class="px-4 py-2 border-r border-slate-200">
-                                <span class="px-2 py-0.5 bg-blue-50 text-blue-700 text-[10px] font-bold uppercase rounded-sm border border-blue-200">
-                                    @usuario.NombreRol
+                        <tr class="hover:bg-indigo-50/40 transition-colors group">
+                            
+                            <!-- Columna: ID -->
+                            <td class="px-6 py-4">
+                                <span class="inline-flex font-mono text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-1 rounded">
+                                    #@usuario.IdUsuario.ToString("D4")
                                 </span>
                             </td>
-                            <td class="px-4 py-2 border-r border-slate-200 text-[12px]">@usuario.FechaRegistro.ToString("dd/MM/yyyy")</td>
-                            <td class="px-4 py-2 border-r border-slate-200 text-center">
+                            
+                            <!-- Columna: Usuario / Avatar -->
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center flex-shrink-0 shadow-sm border border-indigo-200 font-bold text-xs uppercase">
+                                        @(string.IsNullOrWhiteSpace(usuario.Nombre) ? "?" : usuario.Nombre.Substring(0, 1))
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-slate-800">@usuario.Nombre</span>
+                                        <div class="mt-0.5">
+                                            @if(usuario.NombreRol == "Admin")
+                                            {
+                                                <span class="text-[10px] font-bold uppercase tracking-wider text-purple-700 bg-purple-100 px-2 py-0.5 rounded border border-purple-200">
+                                                    Administrador
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-[10px] font-bold uppercase tracking-wider text-sky-700 bg-sky-100 px-2 py-0.5 rounded border border-sky-200">
+                                                    @usuario.NombreRol
+                                                </span>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            
+                            <!-- Columna: Correo -->
+                            <td class="px-6 py-4">
+                                <span class="font-medium text-slate-600">@usuario.Correo</span>
+                            </td>
+                            
+                            <!-- Columna: Registro -->
+                            <td class="px-6 py-4">
+                                <div class="flex flex-col">
+                                    <span class="font-semibold text-slate-700">@usuario.FechaRegistro.ToString("dd MMM yyyy")</span>
+                                    <span class="text-[11px] text-slate-400 font-medium">@usuario.FechaRegistro.ToString("hh:mm tt")</span>
+                                </div>
+                            </td>
+
+                            <!-- Columna: Estado -->
+                            <td class="px-6 py-4">
                                 @if (usuario.Estado)
                                 {
-                                    <span class="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase rounded-sm border border-emerald-200">
-                                        Activo
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 shadow-sm">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-sm"></span>
+                                        Cuenta Activa
                                     </span>
                                 }
                                 else
                                 {
-                                    <span class="px-2 py-0.5 bg-red-50 text-red-700 text-[10px] font-bold uppercase rounded-sm border border-red-200">
-                                        Inactivo
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-200 shadow-sm">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500 shadow-sm"></span>
+                                        Acceso Suspendido
                                     </span>
                                 }
                             </td>
-                            <td class="px-4 py-2 text-center space-x-2">
-                                <a href="@Url.Action("Edit", new { id = usuario.IdUsuario })" 
-                                   class="text-blue-600 hover:underline font-semibold text-xs">Editar</a>
-                                <span class="text-slate-300">|</span>
-                                <button type="button" 
-                                        onclick="cambiarEstado(@usuario.IdUsuario, @(!usuario.Estado).ToString().ToLower())"
-                                        class="text-slate-500 hover:underline font-semibold text-xs">
-                                    @(usuario.Estado ? "Desactivar" : "Activar")
-                                </button>
+
+                            <!-- Columna: Acciones -->
+                            <td class="px-6 py-4 text-right">
+                                <div class="flex items-center justify-end gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                                    <a href="@Url.Action("Edit", new { id = usuario.IdUsuario })" class="p-2 text-indigo-600 hover:bg-indigo-100 rounded-lg transition-colors group/btn tooltip" title="Ver Detalles">
+                                        <span class="material-symbols-outlined text-[20px] group-hover/btn:scale-110 transition-transform">visibility</span>
+                                    </a>
+                                    
+                                    <button type="button" onclick="cambiarEstado(@usuario.IdUsuario, @(!usuario.Estado).ToString().ToLower())"
+                                            class="p-2 @(usuario.Estado ? "text-amber-600 hover:bg-amber-100" : "text-emerald-600 hover:bg-emerald-100") rounded-lg transition-colors group/btn tooltip" 
+                                            title="@(usuario.Estado ? "Suspender Acceso" : "Restaurar Acceso")">
+                                        <span class="material-symbols-outlined text-[20px] group-hover/btn:scale-110 transition-transform">
+                                            @(usuario.Estado ? "block" : "how_to_reg")
+                                        </span>
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     }
-                }
-                else
-                {
-                    <tr>
-                        <td colspan="7" class="px-4 py-6 text-center text-slate-500">
-                            <span class="material-symbols-outlined block mb-2">people_outline</span>
-                            No hay usuarios registrados
-                        </td>
-                    </tr>
                 }
             </tbody>
         </table>
@@ -84,20 +166,25 @@
 <form id="csrfForm" class="hidden">@Html.AntiForgeryToken()</form>
 
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         function cambiarEstado(idUsuario, nuevoEstado) {
             Swal.fire({
                 title: '⚠️ Confirmar cambio de estado',
-                text: `¿Deseas ${nuevoEstado ? 'activar' : 'desactivar'} este usuario?`,
+                text: `¿Deseas ${nuevoEstado ? 'activar' : 'suspender'} el acceso de este usuario?`,
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: '#0369a1',
-                cancelButtonColor: '#6b7280',
+                confirmButtonColor: '#4f46e5', // indigo-600
+                cancelButtonColor: '#94a3b8',  // slate-400
                 confirmButtonText: 'Sí, confirmar',
                 cancelButtonText: 'Cancelar',
                 backdrop: true,
-                allowOutsideClick: false
+                allowOutsideClick: false,
+                customClass: {
+                    title: 'text-xl font-bold text-slate-800',
+                    popup: 'rounded-2xl shadow-xl border border-slate-200',
+                    confirmButton: 'rounded-lg px-6 py-2.5 font-bold',
+                    cancelButton: 'rounded-lg px-6 py-2.5 font-bold'
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     Swal.fire({
@@ -115,10 +202,11 @@
 
                                 if (data.success) {
                                     await Swal.fire({
-                                        title: '✓ Éxito',
+                                        title: 'Éxito',
                                         text: 'El estado ha sido actualizado correctamente',
                                         icon: 'success',
-                                        confirmButtonColor: '#0369a1'
+                                        confirmButtonColor: '#4f46e5',
+                                        customClass: { popup: 'rounded-2xl shadow-xl' }
                                     });
                                     location.reload();
                                 } else {
@@ -132,25 +220,5 @@
                 }
             });
         }
-
-        // Confirmación para eliminar (si aplica)
-        function confirmarEliminacion(idUsuario, nombre) {
-            Swal.fire({
-                title: '🗑️ Eliminar usuario',
-                text: `¿Estás seguro de que deseas eliminar a ${nombre}? Esta acción no se puede deshacer.`,
-                icon: 'error',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#6b7280',
-                confirmButtonText: 'Sí, eliminar',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    // Enviar solicitud de eliminación
-                    location.href = `/Usuarios/Delete/${idUsuario}`;
-                }
-            });
-        }
     </script>
 }
-

@@ -1,54 +1,136 @@
-@model IEnumerable<Inkillay.Certificados.Web.Models.RecentActivityViewModel>
+@model IEnumerable<Inkillay.Certificados.Web.Models.ViewModels.ActividadReciente>
 @{
-    ViewData["Title"] = "Dashboard";
+    ViewData["Title"] = "Portal Académico";
 }
 
 <div class="space-y-6">
-    <!-- KPI -->
-    <div class="bg-white border border-slate-300 rounded-sm shadow-sm p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-xs text-slate-600 uppercase font-bold tracking-wide">Actividad del Día</p>
-                <h3 class="text-3xl font-bold text-slate-900 mt-2">@Model.Count()</h3>
-                <p class="text-xs text-slate-500 mt-1">Registros</p>
+    
+    <!-- Welcome Banner Superior -->
+    <div class="bg-gradient-to-br from-primary-800 to-slate-900 rounded-xl shadow-md overflow-hidden relative isolate">
+        <!-- Decoracion de fondo -->
+        <div class="absolute -top-24 -right-24 w-64 h-64 bg-primary-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+        <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-teal-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+
+        <div class="relative p-6 sm:p-8 flex items-center justify-between">
+            <div class="max-w-2xl">
+                <div class="flex items-center gap-2 mb-2 opacity-80">
+                    <span class="material-symbols-outlined text-[16px] text-primary-200">waving_hand</span>
+                    <span class="text-xs font-bold text-primary-100 uppercase tracking-widest">Bienvenido de vuelta</span>
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-bold text-white mb-2 leading-tight">
+                    Hola, @(User.Identity?.Name ?? "Usuario").
+                </h2>
+                <p class="text-slate-300 text-sm md:text-base font-medium">Este es tu resumen de actividad y estado actual en la plataforma de certificaciones.</p>
             </div>
-            <span class="material-symbols-outlined text-4xl text-slate-300">monitoring</span>
+            
+            <!-- Resumen numérico rápido / KPI incrustado -->
+            <div class="hidden md:flex flex-col items-center justify-center p-4 bg-white/10 backdrop-blur-sm rounded-xl border border-white/10 shrink-0 min-w-[140px]">
+                <span class="text-[10px] font-bold uppercase tracking-widest text-primary-200 mb-1">Actividades de hoy</span>
+                <span class="text-4xl font-black text-white">@Model.Count(a => a.Fecha.Date == DateTime.Today)</span>
+                <span class="text-xs text-slate-300 font-medium mt-1">Registros</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- KPI Mobile Only (Fallback from Banner) -->
+    <div class="md:hidden bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center">
+                <span class="material-symbols-outlined">monitoring</span>
+            </div>
+            <div>
+                <p class="text-[10px] text-slate-500 uppercase font-bold tracking-widest">Actividades de hoy</p>
+                <div class="flex items-baseline gap-1 mt-0.5">
+                    <span class="text-xl font-bold text-slate-800">@Model.Count(a => a.Fecha.Date == DateTime.Today)</span>
+                    <span class="text-xs text-slate-500 font-medium">registros</span>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Tabla Actividad -->
-    <div class="bg-white border border-slate-300 rounded-sm shadow-sm">
-        <div class="p-4 border-b border-slate-300 bg-slate-50">
-            <h3 class="text-xs font-bold text-slate-600 uppercase tracking-wider">Actividad Reciente</h3>
+    <!-- Tabla Actividad Reciente Moderna -->
+    <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+        
+        <!-- Header Tabla -->
+        <div class="p-5 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[18px]">view_timeline</span>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-slate-800">Actividad Reciente</h3>
+                    <p class="text-[11px] text-slate-500 font-medium mt-0.5">Tus movimientos recientes de alumnos y certificados.</p>
+                </div>
+            </div>
+            <button class="text-slate-400 hover:text-slate-700 transition-colors" title="Actualizar" onclick="location.reload()">
+                <span class="material-symbols-outlined text-[20px]">refresh</span>
+            </button>
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm border-collapse">
-                <thead class="bg-slate-100 border-b border-slate-300 text-slate-700">
+        
+        <!-- Contenedor Responsivo -->
+        <div class="overflow-x-auto w-full">
+            <table class="w-full text-left text-sm whitespace-nowrap">
+                <thead class="bg-white border-b border-slate-100 text-slate-500">
                     <tr>
-                        <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">ID</th>
-                        <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Estudiante</th>
-                        <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Curso</th>
-                        <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Fecha</th>
-                        <th class="px-4 py-2 font-semibold text-xs uppercase text-center">Estado</th>
+                        <th scope="col" class="px-5 py-3 text-[10px] font-bold uppercase tracking-widest w-[60%] lg:w-[70%]">Acción / Descripción</th>
+                        <th scope="col" class="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-right">Fecha / Tiempo</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-200 text-slate-600">
-                    @foreach (var item in Model)
+                <tbody class="divide-y divide-slate-100 text-slate-600">
+                    @if (Model.Any())
                     {
-                        <tr class="hover:bg-slate-50">
-                            <td class="px-4 py-2 border-r border-slate-200 font-mono text-xs">#@item.ID</td>
-                            <td class="px-4 py-2 border-r border-slate-200 font-medium text-slate-800">@item.Estudiante</td>
-                            <td class="px-4 py-2 border-r border-slate-200">@item.Curso</td>
-                            <td class="px-4 py-2 border-r border-slate-200">@item.Fecha.ToString("dd/MM/yyyy")</td>
-                            <td class="px-4 py-2 text-center">
-                                <span class="px-2 py-0.5 text-[10px] font-bold uppercase rounded-sm border @(item.Estado == "Emitido" ? "bg-green-50 text-green-700 border-green-200" : "bg-amber-50 text-amber-700 border-amber-200")">
-                                    @item.Estado
-                                </span>
+                        @foreach (var item in Model)
+                        {
+                            <tr class="hover:bg-slate-50/70 transition-colors group">
+                                <td class="px-5 py-3.5">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center shrink-0 group-hover:bg-primary-50 group-hover:text-primary-600 transition-colors">
+                                            @{
+                                                // Icono dinámico según la acción (opcional, fallback)
+                                                var icono = "history";
+                                                if (item.Accion.Contains("Certificado", StringComparison.OrdinalIgnoreCase) || item.Accion.Contains("Emitido", StringComparison.OrdinalIgnoreCase)) { icono = "workspace_premium"; }
+                                                else if (item.Accion.Contains("Alumno", StringComparison.OrdinalIgnoreCase)) { icono = "person"; }
+                                            }
+                                            <span class="material-symbols-outlined text-[16px]">@icono</span>
+                                        </div>
+                                        <div>
+                                            <p class="font-bold text-slate-800 text-[13px] group-hover:text-primary-700 transition-colors">@item.Accion</p>
+                                            <p class="text-[11px] text-slate-500 truncate max-w-xs md:max-w-md lg:max-w-xl mt-0.5" title="@item.Detalles">@item.Detalles</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-5 py-3.5 text-right">
+                                    <div class="flex flex-col items-end">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-md bg-slate-100 text-slate-600 text-[11px] font-semibold">
+                                            @item.TiempoRelativo
+                                        </span>
+                                        <span class="text-[10px] text-slate-400 mt-1 font-medium">@item.Fecha.ToString("dd MMM, yy HH:mm")</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="2" class="px-5 py-12 text-center text-slate-400">
+                                <div class="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mx-auto mb-3">
+                                    <span class="material-symbols-outlined text-3xl text-slate-300">search_off</span>
+                                </div>
+                                <p class="text-sm font-semibold text-slate-600">No tienes actividad reciente registrada.</p>
+                                <p class="text-xs text-slate-400 mt-1">Los registros aparecerán aquí automáticamente.</p>
                             </td>
                         </tr>
                     }
                 </tbody>
             </table>
+        </div>
+        <!-- Table Footer -->
+        <div class="px-5 py-3 border-t border-slate-100 bg-slate-50 text-center">
+            <a href="#" class="inline-flex items-center gap-1 text-[11px] font-bold text-primary-600 hover:text-primary-800 uppercase tracking-wider transition-colors">
+                Ver todo tu historial
+                <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+            </a>
         </div>
     </div>
 </div>

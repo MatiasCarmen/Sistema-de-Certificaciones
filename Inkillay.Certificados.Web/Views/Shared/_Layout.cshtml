@@ -4,153 +4,359 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Inkillay Certificados</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap" rel="stylesheet" />
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Alpine.js for interactive components (dropdowns, alerts, sidebar) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Inkillay.Certificados.Web.styles.css" asp-append-version="true" />
+
     <script>
         tailwind.config = {
             darkMode: "class",
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#0369a1",
+                        "primary": {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1', /* Main Primary */
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
                         "background-light": "#f8fafc",
                         "background-dark": "#0f172a",
                         "sidebar-bg": "#1e293b",
                         "sidebar-hover": "#334155"
                     },
-                    fontFamily: { "display": ["Segoe UI", "Inter", "-apple-system", "BlinkMacSystemFont", "sans-serif"] }
+                    fontFamily: { 
+                        "sans": ["Inter", "ui-sans-serif", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"],
+                        "display": ["Inter", "ui-sans-serif", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"] 
+                    }
                 },
             },
         }
     </script>
 </head>
-<body class="bg-background-light font-display text-slate-900 min-h-screen flex overflow-x-hidden">
-    <div class="flex h-screen w-full">
+<body class="bg-background-light font-sans text-slate-800 antialiased min-h-screen flex overflow-hidden selection:bg-primary-200 selection:text-primary-900" x-data="{ sidebarOpen: false }">
+    
+    <!-- Global Alerts Container -->
+    <div class="fixed top-4 right-4 z-50 flex flex-col gap-2 w-full max-w-sm pointer-events-none" id="toast-container">
+        @if (TempData["Success"] != null)
+        {
+            <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)" 
+                 x-transition:enter="transition ease-out duration-300 transform"
+                 x-transition:enter-start="opacity-0 translate-y-[-10px] scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                 x-transition:leave="transition ease-in duration-200 transform"
+                 x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-[-10px] scale-95"
+                 class="pointer-events-auto bg-white border-l-4 border-green-500 p-4 rounded-sm shadow-lg flex items-start gap-3">
+                <span class="material-symbols-outlined text-green-500 shrink-0">check_circle</span>
+                <div class="flex-1 text-sm font-medium text-slate-700">@TempData["Success"]</div>
+                <button @@click="show = false" class="text-slate-400 hover:text-slate-600 transition-colors">
+                    <span class="material-symbols-outlined text-lg">close</span>
+                </button>
+            </div>
+        }
+
+        @if (TempData["Error"] != null)
+        {
+            <div x-data="{ show: true }" x-show="show"
+                 x-transition:enter="transition ease-out duration-300 transform"
+                 x-transition:enter-start="opacity-0 translate-y-[-10px] scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                 x-transition:leave="transition ease-in duration-200 transform"
+                 x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                 x-transition:leave-end="opacity-0 scale-95"
+                 class="pointer-events-auto bg-red-50 border-l-4 border-red-600 p-4 rounded-sm shadow-lg flex items-start gap-3">
+                <span class="material-symbols-outlined text-red-600 shrink-0">error</span>
+                <div class="flex-1 text-sm font-medium text-red-800">@TempData["Error"]</div>
+                <button @@click="show = false" class="text-red-500 hover:text-red-700 transition-colors">
+                    <span class="material-symbols-outlined text-lg">close</span>
+                </button>
+            </div>
+        }
+        
+        @if (TempData["Warning"] != null)
+        {
+            <div x-data="{ show: true }" x-show="show"
+                 x-transition:enter="transition ease-out duration-300 transform"
+                 x-transition:enter-start="opacity-0 translate-y-[-10px] scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                 x-transition:leave="transition ease-in duration-200 transform"
+                 x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                 x-transition:leave-end="opacity-0 scale-95"
+                 class="pointer-events-auto bg-amber-50 border-l-4 border-amber-500 p-4 rounded-sm shadow-lg flex items-start gap-3">
+                <span class="material-symbols-outlined text-amber-600 shrink-0">warning</span>
+                <div class="flex-1 text-sm font-medium text-amber-800">@TempData["Warning"]</div>
+                <button @@click="show = false" class="text-amber-500 hover:text-amber-700 transition-colors">
+                    <span class="material-symbols-outlined text-lg">close</span>
+                </button>
+            </div>
+        }
+    </div>
+
+    <!-- Layout Wrapper -->
+    <div class="flex h-screen w-full relative">
+        
         <!-- Overlay mobile -->
-        <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/50 z-30 hidden lg:hidden" onclick="toggleSidebar()"></div>
+        <div x-show="sidebarOpen" 
+             x-transition.opacity.duration.300ms
+             @@click="sidebarOpen = false" 
+             class="fixed inset-0 bg-slate-900/60 z-30 lg:hidden backdrop-blur-sm" 
+             aria-hidden="true"></div>
 
         <!-- Sidebar -->
-        <aside id="sidebar" class="w-64 bg-sidebar-bg flex-shrink-0 hidden lg:flex flex-col text-slate-200 border-r border-slate-700 fixed lg:static inset-y-0 left-0 z-40 transition-transform duration-200">
+        <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" 
+               class="w-64 bg-sidebar-bg flex-shrink-0 flex flex-col text-slate-300 fixed lg:static inset-y-0 left-0 z-40 transition-transform duration-300 ease-in-out lg:translate-x-0 shadow-2xl lg:shadow-none font-medium">
+            
             <!-- Logo Header -->
-            <div class="h-16 flex items-center px-6 bg-slate-900 border-b border-slate-700">
-                <span class="material-symbols-outlined text-xl mr-2 text-primary">account_balance</span>
-                <h1 class="text-xs font-black tracking-widest uppercase text-slate-100">Inkillay</h1>
+            <div class="h-16 flex items-center px-6 bg-slate-900/50 border-b border-slate-700/50 shrink-0">
+                <div class="w-8 h-8 rounded bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center mr-3 shadow-inner shadow-primary-400/20">
+                    <span class="material-symbols-outlined text-sm text-white">account_balance</span>
+                </div>
+                <div>
+                    <h1 class="text-xs font-black tracking-widest uppercase text-white leading-tight">Inkillay</h1>
+                    <p class="text-[9px] text-primary-300 uppercase tracking-widest font-semibold flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span> Sistema
+                    </p>
+                </div>
+                <!-- Close btn mobile -->
+                <button @@click="sidebarOpen = false" class="lg:hidden ml-auto text-slate-400 hover:text-white">
+                    <span class="material-symbols-outlined text-xl">close</span>
+                </button>
             </div>
             
             <!-- Navigation -->
-            <nav class="flex-1 py-4 px-3 overflow-y-auto space-y-1">
+            <nav class="flex-1 py-6 px-3 overflow-y-auto space-y-1 custom-scrollbar">
                 @{
                     var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
                     var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+                    
                     string ActiveClass(string controller, string action = "") {
                         bool isActive = currentController.Equals(controller, StringComparison.OrdinalIgnoreCase)
                             && (string.IsNullOrEmpty(action) || currentAction.Equals(action, StringComparison.OrdinalIgnoreCase));
+                        
                         return isActive
-                            ? "flex items-center px-3 py-2 text-sm text-white bg-sidebar-hover rounded-sm border-l-2 border-primary font-bold"
-                            : "flex items-center px-3 py-2 text-sm text-slate-300 hover:bg-sidebar-hover rounded-sm transition-colors border-l-2 border-transparent";
+                            ? "flex items-center px-3 py-2.5 text-sm text-white bg-primary-700/20 rounded-md border-l-4 border-primary-500 font-bold shadow-sm transition-all"
+                            : "flex items-center px-3 py-2.5 text-sm text-slate-300 hover:text-white hover:bg-sidebar-hover rounded-md border-l-4 border-transparent transition-all group";
+                    }
+
+                    string IconClass(string controller, string action = "") {
+                        bool isActive = currentController.Equals(controller, StringComparison.OrdinalIgnoreCase)
+                            && (string.IsNullOrEmpty(action) || currentAction.Equals(action, StringComparison.OrdinalIgnoreCase));
+                            
+                        return isActive ? "text-primary-400" : "text-slate-400 group-hover:text-white transition-colors py-1";
                     }
                 }
+                
                 @if (User.Identity?.IsAuthenticated == true)
                 {
-                    <a href="/" class="@ActiveClass("Home")">
-                        <span class="material-symbols-outlined text-base mr-3">dashboard</span>
+                    <a href="/Home/Index" class="@ActiveClass("Home")">
+                        <span class="material-symbols-outlined text-[20px] mr-3 @IconClass("Home")">dashboard</span>
                         Inicio
                     </a>
 
                     @if (User.IsInRole("Admin"))
                     {
-                        <div class="pt-4 pb-2 px-3 border-t border-slate-700">
-                            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Gestión</p>
+                        <div class="pt-6 pb-2 px-3">
+                            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Gestión / Catálogos</p>
                         </div>
                         <a href="/Plantillas/Index" class="@ActiveClass("Plantillas")">
-                            <span class="material-symbols-outlined text-base mr-3">layers</span>
+                            <span class="material-symbols-outlined text-[20px] mr-3 @IconClass("Plantillas")">layers</span>
                             Plantillas
                         </a>
                         <a href="/Usuarios/Index" class="@ActiveClass("Usuarios", "Index")">
-                            <span class="material-symbols-outlined text-base mr-3">admin_panel_settings</span>
+                            <span class="material-symbols-outlined text-[20px] mr-3 @IconClass("Usuarios", "Index")">admin_panel_settings</span>
                             Personal / Admin
                         </a>
                         <a href="/Alumnos/Padron" class="@ActiveClass("Alumnos", "Padron")">
-                            <span class="material-symbols-outlined text-base mr-3">groups</span>
+                            <span class="material-symbols-outlined text-[20px] mr-3 @IconClass("Alumnos", "Padron")">groups</span>
                             Padrón Alumnos
                         </a>
                         <a href="/Cursos/Index" class="@ActiveClass("Cursos")">
-                            <span class="material-symbols-outlined text-base mr-3">menu_book</span>
+                            <span class="material-symbols-outlined text-[20px] mr-3 @IconClass("Cursos")">menu_book</span>
                             Gestión de Cursos
+                        </a>
+                        <a href="/Modulos/Index" class="@ActiveClass("Modulos")">
+                            <span class="material-symbols-outlined text-[20px] mr-3 @IconClass("Modulos")">view_module</span>
+                            Gestión de Módulos
                         </a>
                     }
 
-                <!-- Sección: Operaciones -->
-                <div class="mb-6">
-                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3 px-2">Operaciones</p>
-                    
                     @if (User.IsInRole("Admin") || User.IsInRole("Docente"))
                     {
+                        <div class="pt-6 pb-2 px-3">
+                            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Operaciones</p>
+                        </div>
+                        
                         <a href="/Matriculas/Registrar" class="@ActiveClass("Matriculas", "Registrar")">
-                            <span class="material-symbols-outlined text-base mr-3">person_add</span>
+                            <span class="material-symbols-outlined text-[20px] mr-3 @IconClass("Matriculas", "Registrar")">person_add</span>
                             Matricular Alumno
                         </a>
                         <a href="/Emision/Index" class="@ActiveClass("Emision")">
-                            <span class="material-symbols-outlined text-base mr-3">verified</span>
+                            <span class="material-symbols-outlined text-[20px] mr-3 @IconClass("Emision")">verified</span>
                             Emitir Certificados
                         </a>
                         <a href="/Pagos/Index" class="@ActiveClass("Pagos")">
-                            <span class="material-symbols-outlined text-base mr-3">payments</span>
+                            <span class="material-symbols-outlined text-[20px] mr-3 @IconClass("Pagos")">payments</span>
                             Registro de Pagos
                         </a>
                     }
-                </div>
 
                     @if (User.IsInRole("Alumno"))
                     {
-                        <div class="pt-4 pb-2 px-3 border-t border-slate-700">
-                            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">Portal</p>
+                        <div class="pt-6 pb-2 px-3">
+                            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Mi Portal</p>
                         </div>
                         <a href="/Alumnos/MisCursos" class="@ActiveClass("Alumnos", "MisCursos")">
-                            <span class="material-symbols-outlined text-base mr-3">school</span>
+                            <span class="material-symbols-outlined text-[20px] mr-3 @IconClass("Alumnos", "MisCursos")">school</span>
                             Mis Cursos
                         </a>
                         <a href="/Alumnos/MisCertificados" class="@ActiveClass("Alumnos", "MisCertificados")">
-                            <span class="material-symbols-outlined text-base mr-3">card_membership</span>
+                            <span class="material-symbols-outlined text-[20px] mr-3 @IconClass("Alumnos", "MisCertificados")">card_membership</span>
                             Mis Certificados
                         </a>
                     }
                 }
             </nav>
 
-            <!-- User Footer -->
-            <div class="p-4 bg-slate-900 border-t border-slate-700">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-sm bg-primary flex items-center justify-center font-bold text-xs text-white">
-                        @(User.Identity?.Name?.FirstOrDefault().ToString().ToUpper() ?? "U")
-                    </div>
-                    <div class="flex flex-col min-w-0">
-                        <span class="text-xs font-bold text-slate-200 truncate">@User.Identity?.Name</span>
-                        <span class="text-[10px] text-slate-500 uppercase">Conectado</span>
-                    </div>
+            <!-- User Footer in Sidebar -->
+            <div class="px-4 py-3 bg-slate-900/50 border-t border-slate-700/50 mt-auto flex flex-col gap-2 shrink-0">
+                <form asp-controller="Account" asp-action="Logout" method="post" class="w-full">
+                    <button type="submit" class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-md transition-colors border border-slate-700">
+                        <span class="material-symbols-outlined text-base">logout</span>
+                        Cerrar Sesión
+                    </button>
+                </form>
+                <div class="text-[9px] text-center text-slate-500 uppercase tracking-widest font-semibold pt-1">
+                    &copy; @DateTime.Now.Year Grupo Inkillay <br/> v1.2 Release
                 </div>
             </div>
         </aside>
 
         <!-- Main Content -->
-        <main class="flex-1 flex flex-col bg-slate-50 overflow-hidden">
-            <!-- Header -->
-            <header class="h-16 bg-white border-b border-slate-300 flex items-center justify-between px-8 flex-shrink-0 shadow-sm">
-                <div class="flex items-center gap-3">
-                    <button onclick="toggleSidebar()" class="lg:hidden p-1.5 text-slate-600 hover:bg-slate-100 rounded-sm">
-                        <span class="material-symbols-outlined">menu</span>
+        <main class="flex-1 flex flex-col bg-slate-50 h-screen overflow-hidden min-w-0">
+            
+            <!-- Topbar -->
+            <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 lg:px-8 flex-shrink-0 z-10 shadow-sm relative">
+                
+                <!-- Left: Burger Menu & Breadcrumb -->
+                <div class="flex items-center gap-4">
+                    <button @@click="sidebarOpen = true" class="lg:hidden p-1.5 -ml-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <span class="material-symbols-outlined">menu_open</span>
                     </button>
-                    <h2 class="text-base font-bold text-slate-700 uppercase tracking-tight">@ViewData["Title"]</h2>
+                    
+                    <div class="hidden sm:flex flex-col">
+                        <nav class="flex text-[11px] font-semibold text-slate-400 mb-0.5">
+                            <ol class="flex items-center space-x-1">
+                                <li>
+                                    <span class="hover:text-slate-600 transition-colors">Sistema</span>
+                                </li>
+                                <li><span class="mx-1">/</span></li>
+                                <li><span class="text-primary-600 uppercase tracking-wide">@currentController</span></li>
+                            </ol>
+                        </nav>
+                        <h2 class="text-lg font-bold text-slate-800 leading-tight">@ViewData["Title"]</h2>
+                    </div>
                 </div>
-                <form asp-controller="Account" asp-action="Logout" method="post" class="inline">
-                    <button type="submit" class="text-xs text-slate-600 hover:text-red-600 font-bold uppercase transition-colors">Cerrar Sesión</button>
-                </form>
+
+                <!-- Right: Profile Dropdown & Actions -->
+                <div class="flex items-center gap-3 sm:gap-4">
+                    
+                    <!-- Search or Notifications placeholder -->
+                    <button class="text-slate-400 hover:text-primary-600 transition-colors p-1.5 hidden sm:block relative">
+                        <span class="material-symbols-outlined text-[22px]">notifications</span>
+                        <span class="absolute top-1 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                    </button>
+
+                    <!-- Profile Dropdown Component -->
+                    <div class="relative" x-data="{ open: false }">
+                        <button @@click="open = !open" @@click.away="open = false" 
+                                class="flex items-center gap-2 lg:gap-3 p-1 rounded-full sm:rounded-md hover:bg-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                            
+                            <!-- Avatar -->
+                            <div class="w-9 h-9 rounded-full bg-primary-100 border border-primary-200 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                                <span class="text-sm font-bold text-primary-700">
+                                    @(User.Identity?.Name?.FirstOrDefault().ToString().ToUpper() ?? "U")
+                                </span>
+                            </div>
+                            
+                            <!-- Name & Role (Hidden on mobile) -->
+                            <div class="hidden md:flex flex-col items-start pr-1">
+                                <span class="text-sm font-bold text-slate-700 leading-none truncate max-w-[120px]">@User.Identity?.Name</span>
+                                <span class="text-[10px] font-semibold tracking-wider text-slate-500 mt-1 uppercase">
+                                    @(User.IsInRole("Admin") ? "Administrador" : User.IsInRole("Docente") ? "Docente" : "Alumno")
+                                </span>
+                            </div>
+
+                            <span class="material-symbols-outlined text-slate-400 text-sm hidden sm:block transition-transform duration-200" :class="open ? 'rotate-180' : ''">expand_more</span>
+                        </button>
+
+                        <!-- Dropdown Menu -->
+                        <div x-show="open" 
+                             x-transition:enter="transition ease-out duration-100"
+                             x-transition:enter-start="transform opacity-0 scale-95"
+                             x-transition:enter-end="transform opacity-100 scale-100"
+                             x-transition:leave="transition ease-in duration-75"
+                             x-transition:leave-start="transform opacity-100 scale-100"
+                             x-transition:leave-end="transform opacity-0 scale-95"
+                             style="display: none;"
+                             class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg border border-slate-200 py-1 z-50">
+                            
+                            <div class="px-4 py-3 border-b border-slate-100 sm:hidden">
+                                <p class="text-sm font-bold text-slate-800 truncate">@User.Identity?.Name</p>
+                                <p class="text-[10px] font-bold tracking-wider text-slate-500 uppercase mt-0.5">
+                                    @(User.IsInRole("Admin") ? "Administrador" : User.IsInRole("Docente") ? "Docente" : "Alumno")
+                                </p>
+                            </div>
+
+                            <a href="#" class="block px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-primary-600 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-[18px]">person</span>
+                                Mi Perfil
+                            </a>
+                            <a href="#" class="block px-4 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-primary-600 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-[18px]">settings</span>
+                                Preferencias
+                            </a>
+                            <div class="border-t border-slate-100 my-1"></div>
+                            
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="block w-full">
+                                <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:font-semibold flex items-center gap-2 transition-colors">
+                                    <span class="material-symbols-outlined text-[18px]">logout</span>
+                                    Cerrar Sesión
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </header>
 
-            <!-- Content -->
-            <div class="flex-1 overflow-auto">
-                <div class="p-8 max-w-7xl mx-auto">
+            <!-- Scrollable Content Area -->
+            <div class="flex-1 overflow-auto bg-slate-50 relative custom-scrollbar">
+                
+                @* Titulo Visible SOLO en Mobile ya que el Breadcrumb top lo oculta en Desktop *@
+                <div class="px-4 sm:hidden pt-4 pb-2">
+                    <h2 class="text-xl font-bold text-slate-800">@ViewData["Title"]</h2>
+                </div>
+
+                <div class="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto pb-12">
                     @RenderBody()
                 </div>
             </div>
@@ -158,22 +364,5 @@
     </div>
 
     @await RenderSectionAsync("Scripts", required: false)
-
-    <script>
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            const isHidden = sidebar.classList.contains('hidden');
-            if (isHidden) {
-                sidebar.classList.remove('hidden');
-                sidebar.classList.add('flex');
-                overlay.classList.remove('hidden');
-            } else {
-                sidebar.classList.add('hidden');
-                sidebar.classList.remove('flex');
-                overlay.classList.add('hidden');
-            }
-        }
-    </script>
 </body>
 </html>

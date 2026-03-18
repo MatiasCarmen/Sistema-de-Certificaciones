@@ -3,180 +3,286 @@
     ViewData["Title"] = "Nuevo Usuario";
 }
 
-<div class="max-w-lg mx-auto">
-    <div class="bg-white border border-slate-300 rounded-sm shadow-sm">
-        <div class="p-4 border-b border-slate-300 bg-slate-50">
-            <h3 class="text-xs font-bold text-slate-600 uppercase tracking-wider">Crear Nuevo Usuario</h3>
+<div class="min-h-screen bg-slate-50/50 py-8 px-4 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-4xl">
+        <!-- Card principal -->
+        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl">
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 px-8 py-6 text-white">
+                <h2 class="text-2xl font-bold tracking-tight">Crear Nuevo Usuario</h2>
+                <p class="mt-2 text-indigo-100">Registra un nuevo administrador, docente o alumno en la plataforma</p>
+            </div>
+
+            <form id="formCrearUsuario" method="post" asp-action="Create" class="p-8">
+                @Html.AntiForgeryToken()
+
+                <!-- Datos de la Cuenta -->
+                <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6 border-b border-slate-100 pb-2">Credenciales de Acceso</h3>
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2 mb-8">
+                    <!-- Nombre Completo -->
+                    <div class="relative col-span-2">
+                        <input asp-for="Nombre" id="nombre" required
+                               class="peer block w-full rounded-lg border border-slate-300 bg-transparent px-4 py-3 text-slate-900 placeholder-transparent focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                               placeholder=" " />
+                        <label for="nombre"
+                               class="absolute left-4 -top-2.5 bg-white px-1 text-sm font-medium text-slate-600 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-slate-400 peer-focus:-top-2.5 peer-focus:text-sm peer-focus:text-indigo-600">
+                            Nombre Completo *
+                        </label>
+                        <span asp-validation-for="Nombre" class="text-xs text-red-600 mt-1 block"></span>
+                    </div>
+
+                    <!-- Correo Electrónico -->
+                    <div class="relative col-span-2 md:col-span-1">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400">
+                            <span class="material-symbols-outlined text-[20px]">mail</span>
+                        </div>
+                        <input asp-for="Correo" type="email" id="correo" required
+                               class="peer block w-full rounded-lg border border-slate-300 bg-transparent pl-11 pr-4 py-3 text-slate-900 placeholder-transparent focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                               placeholder=" " />
+                        <label for="correo"
+                               class="absolute left-10 -top-2.5 bg-white px-1 text-sm font-medium text-slate-600 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-slate-400 peer-focus:-top-2.5 peer-focus:text-sm peer-focus:text-indigo-600">
+                            Correo Electrónico *
+                        </label>
+                        <span asp-validation-for="Correo" class="text-xs text-red-600 mt-1 block"></span>
+                    </div>
+
+                    <!-- Contraseña -->
+                    <div class="relative col-span-2 md:col-span-1">
+                        <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-slate-400">
+                            <span class="material-symbols-outlined text-[20px]">lock</span>
+                        </div>
+                        <input asp-for="Clave" type="password" id="clave" required minlength="6"
+                               class="peer block w-full rounded-lg border border-slate-300 bg-transparent pl-11 pr-4 py-3 text-slate-900 placeholder-transparent focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none"
+                               placeholder=" " />
+                        <label for="clave"
+                               class="absolute left-10 -top-2.5 bg-white px-1 text-sm font-medium text-slate-600 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-slate-400 peer-focus:-top-2.5 peer-focus:text-sm peer-focus:text-indigo-600">
+                            Contraseña *
+                        </label>
+                        <p class="text-[11px] text-slate-500 mt-1 ml-1">Mínimo 6 caracteres</p>
+                        <span asp-validation-for="Clave" class="text-xs text-red-600 mt-1 block"></span>
+                    </div>
+
+                    <!-- Rol -->
+                    <div class="col-span-2 relative">
+                        <label asp-for="IdRol" class="block text-sm font-medium text-slate-700 mb-1 ml-1">Rol en el Sistema *</label>
+                        @if (User.IsInRole("Docente"))
+                        {
+                            <input type="hidden" id="IdRolHidden" name="IdRol" value="3" />
+                            <div class="relative">
+                                <select id="IdRol" class="block w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-3 text-slate-500 cursor-not-allowed appearance-none" disabled>
+                                    <option value="3" selected>Alumno</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                                    <span class="material-symbols-outlined text-slate-400">lock</span>
+                                </div>
+                            </div>
+                            <p class="text-[11px] text-indigo-600 mt-1.5 ml-1 font-medium bg-indigo-50 inline-block px-2 py-0.5 rounded-full">Como docente, solo puedes registrar alumnos.</p>
+                        }
+                        else
+                        {
+                            <div class="relative">
+                                <select asp-for="IdRol" id="IdRol" class="block w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none appearance-none" required>
+                                    <option value="">-- Seleccionar un Rol --</option>
+                                    <option value="1">Administrador</option>
+                                    <option value="2">Docente</option>
+                                    <option value="3">Alumno</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                                    <span class="material-symbols-outlined text-slate-400">expand_more</span>
+                                </div>
+                            </div>
+                        }
+                        <span asp-validation-for="IdRol" class="text-xs text-red-600 mt-1 block"></span>
+                    </div>
+                </div>
+
+                <!-- Campos Exclusivos de Alumno (Se muestran solo si IdRol == 3) -->
+                <div id="alumnoFields" class="hidden animate-[fadeIn_0.3s_ease-out]">
+                    <div class="bg-sky-50/50 border border-sky-100 rounded-xl p-6 sm:p-8 relative mt-2 mb-6 shadow-sm">
+                        <!-- Decorative icon -->
+                        <div class="absolute -top-4 -right-2 transform rotate-12 opacity-10 pointer-events-none">
+                            <span class="material-symbols-outlined text-[100px] text-sky-600">badge</span>
+                        </div>
+
+                        <h3 class="text-sm font-bold text-sky-700 uppercase tracking-widest mb-6 border-b border-sky-200/50 pb-2">Información del Alumno</h3>
+                        
+                        <div class="grid grid-cols-1 gap-6 md:grid-cols-2 relative z-10">
+                            <!-- Apellido Paterno -->
+                            <div class="relative md:col-span-1">
+                                <input asp-for="ApellidoPaterno" id="apellidoPaterno"
+                                       class="peer block w-full rounded-lg border border-sky-200 bg-white px-4 py-3 text-slate-900 placeholder-transparent focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:outline-none"
+                                       placeholder=" " />
+                                <label for="apellidoPaterno"
+                                       class="absolute left-4 -top-2.5 bg-white px-1 text-sm font-medium text-slate-500 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-slate-400 peer-focus:-top-2.5 peer-focus:text-sm peer-focus:text-sky-600 rounded">
+                                    Apellido Paterno
+                                </label>
+                            </div>
+
+                            <!-- Apellido Materno -->
+                            <div class="relative md:col-span-1">
+                                <input asp-for="ApellidoMaterno" id="apellidoMaterno"
+                                       class="peer block w-full rounded-lg border border-sky-200 bg-white px-4 py-3 text-slate-900 placeholder-transparent focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:outline-none"
+                                       placeholder=" " />
+                                <label for="apellidoMaterno"
+                                       class="absolute left-4 -top-2.5 bg-white px-1 text-sm font-medium text-slate-500 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-slate-400 peer-focus:-top-2.5 peer-focus:text-sm peer-focus:text-sky-600 rounded">
+                                    Apellido Materno
+                                </label>
+                            </div>
+
+                            <!-- Tipo Documento -->
+                            <div class="relative md:col-span-1">
+                                <div class="relative">
+                                    <select asp-for="TipoDocumento" id="TipoDocumento" class="block w-full rounded-lg border border-sky-200 bg-white px-4 py-3 text-slate-900 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:outline-none appearance-none">
+                                        <option value="">-- Seleccionar Doc. --</option>
+                                        <option value="DNI">DNI</option>
+                                        <option value="CE">Carné de Extranjería</option>
+                                        <option value="PASAPORTE">Pasaporte</option>
+                                    </select>
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                                        <span class="material-symbols-outlined text-slate-400">expand_more</span>
+                                    </div>
+                                </div>
+                                <label for="TipoDocumento" class="absolute -top-2.5 left-4 bg-white px-1 text-xs font-semibold text-sky-600 rounded shadow-[0_4px_4px_-4px_rgba(0,0,0,0.1)]">Tipo Documento</label>
+                            </div>
+
+                            <!-- Num Documento -->
+                            <div class="relative md:col-span-1">
+                                <input asp-for="NumeroDocumento" id="NumeroDocumento" maxlength="15"
+                                       class="peer block w-full rounded-lg border border-sky-200 bg-white px-4 py-3 text-slate-900 placeholder-transparent focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:outline-none"
+                                       placeholder=" " />
+                                <label for="NumeroDocumento"
+                                       class="absolute left-4 -top-2.5 bg-white px-1 text-sm font-medium text-slate-500 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-slate-400 peer-focus:-top-2.5 peer-focus:text-sm peer-focus:text-sky-600 rounded">
+                                    Núm. Documento
+                                </label>
+                                <p id="docError" class="text-[11px] text-red-500 mt-1 ml-1 font-semibold hidden flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-[13px]">error</span> El DNI requiere exactamente 8 dígitos
+                                </p>
+                            </div>
+
+                            <!-- Fecha Nacimiento -->
+                            <div class="relative md:col-span-1 mt-2">
+                                <input asp-for="FechaNacimiento" type="date" id="fechaNacimiento"
+                                       class="peer block w-full rounded-lg border border-sky-200 bg-white px-4 py-3 text-slate-900 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:outline-none" />
+                                <label for="fechaNacimiento"
+                                       class="absolute left-4 -top-2.5 bg-white px-1 text-sm font-medium text-slate-500 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-slate-400 peer-focus:-top-2.5 peer-focus:text-sm peer-focus:text-sky-600 rounded">
+                                    Fecha Nacimiento
+                                </label>
+                            </div>
+
+                            <!-- Telefono -->
+                            <div class="relative md:col-span-1 mt-2">
+                                <input asp-for="Telefono" id="Telefono" maxlength="12" oninput="this.value = this.value.replace(/[^0-9+\s-]/g, '');"
+                                       class="peer block w-full rounded-lg border border-sky-200 bg-white px-4 py-3 text-slate-900 placeholder-transparent focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:outline-none"
+                                       placeholder=" " />
+                                <label for="Telefono"
+                                       class="absolute left-4 -top-2.5 bg-white px-1 text-sm font-medium text-slate-500 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-base peer-placeholder-shown:text-slate-400 peer-focus:-top-2.5 peer-focus:text-sm peer-focus:text-sky-600 rounded">
+                                    Teléfono / Celular
+                                </label>
+                            </div>
+
+                            <!-- Ubicacion / Ciudad -->
+                            <div class="relative col-span-2 mt-2">
+                                <div class="relative">
+                                    <select asp-for="Ciudad" class="block w-full rounded-lg border border-sky-200 bg-white px-4 py-3 text-slate-900 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:outline-none appearance-none font-medium">
+                                        <option value="" class="text-slate-400">-- Ubicación / Distrito (Lima) --</option>
+                                        <optgroup label="Lima Metropolitana" class="font-bold text-slate-700">
+                                            <option value="Lima">Lima (Cercado)</option>
+                                            <option value="Ancon">Ancón</option>
+                                            <option value="Ate">Ate</option>
+                                            <option value="Barranco">Barranco</option>
+                                            <option value="Brena">Breña</option>
+                                            <option value="Carabayllo">Carabayllo</option>
+                                            <option value="Chaclacayo">Chaclacayo</option>
+                                            <option value="Chorrillos">Chorrillos</option>
+                                            <option value="Cieneguilla">Cieneguilla</option>
+                                            <option value="Comas">Comas</option>
+                                            <option value="El Agustino">El Agustino</option>
+                                            <option value="Independencia">Independencia</option>
+                                            <option value="Jesus Maria">Jesús María</option>
+                                            <option value="La Molina">La Molina</option>
+                                            <option value="La Victoria">La Victoria</option>
+                                            <option value="Lince">Lince</option>
+                                            <option value="Los Olivos">Los Olivos</option>
+                                            <option value="Lurigancho">Lurigancho (Chosica)</option>
+                                            <option value="Lurin">Lurín</option>
+                                            <option value="Magdalena del Mar">Magdalena del Mar</option>
+                                            <option value="Miraflores">Miraflores</option>
+                                            <option value="Pachacamac">Pachacámac</option>
+                                            <option value="Pucusana">Pucusana</option>
+                                            <option value="Pueblo Libre">Pueblo Libre</option>
+                                            <option value="Puente Piedra">Puente Piedra</option>
+                                            <option value="Punta Hermosa">Punta Hermosa</option>
+                                            <option value="Punta Negra">Punta Negra</option>
+                                            <option value="Rimac">Rímac</option>
+                                            <option value="San Bartolo">San Bartolo</option>
+                                            <option value="San Borja">San Borja</option>
+                                            <option value="San Isidro">San Isidro</option>
+                                            <option value="San Juan de Lurigancho">San Juan de Lurigancho</option>
+                                            <option value="San Juan de Miraflores">San Juan de Miraflores</option>
+                                            <option value="San Luis">San Luis</option>
+                                            <option value="San Martin de Porres">San Martín de Porres</option>
+                                            <option value="San Miguel">San Miguel</option>
+                                            <option value="Santa Anita">Santa Anita</option>
+                                            <option value="Santa Maria del Mar">Santa María del Mar</option>
+                                            <option value="Santa Rosa">Santa Rosa</option>
+                                            <option value="Santiago de Surco">Santiago de Surco</option>
+                                            <option value="Surquillo">Surquillo</option>
+                                            <option value="Villa El Salvador">Villa El Salvador</option>
+                                            <option value="Villa Maria del Triunfo">Villa María del Triunfo</option>
+                                        </optgroup>
+                                        <optgroup label="Callao" class="font-bold text-slate-700 mt-2">
+                                            <option value="Callao">Callao</option>
+                                            <option value="Bellavista">Bellavista</option>
+                                            <option value="Carmen de La Legua">Carmen de La Legua</option>
+                                            <option value="La Perla">La Perla</option>
+                                            <option value="La Punta">La Punta</option>
+                                            <option value="Mi Peru">Mi Perú</option>
+                                            <option value="Ventanilla">Ventanilla</option>
+                                        </optgroup>
+                                        <optgroup label="Exterior" class="font-bold text-slate-700 mt-2">
+                                            <option value="Provincias">Otras Provincias (Fuera de Lima)</option>
+                                            <option value="Extranjero">Extranjero</option>
+                                        </optgroup>
+                                    </select>
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                                        <span class="material-symbols-outlined text-slate-400">location_on</span>
+                                    </div>
+                                </div>
+                                <label class="absolute -top-2.5 left-4 bg-white px-1 text-xs font-semibold text-sky-600 rounded">Ubicación Actual</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Botones -->
+                <div class="mt-8 flex flex-col-reverse sm:flex-row justify-end gap-3 sm:gap-4 border-t border-slate-100 pt-6">
+                    <a href="@Url.Action("Index")" 
+                       class="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-6 py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 hover:border-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        Cancelar y Volver
+                    </a>
+                    <button type="submit"
+                            class="inline-flex items-center justify-center rounded-lg bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow transition hover:bg-indigo-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50">
+                        <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        Registrar Usuario
+                    </button>
+                </div>
+            </form>
+            <div id="mensajeResultado" class="px-8 pb-4"></div>
         </div>
-
-        <form id="formCrearUsuario" method="post" asp-action="Create" class="p-6 space-y-5">
-            @Html.AntiForgeryToken()
-
-            <div class="space-y-2">
-                <label asp-for="Nombre" class="block text-xs font-bold text-slate-600 uppercase tracking-wider">Nombre Completo</label>
-                <input asp-for="Nombre" class="w-full px-3 py-2 border border-slate-300 rounded-sm text-sm focus:ring-1 focus:ring-primary focus:border-primary" placeholder="Ej: Juan Pérez" required>
-                <span asp-validation-for="Nombre" class="text-red-600 text-xs"></span>
-            </div>
-
-            <div class="space-y-2">
-                <label asp-for="Correo" class="block text-xs font-bold text-slate-600 uppercase tracking-wider">Correo Electrónico</label>
-                <input asp-for="Correo" type="email" class="w-full px-3 py-2 border border-slate-300 rounded-sm text-sm focus:ring-1 focus:ring-primary focus:border-primary" placeholder="usuario@example.com" required>
-                <span asp-validation-for="Correo" class="text-red-600 text-xs"></span>
-            </div>
-
-            <div class="space-y-2">
-                <label asp-for="IdRol" class="block text-xs font-bold text-slate-600 uppercase tracking-wider">Rol</label>
-                @if (User.IsInRole("Docente"))
-                {
-                    <input type="hidden" id="IdRolHidden" name="IdRol" value="3" />
-                    <select id="IdRol" class="w-full px-3 py-2 border border-slate-300 rounded-sm text-sm bg-slate-100 cursor-not-allowed" disabled>
-                        <option value="3" selected>Alumno</option>
-                    </select>
-                    <p class="text-[10px] text-slate-400 italic">Como docente, solo puedes registrar nuevos alumnos.</p>
-                }
-                else
-                {
-                    <select asp-for="IdRol" id="IdRol" class="w-full px-3 py-2 border border-slate-300 rounded-sm text-sm focus:ring-1 focus:ring-primary focus:border-primary" required>
-                        <option value="">-- Seleccionar Rol --</option>
-                        <option value="1">Admin</option>
-                        <option value="2">Docente</option>
-                        <option value="3">Alumno</option>
-                    </select>
-                }
-                <span asp-validation-for="IdRol" class="text-red-600 text-xs"></span>
-            </div>
-
-            <!-- Campos Exclusivos de Alumno (Se muestran solo si IdRol == 3) -->
-            <div id="alumnoFields" class="hidden space-y-5 border-t border-b border-slate-100 py-4 my-2">
-                <h4 class="text-xs font-bold text-sky-700 uppercase tracking-wider mb-2">Datos Personales del Alumno</h4>
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-2">
-                        <label asp-for="ApellidoPaterno" class="block text-xs font-bold text-slate-600 uppercase tracking-wider">Apellido Paterno</label>
-                        <input asp-for="ApellidoPaterno" class="w-full px-3 py-2 border border-slate-300 rounded-sm text-sm focus:ring-1 focus:ring-primary focus:border-primary">
-                    </div>
-                    <div class="space-y-2">
-                        <label asp-for="ApellidoMaterno" class="block text-xs font-bold text-slate-600 uppercase tracking-wider">Apellido Materno</label>
-                        <input asp-for="ApellidoMaterno" class="w-full px-3 py-2 border border-slate-300 rounded-sm text-sm focus:ring-1 focus:ring-primary focus:border-primary">
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-2">
-                        <label asp-for="TipoDocumento" class="block text-xs font-bold text-slate-600 uppercase tracking-wider">Tipo Documento</label>
-                        <select asp-for="TipoDocumento" id="TipoDocumento" class="w-full px-3 py-2 border border-slate-300 rounded-sm text-sm focus:ring-1 focus:ring-primary focus:border-primary">
-                            <option value="">Seleccionar</option>
-                            <option value="DNI">DNI</option>
-                            <option value="CE">Carné de Extranjería</option>
-                            <option value="PASAPORTE">Pasaporte</option>
-                        </select>
-                    </div>
-                    <div class="space-y-2">
-                        <label asp-for="NumeroDocumento" class="block text-xs font-bold text-slate-600 uppercase tracking-wider">Núm. Documento</label>
-                        <input asp-for="NumeroDocumento" id="NumeroDocumento" class="w-full px-3 py-2 border border-slate-300 rounded-sm text-sm focus:ring-1 focus:ring-primary focus:border-primary" placeholder="Ej: 71234568" maxlength="15">
-                        <p id="docError" class="text-[10px] text-red-500 hidden font-medium">El DNI debe tener exactamente 8 números</p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-2">
-                        <label asp-for="FechaNacimiento" class="block text-xs font-bold text-slate-600 uppercase tracking-wider">F. Nacimiento</label>
-                        <input asp-for="FechaNacimiento" type="date" class="w-full px-3 py-2 border border-slate-300 rounded-sm text-sm focus:ring-1 focus:ring-primary focus:border-primary">
-                    </div>
-                    <div class="space-y-2">
-                        <label asp-for="Telefono" class="block text-xs font-bold text-slate-600 uppercase tracking-wider">Teléfono / Celular</label>
-                        <input asp-for="Telefono" id="Telefono" class="w-full px-3 py-2 border border-slate-300 rounded-sm text-sm focus:ring-1 focus:ring-primary focus:border-primary" placeholder="Ej: 987654321" maxlength="12" oninput="this.value = this.value.replace(/[^0-9+\s-]/g, '');">
-                    </div>
-                </div>
-
-                <div class="space-y-2">
-                    <label asp-for="Ciudad" class="block text-xs font-bold text-slate-600 uppercase tracking-wider">Ubicación / Distrito (Lima)</label>
-                    <select asp-for="Ciudad" class="w-full px-3 py-2 border border-slate-300 rounded-sm text-sm focus:ring-1 focus:ring-primary focus:border-primary">
-                        <option value="">Selecciona un Distrito...</option>
-                        <optgroup label="Lima Metropolitana">
-                            <option value="Lima">Lima (Cercado)</option>
-                            <option value="Ancon">Ancón</option>
-                            <option value="Ate">Ate</option>
-                            <option value="Barranco">Barranco</option>
-                            <option value="Brena">Breña</option>
-                            <option value="Carabayllo">Carabayllo</option>
-                            <option value="Chaclacayo">Chaclacayo</option>
-                            <option value="Chorrillos">Chorrillos</option>
-                            <option value="Cieneguilla">Cieneguilla</option>
-                            <option value="Comas">Comas</option>
-                            <option value="El Agustino">El Agustino</option>
-                            <option value="Independencia">Independencia</option>
-                            <option value="Jesus Maria">Jesús María</option>
-                            <option value="La Molina">La Molina</option>
-                            <option value="La Victoria">La Victoria</option>
-                            <option value="Lince">Lince</option>
-                            <option value="Los Olivos">Los Olivos</option>
-                            <option value="Lurigancho">Lurigancho (Chosica)</option>
-                            <option value="Lurin">Lurín</option>
-                            <option value="Magdalena del Mar">Magdalena del Mar</option>
-                            <option value="Miraflores">Miraflores</option>
-                            <option value="Pachacamac">Pachacámac</option>
-                            <option value="Pucusana">Pucusana</option>
-                            <option value="Pueblo Libre">Pueblo Libre</option>
-                            <option value="Puente Piedra">Puente Piedra</option>
-                            <option value="Punta Hermosa">Punta Hermosa</option>
-                            <option value="Punta Negra">Punta Negra</option>
-                            <option value="Rimac">Rímac</option>
-                            <option value="San Bartolo">San Bartolo</option>
-                            <option value="San Borja">San Borja</option>
-                            <option value="San Isidro">San Isidro</option>
-                            <option value="San Juan de Lurigancho">San Juan de Lurigancho</option>
-                            <option value="San Juan de Miraflores">San Juan de Miraflores</option>
-                            <option value="San Luis">San Luis</option>
-                            <option value="San Martin de Porres">San Martín de Porres</option>
-                            <option value="San Miguel">San Miguel</option>
-                            <option value="Santa Anita">Santa Anita</option>
-                            <option value="Santa Maria del Mar">Santa María del Mar</option>
-                            <option value="Santa Rosa">Santa Rosa</option>
-                            <option value="Santiago de Surco">Santiago de Surco</option>
-                            <option value="Surquillo">Surquillo</option>
-                            <option value="Villa El Salvador">Villa El Salvador</option>
-                            <option value="Villa Maria del Triunfo">Villa María del Triunfo</option>
-                        </optgroup>
-                        <optgroup label="Callao">
-                            <option value="Callao">Callao</option>
-                            <option value="Bellavista">Bellavista</option>
-                            <option value="Carmen de La Legua">Carmen de La Legua</option>
-                            <option value="La Perla">La Perla</option>
-                            <option value="La Punta">La Punta</option>
-                            <option value="Mi Peru">Mi Perú</option>
-                            <option value="Ventanilla">Ventanilla</option>
-                        </optgroup>
-                        <optgroup label="Exterior">
-                            <option value="Provincias">Otras Provincias (Fuera de Lima)</option>
-                            <option value="Extranjero">Extranjero</option>
-                        </optgroup>
-                    </select>
-                </div>
-            </div>
-
-            <div class="space-y-2">
-                <label asp-for="Clave" class="block text-xs font-bold text-slate-600 uppercase tracking-wider">Contraseña</label>
-                <input asp-for="Clave" type="password" class="w-full px-3 py-2 border border-slate-300 rounded-sm text-sm focus:ring-1 focus:ring-primary focus:border-primary" placeholder="Mínimo 6 caracteres" required>
-                <p class="text-xs text-slate-500">La contraseña debe tener al menos 6 caracteres</p>
-                <span asp-validation-for="Clave" class="text-red-600 text-xs"></span>
-            </div>
-
-            <div class="pt-4 border-t border-slate-300 flex gap-3">
-                <button type="submit" class="flex-1 py-2 bg-primary text-white text-xs font-bold uppercase rounded-sm hover:bg-sky-800">
-                    Crear Usuario
-                </button>
-                <a href="@Url.Action("Index")" class="flex-1 py-2 bg-slate-200 text-slate-700 text-xs font-bold uppercase rounded-sm hover:bg-slate-300 text-center">
-                    Cancelar
-                </a>
-            </div>
-        </form>
-
-        <div id="mensajeResultado" class="px-6 pb-6"></div>
     </div>
 </div>
 
+<style>
+    @@keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
 @section Scripts {
+    <!-- SweetAlert2 ya está incluido en_Layout, pero si se necesita doble import no duele -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -210,13 +316,13 @@
 
                     if (tipo === 'DNI') {
                         inputNumDoc.setAttribute('maxlength', '8');
-                        inputNumDoc.setAttribute('placeholder', 'Ej: 71234568');
+                        inputNumDoc.setAttribute('placeholder', ' '); // Peer placeholder
                     } else if (tipo === 'CE') {
                         inputNumDoc.setAttribute('maxlength', '12');
-                        inputNumDoc.setAttribute('placeholder', 'Ej: 000123456');
+                        inputNumDoc.setAttribute('placeholder', ' ');
                     } else {
                         inputNumDoc.setAttribute('maxlength', '15');
-                        inputNumDoc.setAttribute('placeholder', 'Ej: PASS12345');
+                        inputNumDoc.setAttribute('placeholder', ' ');
                     }
                 });
 
@@ -262,6 +368,11 @@
                 return;
             }
 
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const spanOriginal = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<div class="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent mr-2"></div> Procesando...';
+
             const formData = new FormData(this);
 
             try {
@@ -286,20 +397,24 @@
                     }
                 } else {
                     Swal.fire({
-                        title: 'Error',
+                        title: 'Error detectado',
                         text: data.mensaje,
                         icon: 'error',
                         confirmButtonColor: '#0369a1'
                     });
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = spanOriginal;
                 }
             } catch (error) {
                 console.error('Error:', error);
                 Swal.fire({
-                    title: 'Error',
-                    text: 'No se pudo crear el usuario',
+                    title: 'Error de servidor',
+                    text: 'No se pudo crear el usuario debido a un problema de conexión.',
                     icon: 'error',
                     confirmButtonColor: '#0369a1'
                 });
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = spanOriginal;
             }
         });
     </script>

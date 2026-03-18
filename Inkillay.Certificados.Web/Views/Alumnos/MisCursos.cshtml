@@ -3,59 +3,137 @@
     ViewData["Title"] = "Mis Cursos";
 }
 
-<div class="bg-white border border-slate-300 rounded-sm shadow-sm">
-    <div class="p-4 border-b border-slate-300 bg-slate-50">
-        <h3 class="text-xs font-bold uppercase text-slate-600 tracking-wider">Cursos Matriculados</h3>
+<div class="px-4 py-8">
+    
+    <!-- Encabezado y Acción Principal -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-800 flex items-center gap-2">
+                <span class="material-symbols-outlined text-indigo-600">school</span>
+                Mis Cursos Asignados
+            </h1>
+            <p class="text-sm text-slate-500 mt-1">Consulta tu progreso, estado financiero y descarga tus certificados finales.</p>
+        </div>
     </div>
 
-    <div class="divide-y divide-slate-200">
-        @foreach (var item in Model)
+    <!-- Lista de Cursos (Premium Cards) -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        
+        @if (!Model.Any())
         {
-            <div class="p-4 flex items-center justify-between hover:bg-slate-50">
-                <div class="flex-1">
-                    <h3 class="font-bold text-sm text-slate-800">@item.NombreCurso</h3>
-                    <p class="text-xs text-slate-500 mt-1">@item.EdicionCurso</p>
-
-                    <div class="flex items-center gap-6 mt-3">
-                        <div>
-                            <span class="text-xs text-slate-600">Estado de Pago:</span>
-                            <p class="text-xs font-bold @(item.TotalPagado >= item.CostoCurso ? "text-green-700" : "text-red-600")">
-                                S/ @item.TotalPagado.ToString("N2") / S/ @item.CostoCurso.ToString("N2")
-                            </p>
-                        </div>
-                        <div>
-                            <span class="text-xs text-slate-600">Aprobación:</span>
-                            <p class="text-xs font-bold @(item.Aprobado ? "text-green-700" : "text-amber-600")">
-                                @(item.Aprobado ? "Aprobado ✓" : "Pendiente")
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="ml-4">
-                    @if (item.Aprobado && item.TotalPagado >= item.CostoCurso)
-                    {
-                        <a href="@Url.Action("DescargarPdf", "Emision", new { idModulo = item.IdMatricula })"
-                           class="inline-block px-4 py-2 bg-primary text-white text-xs font-bold rounded-sm hover:bg-sky-800">
-                            Descargar PDF
-                        </a>
-                    }
-                    else
-                    {
-                        <button disabled class="inline-block px-4 py-2 bg-slate-100 text-slate-400 text-xs font-bold rounded-sm cursor-not-allowed">
-                            Bloqueado
-                        </button>
-                    }
+            <div class="col-span-full bg-white rounded-2xl shadow-sm border border-slate-200 p-12 text-center">
+                <div class="flex flex-col items-center justify-center text-slate-400">
+                    <span class="material-symbols-outlined text-6xl mb-4 text-slate-300">sentiment_neutral</span>
+                    <h3 class="text-lg font-bold text-slate-700">Aún no estás matriculado</h3>
+                    <p class="text-sm mt-1 text-slate-500">Contacta con la administración para que te asignen a un módulo activo.</p>
                 </div>
             </div>
         }
-    </div>
+        else
+        {
+            @foreach (var item in Model)
+            {
+                var habilitado = item.Aprobado && item.TotalPagado >= item.CostoCurso;
+                
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col hover:shadow-md transition-shadow group relative">
+                    
+                    @if (habilitado)
+                    {
+                        <div class="absolute top-0 right-0 p-4">
+                            <span class="flex h-3 w-3 relative">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                            </span>
+                        </div>
+                    }
 
-    @if (!Model.Any())
-    {
-        <div class="p-8 text-center">
-            <span class="material-symbols-outlined text-4xl text-slate-300 block mb-2">school</span>
-            <p class="text-sm text-slate-500">No tienes cursos matriculados.</p>
-        </div>
-    }
+                    <!-- Cabecera de Tarjeta -->
+                    <div class="p-6 pb-4 border-b border-slate-100 bg-slate-50/50 flex items-start gap-4 h-full">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0 shadow-sm border border-indigo-200">
+                            <span class="material-symbols-outlined text-[24px]">local_library</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-base text-slate-800 leading-tight">@item.NombreCurso</h3>
+                            <p class="text-xs font-semibold text-indigo-600 mt-1">Edición: @item.EdicionCurso</p>
+                        </div>
+                    </div>
+
+                    <!-- Detalles -->
+                    <div class="p-6 pt-4 flex-1 flex flex-col gap-4">
+                        
+                        <!-- Progreso Financiero -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1.5">
+                                <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">Estado Financiero</span>
+                                @if (item.TotalPagado >= item.CostoCurso)
+                                {
+                                    <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded uppercase">Cancelado</span>
+                                }
+                                else
+                                {
+                                    <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded uppercase">Deuda Activa</span>
+                                }
+                            </div>
+                            <div class="text-sm font-bold @(item.TotalPagado >= item.CostoCurso ? "text-emerald-600" : "text-amber-600")">
+                                S/ @item.TotalPagado.ToString("N2") <span class="text-slate-400 font-normal">/ S/ @item.CostoCurso.ToString("N2")</span>
+                            </div>
+                        </div>
+
+                        <div class="h-px bg-slate-100 w-full mb-1"></div>
+                        
+                        <!-- Evaluación -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1.5">
+                                <span class="text-xs font-bold text-slate-500 uppercase tracking-wide">Estado Académico</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                @if (item.Aprobado)
+                                {
+                                    <span class="material-symbols-outlined text-[20px] text-emerald-500">verified</span>
+                                    <span class="text-sm font-bold text-emerald-600">Aprobado / Apto</span>
+                                }
+                                else
+                                {
+                                    <span class="material-symbols-outlined text-[20px] text-rose-500">pending_actions</span>
+                                    <span class="text-sm font-bold text-rose-600">En Evaluación / Pendiente</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Accion Inferior (Descarga) -->
+                    <div class="p-4 bg-slate-50 border-t border-slate-200">
+                        @if (habilitado)
+                        {
+                            <a href="@Url.Action("DescargarPdf", "Emision", new { idModulo = item.IdMatricula })"
+                               class="w-full flex justify-center items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white text-sm font-bold rounded-lg hover:bg-indigo-700 hover:shadow-md transition-all">
+                                <span class="material-symbols-outlined text-[20px]">workspace_premium</span>
+                                Obtener Certificado
+                            </a>
+                        }
+                        else
+                        {
+                            <button disabled class="w-full flex justify-center items-center gap-2 px-4 py-2.5 bg-slate-100 text-slate-400 border border-slate-200 text-sm font-bold rounded-lg cursor-not-allowed">
+                                <span class="material-symbols-outlined text-[20px]">lock</span>
+                                Certificado Bloqueado
+                            </button>
+                            @if (!item.Aprobado && item.TotalPagado < item.CostoCurso)
+                            {
+                                <p class="text-[10px] text-center text-slate-400 mt-2">Falta aprobar y realizar los pagos.</p>
+                            }
+                            else if (!item.Aprobado)
+                            {
+                                <p class="text-[10px] text-center text-slate-400 mt-2">Aún no cuentas con nota aprobatoria.</p>
+                            }
+                            else
+                            {
+                                <p class="text-[10px] text-center text-slate-400 mt-2">Tienes una deuda pendiente por cancelar.</p>
+                            }
+                        }
+                    </div>
+
+                </div>
+            }
+        }
+    </div>
 </div>

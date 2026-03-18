@@ -3,36 +3,49 @@
     ViewData["Title"] = "Alumnos del Curso";
 }
 
-<div class="bg-white border border-slate-300 rounded-sm shadow-sm">
-    <div class="p-4 border-b border-slate-300 bg-slate-50 flex justify-between items-center">
+<div class="px-4 py-8">
+    
+    <!-- Encabezado y Acción Principal -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-            <h3 class="text-xs font-bold uppercase text-slate-600 tracking-wider">Alumnos Modulodos</h3>
-            <p class="text-xs text-slate-500 mt-1">@ViewData["NombreCurso"]</p>
+            <h1 class="text-2xl font-bold tracking-tight text-slate-800 flex items-center gap-2">
+                <span class="material-symbols-outlined text-indigo-600">group</span>
+                Alumnos Matriculados
+            </h1>
+            <p class="text-sm text-slate-500 mt-1">
+                <span class="font-bold text-slate-700">Curso:</span> @ViewData["NombreCurso"]
+            </p>
         </div>
-        <a href="@Url.Action("Modulor")"
-           class="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-sm hover:bg-sky-800 flex items-center gap-2">
-            <span class="material-symbols-outlined text-base">person_add</span> Modulor Alumno
+        
+        <a href="@Url.Action("Modulor")" class="inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow transition hover:bg-indigo-700 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 uppercase tracking-wide shrink-0">
+            <span class="material-symbols-outlined text-[18px]">person_add</span>
+            Matricular Alumno
         </a>
     </div>
 
-    <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm border-collapse">
-            <thead class="bg-slate-100 border-b border-slate-300 text-slate-700">
+    <!-- Tabla Principal (Gold Standard) -->
+    <div class="bg-white shadow-sm border border-slate-200 rounded-xl overflow-hidden overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200 align-middle text-sm whitespace-nowrap">
+            <thead class="bg-slate-50 border-b border-slate-200 hidden sm:table-header-group">
                 <tr>
-                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">ID</th>
-                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Alumno</th>
-                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Fecha Matrícula</th>
-                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Aprobado</th>
-                    <th class="px-4 py-2 border-r border-slate-200 font-semibold text-xs uppercase">Pagado</th>
-                    <th class="px-4 py-2 text-center font-semibold text-xs uppercase">Certificado</th>
+                    <th scope="col" class="px-6 py-4 text-left font-bold text-slate-500 uppercase tracking-widest text-[10px]">ID Matrícula</th>
+                    <th scope="col" class="px-6 py-4 text-left font-bold text-slate-500 uppercase tracking-widest text-[10px]">Estudiante / Perfil</th>
+                    <th scope="col" class="px-6 py-4 text-left font-bold text-slate-500 uppercase tracking-widest text-[10px]">Fecha de Alta</th>
+                    <th scope="col" class="px-6 py-4 text-center font-bold text-slate-500 uppercase tracking-widest text-[10px]">Estatus Académico</th>
+                    <th scope="col" class="px-6 py-4 text-center font-bold text-slate-500 uppercase tracking-widest text-[10px]">Estatus de Pago</th>
+                    <th scope="col" class="px-6 py-4 text-right font-bold text-slate-500 uppercase tracking-widest text-[10px] rounded-tr-xl">Documentación</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-slate-200 text-slate-600">
+            <tbody class="divide-y divide-slate-100 bg-white">
+                
                 @if (!Model.Any())
                 {
                     <tr>
-                        <td colspan="6" class="px-4 py-6 text-sm text-slate-500 text-center">
-                            No hay alumnos Modulodos en este curso.
+                        <td colspan="6" class="px-6 py-12 text-center text-slate-500">
+                            <div class="flex flex-col items-center justify-center">
+                                <span class="material-symbols-outlined text-5xl mb-3 text-slate-300">person_off</span>
+                                <p class="font-medium">No hay alumnos matriculados en este grupo aún.</p>
+                            </div>
                         </td>
                     </tr>
                 }
@@ -40,32 +53,85 @@
                 {
                     @foreach (var item in Model)
                     {
-                        <tr class="hover:bg-slate-50">
-                            <td class="px-4 py-2 border-r border-slate-200 font-mono text-xs">#@item.IdMatricula</td>
-                            <td class="px-4 py-2 border-r border-slate-200 font-medium text-slate-800">@item.NombreAlumno</td>
-                            <td class="px-4 py-2 border-r border-slate-200">@(item.FechaRegistro?.ToString("dd/MM/yyyy"))</td>
-                            <td class="px-4 py-2 border-r border-slate-200">
-                                <span class="text-xs font-bold @(item.Aprobado ? "text-green-700" : "text-red-700")">
-                                    @(item.Aprobado ? "SÍ" : "NO")
+                        var apto = item.Aprobado && item.TotalPagado >= item.CostoCurso;
+                        
+                        <tr class="hover:bg-indigo-50/40 transition-colors group">
+                            <!-- Columna: ID -->
+                            <td class="px-6 py-4">
+                                <span class="inline-flex font-mono text-xs font-semibold text-slate-500 bg-slate-100 px-2 py-1 rounded">
+                                    #@item.IdMatricula.ToString("D5")
                                 </span>
                             </td>
-                            <td class="px-4 py-2 border-r border-slate-200">
-                                <span class="text-xs font-bold @(item.TotalPagado >= item.CostoCurso ? "text-green-700" : "text-amber-600")">
-                                    S/ @item.TotalPagado.ToString("N2") / S/ @item.CostoCurso.ToString("N2")
-                                </span>
+                            
+                            <!-- Columna: Alumno -->
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center flex-shrink-0 border border-indigo-200 font-bold text-xs uppercase">
+                                        @((!string.IsNullOrEmpty(item.NombreAlumno) ? item.NombreAlumno.Substring(0, 1) : "?").ToUpper())
+                                    </div>
+                                    <span class="font-bold text-slate-800">@item.NombreAlumno</span>
+                                </div>
                             </td>
-                            <td class="px-4 py-2 text-center">
-                                @if (item.Aprobado && item.TotalPagado >= item.CostoCurso)
+                            
+                            <!-- Columna: Fecha -->
+                            <td class="px-6 py-4 text-slate-600">
+                                @(item.FechaRegistro?.ToString("dd MMM yyyy"))
+                            </td>
+                            
+                            <!-- Columna: Aprobación -->
+                            <td class="px-6 py-4 text-center">
+                                @if (item.Aprobado)
                                 {
-                                    <a href="@Url.Action("DescargarPdf", "Emision", new { idModulo = item.IdMatricula })"
-                                       class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-sky-800 text-white text-xs font-bold rounded-sm transition-colors">
-                                        <span class="material-symbols-outlined text-sm">download</span> PDF
-                                    </a>
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-sm"></span>
+                                        Aprobado
+                                    </span>
                                 }
                                 else
                                 {
-                                    <span class="px-2 py-1 bg-slate-100 text-slate-400 text-xs font-bold rounded-sm">Pendiente</span>
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-100">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+                                        En Proceso
+                                    </span>
                                 }
+                            </td>
+                            
+                            <!-- Columna: Pagos -->
+                            <td class="px-6 py-4 text-center">
+                                @if (item.TotalPagado >= item.CostoCurso)
+                                {
+                                    <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-100">
+                                        S/ @item.TotalPagado.ToString("N2") (Completado)
+                                    </span>
+                                }
+                                else
+                                {
+                                    <div class="flex flex-col items-center gap-0.5">
+                                        <span class="text-xs font-bold text-amber-600">S/ @item.TotalPagado.ToString("N2")</span>
+                                        <span class="text-[10px] text-slate-400 font-medium">De S/ @item.CostoCurso.ToString("N2")</span>
+                                    </div>
+                                }
+                            </td>
+                            
+                            <!-- Columna: Certificado -->
+                            <td class="px-6 py-4 text-right text-sm font-medium">
+                                <div class="flex items-center justify-end gap-2">
+                                    @if (apto)
+                                    {
+                                        <a href="@Url.Action("DescargarPdf", "Emision", new { idModulo = item.IdMatricula })"
+                                           class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white text-xs font-bold rounded-lg transition-all border border-indigo-200 shadow-sm group/btn tooltip" title="Descargar Certificado">
+                                            <span class="material-symbols-outlined text-[18px]">verified</span>
+                                            Descargar
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 text-slate-400 text-xs font-bold rounded-lg border border-slate-200 cursor-not-allowed tooltip" title="Faltan notas o pagos">
+                                            <span class="material-symbols-outlined text-[18px]">lock</span>
+                                            Bloqueado
+                                        </span>
+                                    }
+                                </div>
                             </td>
                         </tr>
                     }
@@ -73,8 +139,11 @@
             </tbody>
         </table>
     </div>
-
-    <div class="p-3 border-t border-slate-200 bg-slate-50">
-        <a href="@Url.Action("Index")" class="text-xs text-primary font-bold hover:underline">← Volver al Panel Docente</a>
+    
+    <div class="mt-6">
+        <a href="@Url.Action("Index")" class="inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-800 font-bold text-sm transition-colors px-4 py-2 hover:bg-indigo-50 rounded-lg">
+            <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+            Volver al Panel del Docente
+        </a>
     </div>
 </div>
