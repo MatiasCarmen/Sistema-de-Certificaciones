@@ -1,4 +1,4 @@
-namespace Inkillay.Certificados.Web.Models.Entities;
+namespace SIGEC.Certificados.Web.Models.Entities;
 
 /// <summary>
 /// Entidad Plantilla de certificados según el estándar corporativo actualizado

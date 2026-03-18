@@ -1,8 +1,8 @@
 using Xunit;
 using FluentAssertions;
-using Inkillay.Certificados.Web.Models.ViewModels;
+using SIGEC.Certificados.Web.Models.ViewModels;
 
-namespace Inkillay.Certificados.Tests;
+namespace SIGEC.Certificados.Tests;
 
 public class AdminDashboardTests
 {

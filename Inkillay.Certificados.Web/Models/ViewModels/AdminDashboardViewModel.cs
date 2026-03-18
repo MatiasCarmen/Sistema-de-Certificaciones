@@ -1,4 +1,4 @@
-namespace Inkillay.Certificados.Web.Models.ViewModels;
+namespace SIGEC.Certificados.Web.Models.ViewModels;
 
 public class AdminDashboardViewModel
 {
@@ -6,6 +6,8 @@ public class AdminDashboardViewModel
     public int CursosActivos { get; set; }
     public decimal RecaudacionTotal { get; set; }
     public int CertificadosEmitidos { get; set; }
+    public int TotalMatriculas { get; set; }
+    public int ModulosActivos { get; set; }
     public List<RecaudacionMes> GraficoRecaudacion { get; set; } = new();
     public List<ActividadReciente> ActividadReciente { get; set; } = new();
 }

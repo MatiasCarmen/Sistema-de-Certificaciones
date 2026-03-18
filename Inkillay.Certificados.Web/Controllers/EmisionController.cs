@@ -1,10 +1,11 @@
-using Inkillay.Certificados.Web.Data.Repositories;
-using Inkillay.Certificados.Web.Models.ViewModels;
-using Inkillay.Certificados.Web.Services;
+using SIGEC.Certificados.Web.Data.Repositories;
+using SIGEC.Certificados.Web.Models.Entities;
+using SIGEC.Certificados.Web.Models.ViewModels;
+using SIGEC.Certificados.Web.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Inkillay.Certificados.Web.Controllers;
+namespace SIGEC.Certificados.Web.Controllers;
 
 [Authorize(Roles = "Docente,Admin")]
 public class EmisionController : Controller
@@ -44,7 +45,7 @@ public class EmisionController : Controller
         // Usando Matricula en lugar de Modulo para los alumnos
         var alumnos = idCurso.HasValue
             ? await _matriculaRepository.ListarAlumnosPorModuloAsync(idCurso.Value)
-            : Enumerable.Empty<Inkillay.Certificados.Web.Models.Entities.Matricula>();
+            : Enumerable.Empty<Matricula>();
 
         var vm = new EmisionIndexViewModel
         {

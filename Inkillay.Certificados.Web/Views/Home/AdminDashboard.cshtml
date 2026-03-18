@@ -33,8 +33,8 @@
                 </div>
             </div>
             <div class="mt-4 flex items-center text-[11px] text-slate-500 font-medium">
-                <span class="material-symbols-outlined text-[14px] text-green-500 mr-1">trending_up</span>
-                <span class="text-green-600 font-bold mr-1">+12%</span> desde el mes pasado
+                <span class="material-symbols-outlined text-[14px] text-blue-500 mr-1">badge</span>
+                <span class="font-bold mr-1">@Model.TotalMatriculas</span> matrículas totales
             </div>
         </div>
 
@@ -50,9 +50,8 @@
                 </div>
             </div>
             <div class="mt-4 flex items-center text-[11px] text-slate-500 font-medium">
-                <span class="flex items-center gap-1.5 bg-slate-100 px-2 py-0.5 rounded-full text-slate-600">
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> En ejecución
-                </span>
+                <span class="material-symbols-outlined text-[14px] text-amber-500 mr-1">view_module</span>
+                <span class="font-bold mr-1">@Model.ModulosActivos</span> módulos activos
             </div>
         </div>
 
@@ -131,9 +130,9 @@
                         <li class="flex items-center justify-between">
                             <div class="flex items-center gap-3 text-sm text-slate-600">
                                 <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-                                Total Alumnos
+                                Total Matrículas
                             </div>
-                            <span class="font-bold text-slate-800 text-sm">@Model.TotalAlumnos</span>
+                            <span class="font-bold text-slate-800 text-sm">@Model.TotalMatriculas</span>
                         </li>
                         <li class="flex items-center justify-between">
                             <div class="flex items-center gap-3 text-sm text-slate-600">

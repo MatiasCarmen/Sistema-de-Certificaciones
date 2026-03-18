@@ -1,0 +1,74 @@
+@model SIGEC.Certificados.Web.Models.ViewModels.AlumnoDashboardViewModel
+@{
+    ViewData["Title"] = "Mi Portal";
+    var nombre = User.Identity?.Name ?? "Alumno";
+}
+
+<div class="space-y-6">
+    <!-- Header -->
+    <div>
+        <h1 class="text-2xl font-bold text-slate-800 tracking-tight">¡Hola, @nombre!</h1>
+        <p class="text-sm text-slate-500 mt-1">Aquí tienes un resumen de tu progreso académico.</p>
+    </div>
+
+    <!-- KPIs reales -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+            <p class="text-[11px] text-slate-400 uppercase font-bold tracking-wider">Mis Cursos</p>
+            <h3 class="text-3xl font-black text-slate-800 mt-2">@Model.TotalCursos</h3>
+            <p class="text-xs text-slate-500 mt-2">Matrículas registradas</p>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+            <p class="text-[11px] text-slate-400 uppercase font-bold tracking-wider">En Curso</p>
+            <h3 class="text-3xl font-black text-blue-600 mt-2">@Model.CursosActivos</h3>
+            <p class="text-xs text-slate-500 mt-2">Cursos activos ahora</p>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+            <p class="text-[11px] text-slate-400 uppercase font-bold tracking-wider">Certificados</p>
+            <h3 class="text-3xl font-black text-purple-600 mt-2">@Model.CertificadosObtenidos</h3>
+            <p class="text-xs text-slate-500 mt-2">Diplomas obtenidos</p>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+            <p class="text-[11px] text-slate-400 uppercase font-bold tracking-wider">Total Pagado</p>
+            <h3 class="text-3xl font-black text-emerald-600 mt-2">S/ @Model.TotalPagado.ToString("N0")</h3>
+            <p class="text-xs text-slate-500 mt-2">Inversión en formación</p>
+        </div>
+    </div>
+
+    <!-- Accesos Rápidos -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <a href="/Alumnos/MisCursos" class="group bg-white rounded-xl border border-slate-200 shadow-sm p-6 flex items-center gap-5 hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+            <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
+                <span class="material-symbols-outlined text-[30px]">school</span>
+            </div>
+            <div class="flex-1">
+                <h3 class="text-base font-bold text-slate-800 group-hover:text-blue-700 transition-colors">Mis Cursos</h3>
+                <p class="text-xs text-slate-500 mt-1">Ver módulos matriculados</p>
+            </div>
+            <span class="material-symbols-outlined text-slate-300 group-hover:text-blue-400 transition-colors">arrow_forward</span>
+        </a>
+        <a href="/Alumnos/MisCertificados" class="group bg-white rounded-xl border border-slate-200 shadow-sm p-6 flex items-center gap-5 hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+            <div class="w-14 h-14 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors duration-300">
+                <span class="material-symbols-outlined text-[30px]">card_membership</span>
+            </div>
+            <div class="flex-1">
+                <h3 class="text-base font-bold text-slate-800 group-hover:text-purple-700 transition-colors">Mis Certificados</h3>
+                <p class="text-xs text-slate-500 mt-1">Descargar diplomas</p>
+            </div>
+            <span class="material-symbols-outlined text-slate-300 group-hover:text-purple-400 transition-colors">arrow_forward</span>
+        </a>
+    </div>
+
+    <!-- Banner motivacional -->
+    <div class="bg-gradient-to-br from-slate-800 to-primary-900 rounded-2xl p-7 text-white relative overflow-hidden">
+        <div class="absolute right-4 bottom-0 opacity-10 pointer-events-none">
+            <span class="material-symbols-outlined text-[200px]">workspace_premium</span>
+        </div>
+        <h2 class="text-xl font-bold">¡Sigue avanzando!</h2>
+        <p class="text-sm text-slate-300 mt-2 max-w-sm">Tienes <strong class="text-white">@Model.CursosActivos</strong> curso(s) activo(s). Completa tus módulos y obtén tus certificados.</p>
+        <a href="/Alumnos/MisCursos" class="mt-5 inline-flex items-center gap-2 px-5 py-2.5 bg-white text-primary-800 text-sm font-bold rounded-lg hover:bg-primary-50 transition-all">
+            <span class="material-symbols-outlined text-[18px]">school</span>
+            Ver mis cursos
+        </a>
+    </div>
+</div>

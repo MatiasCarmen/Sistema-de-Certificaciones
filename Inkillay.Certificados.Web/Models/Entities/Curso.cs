@@ -1,4 +1,4 @@
-namespace Inkillay.Certificados.Web.Models.Entities;
+namespace SIGEC.Certificados.Web.Models.Entities;
 
 
 public class Curso : AuditoriaBase

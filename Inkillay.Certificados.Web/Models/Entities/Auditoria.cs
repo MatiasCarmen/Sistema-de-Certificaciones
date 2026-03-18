@@ -1,4 +1,4 @@
-namespace Inkillay.Certificados.Web.Models.Entities;
+namespace SIGEC.Certificados.Web.Models.Entities;
 
 /// <summary>
 /// Clase base abstracta que implementa el estándar corporativo de auditoría.

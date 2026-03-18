@@ -1,9 +1,11 @@
-using Inkillay.Certificados.Web.Models.ViewModels;
+using SIGEC.Certificados.Web.Models.ViewModels;
 
-namespace Inkillay.Certificados.Web.Data.Repositories;
+namespace SIGEC.Certificados.Web.Data.Repositories;
 
 public interface IDashboardRepository
 {
     Task<AdminDashboardViewModel?> ObtenerEstadisticasDashboardAsync();
     Task<IEnumerable<ActividadReciente>> ListarActividadRecienteAsync();
+    Task<DocenteDashboardViewModel?> ObtenerStatsDocenteAsync(int idDocente);
+    Task<AlumnoDashboardViewModel?> ObtenerStatsAlumnoAsync(int idUsuario);
 }

@@ -1,4 +1,4 @@
-namespace Inkillay.Certificados.Web.Services;
+namespace SIGEC.Certificados.Web.Services;
 
 public static class HashHelper
 {

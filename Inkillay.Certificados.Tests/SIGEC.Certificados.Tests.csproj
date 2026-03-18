@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Inkillay.Certificados.Web/Inkillay.Certificados.Web.csproj" />
+    <ProjectReference Include="..\Inkillay.Certificados.Web\SIGEC.Certificados.Web.csproj" />
   </ItemGroup>
 
   <ItemGroup>

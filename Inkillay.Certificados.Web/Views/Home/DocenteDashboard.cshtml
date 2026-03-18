@@ -1,0 +1,74 @@
+@model SIGEC.Certificados.Web.Models.ViewModels.DocenteDashboardViewModel
+@{
+    ViewData["Title"] = "Panel Docente";
+    var nombre = User.Identity?.Name ?? "Docente";
+}
+
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800 tracking-tight">Panel del Docente</h1>
+            <p class="text-sm text-slate-500 mt-1">Bienvenido, <span class="font-semibold text-primary-600">@nombre</span></p>
+        </div>
+        <a href="/Matriculas/Registrar" class="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white text-sm font-semibold rounded-lg hover:bg-primary-700 transition-all shadow-sm">
+            <span class="material-symbols-outlined text-[18px]">person_add</span>
+            Matricular Alumno
+        </a>
+    </div>
+
+    <!-- KPIs -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+            <p class="text-[11px] text-slate-400 uppercase font-bold tracking-wider">Mis Módulos</p>
+            <h3 class="text-3xl font-black text-slate-800 mt-2">@Model.TotalModulos</h3>
+            <p class="text-xs text-slate-500 mt-2">Total asignados</p>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+            <p class="text-[11px] text-slate-400 uppercase font-bold tracking-wider">Módulos Activos</p>
+            <h3 class="text-3xl font-black text-amber-600 mt-2">@Model.ModulosActivos</h3>
+            <p class="text-xs text-slate-500 mt-2">En curso actualmente</p>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+            <p class="text-[11px] text-slate-400 uppercase font-bold tracking-wider">Alumnos</p>
+            <h3 class="text-3xl font-black text-blue-600 mt-2">@Model.TotalAlumnos</h3>
+            <p class="text-xs text-slate-500 mt-2">En tus módulos</p>
+        </div>
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+            <p class="text-[11px] text-slate-400 uppercase font-bold tracking-wider">Recaudación</p>
+            <h3 class="text-3xl font-black text-emerald-600 mt-2">S/ @Model.RecaudacionTotal.ToString("N0")</h3>
+            <p class="text-xs text-slate-500 mt-2">Total cobrado</p>
+        </div>
+    </div>
+
+    <!-- Accesos Rápidos -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <a href="/Emision/Index" class="group bg-white rounded-xl border border-slate-200 shadow-sm p-6 flex items-center gap-4 hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+            <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0 group-hover:bg-purple-600 group-hover:text-white transition-colors duration-300">
+                <span class="material-symbols-outlined text-[26px]">verified</span>
+            </div>
+            <div>
+                <h3 class="text-sm font-bold text-slate-800 group-hover:text-purple-700 transition-colors">Emitir Certificados</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Generar diplomas</p>
+            </div>
+        </a>
+        <a href="/Pagos/Index" class="group bg-white rounded-xl border border-slate-200 shadow-sm p-6 flex items-center gap-4 hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+            <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300">
+                <span class="material-symbols-outlined text-[26px]">payments</span>
+            </div>
+            <div>
+                <h3 class="text-sm font-bold text-slate-800 group-hover:text-emerald-700 transition-colors">Registro de Pagos</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Controlar cobros</p>
+            </div>
+        </a>
+        <a href="/Alumnos/Padron" class="group bg-white rounded-xl border border-slate-200 shadow-sm p-6 flex items-center gap-4 hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+            <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors duration-300">
+                <span class="material-symbols-outlined text-[26px]">groups</span>
+            </div>
+            <div>
+                <h3 class="text-sm font-bold text-slate-800 group-hover:text-blue-700 transition-colors">Padrón de Alumnos</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Gestionar estudiantes</p>
+            </div>
+        </a>
+    </div>
+</div>

@@ -1,10 +1,10 @@
-using Inkillay.Certificados.Web.Data.Repositories;
-using Inkillay.Certificados.Web.Models.Entities;
-using Inkillay.Certificados.Web.Models.ViewModels;
+using SIGEC.Certificados.Web.Data.Repositories;
+using SIGEC.Certificados.Web.Models.Entities;
+using SIGEC.Certificados.Web.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Inkillay.Certificados.Web.Controllers;
+namespace SIGEC.Certificados.Web.Controllers;
 
 [Authorize(Roles = "Admin,Docente")]
 public class ModulosController : Controller

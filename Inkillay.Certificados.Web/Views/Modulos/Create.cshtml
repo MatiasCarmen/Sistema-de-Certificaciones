@@ -1,4 +1,4 @@
-@model Inkillay.Certificados.Web.Models.ViewModels.CrearModuloViewModel
+@model SIGEC.Certificados.Web.Models.ViewModels.CrearModuloViewModel
 
 @{
     Layout = "_Layout";
@@ -9,14 +9,15 @@
     .input-error { border-color: #ef4444 !important; background-color: #fef2f2 !important; }
     .error-text { color: #ef4444; font-size: 0.75rem; margin-top: 0.25rem; display: none; }
     
-    
+    /* Ocultar flecha nativa de select para evitar "doble flecha" */
     select {
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        appearance: none;
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        appearance: none !important;
+        background-image: none !important; /* IMPORTANTE: Para anular el plugin tailwind-forms */
     }
     select::-ms-expand {
-        display: none;
+        display: none !important;
     }
 </style>
 

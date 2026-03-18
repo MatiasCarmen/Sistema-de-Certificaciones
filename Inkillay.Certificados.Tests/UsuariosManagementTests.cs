@@ -1,13 +1,13 @@
 using Xunit;
 using FluentAssertions;
-using Inkillay.Certificados.Web.Data.Repositories;
-using Inkillay.Certificados.Web.Models.Entities;
-using Inkillay.Certificados.Web.Data;
-using Inkillay.Certificados.Web.Services;
+using SIGEC.Certificados.Web.Data.Repositories;
+using SIGEC.Certificados.Web.Models.Entities;
+using SIGEC.Certificados.Web.Data;
+using SIGEC.Certificados.Web.Services;
 using Microsoft.Extensions.Configuration;
 using Moq;
 
-namespace Inkillay.Certificados.Tests;
+namespace SIGEC.Certificados.Tests;
 
 public class UsuariosManagementTests
 {

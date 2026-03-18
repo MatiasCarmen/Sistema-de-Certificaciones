@@ -1,4 +1,4 @@
-namespace Inkillay.Certificados.Web.Data.Repositories;
+namespace SIGEC.Certificados.Web.Data.Repositories;
 
 public interface IPagoRepository
 {

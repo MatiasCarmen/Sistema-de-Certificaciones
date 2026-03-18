@@ -1,4 +1,4 @@
-namespace Inkillay.Certificados.Web.Utils;
+namespace SIGEC.Certificados.Web.Utils;
 
 /// <summary>
 /// Helper para validar la integridad de archivos usando Magic Numbers (firmas de archivo)

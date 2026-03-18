@@ -1,6 +1,6 @@
-using Inkillay.Certificados.Web.Models.Entities;
+using SIGEC.Certificados.Web.Models.Entities;
 
-namespace Inkillay.Certificados.Web.Models.ViewModels;
+namespace SIGEC.Certificados.Web.Models.ViewModels;
 
 public class EditorPlantillaViewModel
 {

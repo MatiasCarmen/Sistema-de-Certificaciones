@@ -2,7 +2,7 @@ using System.Data.SqlClient;
 using Microsoft.Data.SqlClient;
 using System.Security.Claims;
 
-namespace Inkillay.Certificados.Web.Services;
+namespace SIGEC.Certificados.Web.Services;
 
 public interface IAuditoriaService
 {

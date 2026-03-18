@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Inkillay Certificados</title>
+    <title>@ViewData["Title"] - SIGEC Certificados</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,7 +19,7 @@
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Inkillay.Certificados.Web.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/SIGEC.Certificados.Web.styles.css" asp-append-version="true" />
 
     <script>
         tailwind.config = {
@@ -132,9 +132,9 @@
                     <span class="material-symbols-outlined text-sm text-white">account_balance</span>
                 </div>
                 <div>
-                    <h1 class="text-xs font-black tracking-widest uppercase text-white leading-tight">Inkillay</h1>
+                    <h1 class="text-xs font-black tracking-widest uppercase text-white leading-tight">SIGEC</h1>
                     <p class="text-[9px] text-primary-300 uppercase tracking-widest font-semibold flex items-center gap-1">
-                        <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span> Sistema
+                        <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span> Sistema de Gestión de Certificados
                     </p>
                 </div>
                 <!-- Close btn mobile -->
@@ -168,10 +168,27 @@
                 
                 @if (User.Identity?.IsAuthenticated == true)
                 {
-                    <a href="/Home/Index" class="@ActiveClass("Home")">
-                        <span class="material-symbols-outlined text-[20px] mr-3 @IconClass("Home")">dashboard</span>
-                        Inicio
-                    </a>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a href="/Home/AdminDashboard" class="@ActiveClass("Home", "AdminDashboard")">
+                            <span class="material-symbols-outlined text-[20px] mr-3 @IconClass("Home", "AdminDashboard")">dashboard</span>
+                            Inicio
+                        </a>
+                    }
+                    else if (User.IsInRole("Docente"))
+                    {
+                        <a href="/Home/DocenteDashboard" class="@ActiveClass("Home", "DocenteDashboard")">
+                            <span class="material-symbols-outlined text-[20px] mr-3 @IconClass("Home", "DocenteDashboard")">dashboard</span>
+                            Inicio
+                        </a>
+                    }
+                    else
+                    {
+                        <a href="/Home/AlumnoDashboard" class="@ActiveClass("Home", "AlumnoDashboard")">
+                            <span class="material-symbols-outlined text-[20px] mr-3 @IconClass("Home", "AlumnoDashboard")">dashboard</span>
+                            Inicio
+                        </a>
+                    }
 
                     @if (User.IsInRole("Admin"))
                     {
@@ -245,9 +262,9 @@
                         Cerrar Sesión
                     </button>
                 </form>
-                <div class="text-[9px] text-center text-slate-500 uppercase tracking-widest font-semibold pt-1">
-                    &copy; @DateTime.Now.Year Grupo Inkillay <br/> v1.2 Release
-                </div>
+                    <p class="text-[9px] text-center text-slate-500 uppercase tracking-widest font-semibold pt-1">
+                    &copy; @DateTime.Now.Year SIGEC <br/> v1.0
+                </p>
             </div>
         </aside>
 
@@ -306,7 +323,8 @@
                                 </span>
                             </div>
 
-                            <span class="material-symbols-outlined text-slate-400 text-sm hidden sm:block transition-transform duration-200" :class="open ? 'rotate-180' : ''">expand_more</span>
+                            <span class="material-symbols-outlined text-slate-400 text-sm hidden sm:block transition-transform duration-200"
+                                  :class="open ? 'rotate-180' : ''">expand_more</span>
                         </button>
 
                         <!-- Dropdown Menu -->

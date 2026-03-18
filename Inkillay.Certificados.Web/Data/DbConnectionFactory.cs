@@ -3,7 +3,7 @@ using System.Data.Common;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 
-namespace Inkillay.Certificados.Web.Data;
+namespace SIGEC.Certificados.Web.Data;
 
 public sealed class DbConnectionFactory
 {

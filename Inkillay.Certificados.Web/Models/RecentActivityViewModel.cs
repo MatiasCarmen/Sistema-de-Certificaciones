@@ -1,4 +1,4 @@
-namespace Inkillay.Certificados.Web.Models;
+namespace SIGEC.Certificados.Web.Models;
 
 public class RecentActivityViewModel
 {

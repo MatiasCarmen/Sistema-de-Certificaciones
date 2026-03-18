@@ -1,7 +1,7 @@
 using Xunit;
 using FluentAssertions;
 
-namespace Inkillay.Certificados.Tests;
+namespace SIGEC.Certificados.Tests;
 
 /// <summary>
 /// Tests para validar que el Rate Limiting está activado en AccountController.Login

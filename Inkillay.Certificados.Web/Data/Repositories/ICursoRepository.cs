@@ -1,7 +1,7 @@
-using Inkillay.Certificados.Web.Models.ViewModels;
-using Inkillay.Certificados.Web.Models.Entities;
+using SIGEC.Certificados.Web.Models.ViewModels;
+using SIGEC.Certificados.Web.Models.Entities;
 
-namespace Inkillay.Certificados.Web.Data.Repositories;
+namespace SIGEC.Certificados.Web.Data.Repositories;
 
 public interface ICursoRepository
 {

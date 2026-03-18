@@ -1,8 +1,8 @@
-using Inkillay.Certificados.Web.Data.Repositories;
+using SIGEC.Certificados.Web.Data.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Inkillay.Certificados.Web.Controllers;
+namespace SIGEC.Certificados.Web.Controllers;
 
 [Authorize(Roles = "Admin")]
 public class SeguridadController : Controller

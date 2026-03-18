@@ -1,9 +1,9 @@
 using Dapper;
-using Inkillay.Certificados.Web.Models.Entities;
-using Inkillay.Certificados.Web.Models.ViewModels;
+using SIGEC.Certificados.Web.Models.Entities;
+using SIGEC.Certificados.Web.Models.ViewModels;
 using System.Data;
 
-namespace Inkillay.Certificados.Web.Data.Repositories;
+namespace SIGEC.Certificados.Web.Data.Repositories;
 
 public class CursoRepository : ICursoRepository
 {

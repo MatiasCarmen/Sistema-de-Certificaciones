@@ -2,12 +2,12 @@ using Xunit;
 using Moq;
 using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
-using Inkillay.Certificados.Web.Services;
-using Inkillay.Certificados.Web.Models.ViewModels;
+using SIGEC.Certificados.Web.Services;
+using SIGEC.Certificados.Web.Models.ViewModels;
 using SkiaSharp;
 using System.Collections.Generic;
 
-namespace Inkillay.Certificados.Tests;
+namespace SIGEC.Certificados.Tests;
 
 public class CertificadoServiceTests : IDisposable
 {

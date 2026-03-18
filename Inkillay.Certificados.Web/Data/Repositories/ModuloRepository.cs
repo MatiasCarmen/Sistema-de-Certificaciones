@@ -1,8 +1,8 @@
 using Dapper;
-using Inkillay.Certificados.Web.Models.Entities;
+using SIGEC.Certificados.Web.Models.Entities;
 using System.Data;
 
-namespace Inkillay.Certificados.Web.Data.Repositories;
+namespace SIGEC.Certificados.Web.Data.Repositories;
 
 public class ModuloRepository(DbConnectionFactory _connectionFactory) : IModuloRepository
 {

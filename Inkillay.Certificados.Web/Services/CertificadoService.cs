@@ -1,10 +1,10 @@
-using Inkillay.Certificados.Web.Models.ViewModels;
+using SIGEC.Certificados.Web.Models.ViewModels;
 using SkiaSharp;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using System.IO;
 
-namespace Inkillay.Certificados.Web.Services;
+namespace SIGEC.Certificados.Web.Services;
 
 public class CertificadoService : ICertificadoService
 {

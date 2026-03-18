@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Inkillay.Certificados.Tests/SIGEC.Certificados.Tests.csproj" />
+  <Project Path="Inkillay.Certificados.Web/SIGEC.Certificados.Web.csproj" />
+</Solution>

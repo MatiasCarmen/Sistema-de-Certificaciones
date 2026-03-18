@@ -1,6 +1,6 @@
-namespace Inkillay.Certificados.Web.Services;
+namespace SIGEC.Certificados.Web.Services;
 
-using Inkillay.Certificados.Web.Models.ViewModels;
+using SIGEC.Certificados.Web.Models.ViewModels;
 
 public interface ICertificadoService
 {

@@ -1,4 +1,4 @@
-namespace Inkillay.Certificados.Web.Models.Entities;
+namespace SIGEC.Certificados.Web.Models.Entities;
 
 /// <summary>
 /// Entidad PlantillaDetalle - Detalle de capas de texto en certificados multicapa

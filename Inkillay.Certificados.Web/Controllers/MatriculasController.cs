@@ -1,9 +1,10 @@
-using Inkillay.Certificados.Web.Data.Repositories;
-using Inkillay.Certificados.Web.Models.ViewModels;
+using SIGEC.Certificados.Web.Data.Repositories;
+using SIGEC.Certificados.Web.Models.Entities;
+using SIGEC.Certificados.Web.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Inkillay.Certificados.Web.Controllers;
+namespace SIGEC.Certificados.Web.Controllers;
 
 [Authorize(Roles = "Docente,Admin")]
 public class MatriculasController : Controller
@@ -75,7 +76,7 @@ public class MatriculasController : Controller
             ViewData["NombreCurso"] = cursoInfo.Nombre;
             var matriculas = await _matriculaRepository.ListarAlumnosPorModuloAsync(idCurso);
             
-            return View(matriculas ?? Enumerable.Empty<Inkillay.Certificados.Web.Models.Entities.Matricula>());
+            return View(matriculas ?? Enumerable.Empty<Matricula>());
         }
         catch (Exception)
         {

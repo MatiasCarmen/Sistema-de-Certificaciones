@@ -1,4 +1,4 @@
-namespace Inkillay.Certificados.Web.Utils;
+namespace SIGEC.Certificados.Web.Utils;
 
 /// <summary>
 /// Enum para el estado de registro (Activo/Inactivo) según estándar corporativo

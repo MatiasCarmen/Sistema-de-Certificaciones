@@ -1,13 +1,13 @@
-using Inkillay.Certificados.Web.Data.Repositories;
-using Inkillay.Certificados.Web.Models;
-using Inkillay.Certificados.Web.Services;
+using SIGEC.Certificados.Web.Data.Repositories;
+using SIGEC.Certificados.Web.Models;
+using SIGEC.Certificados.Web.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 
-namespace Inkillay.Certificados.Web.Controllers;
+namespace SIGEC.Certificados.Web.Controllers;
 
 public class AccountController : Controller
 {

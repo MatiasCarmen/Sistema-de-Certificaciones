@@ -1,8 +1,8 @@
 using System.Data.Common;
 using System.Threading.RateLimiting;
-using Inkillay.Certificados.Web.Data;
-using Inkillay.Certificados.Web.Data.Repositories;
-using Inkillay.Certificados.Web.Services;
+using SIGEC.Certificados.Web.Data;
+using SIGEC.Certificados.Web.Data.Repositories;
+using SIGEC.Certificados.Web.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Data.SqlClient;

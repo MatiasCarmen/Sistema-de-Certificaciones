@@ -3,14 +3,14 @@ using Moq;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
-using Inkillay.Certificados.Web.Controllers;
-using Inkillay.Certificados.Web.Data.Repositories;
-using Inkillay.Certificados.Web.Services;
-using Inkillay.Certificados.Web.Utils;
+using SIGEC.Certificados.Web.Controllers;
+using SIGEC.Certificados.Web.Data.Repositories;
+using SIGEC.Certificados.Web.Services;
+using SIGEC.Certificados.Web.Utils;
 using System.Security.Claims;
 using System.Text;
 
-namespace Inkillay.Certificados.Tests;
+namespace SIGEC.Certificados.Tests;
 
 public class PlantillaSecurityTests
 {

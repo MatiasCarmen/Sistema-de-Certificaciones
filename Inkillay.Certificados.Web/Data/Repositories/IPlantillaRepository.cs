@@ -1,7 +1,7 @@
-using Inkillay.Certificados.Web.Models.Entities;
-using Inkillay.Certificados.Web.Models.ViewModels;
+using SIGEC.Certificados.Web.Models.Entities;
+using SIGEC.Certificados.Web.Models.ViewModels;
 
-namespace Inkillay.Certificados.Web.Data.Repositories;
+namespace SIGEC.Certificados.Web.Data.Repositories;
 
 public interface IPlantillaRepository
 {
@@ -9,8 +9,8 @@ public interface IPlantillaRepository
     Task<int> InsertarPlantillaAsync(Plantilla plantilla);
     Task<int> ActualizarCoordenadasAsync(int id, int x, int y);
     Task<int> ActualizarDisenoPlantillaAsync(int id, int x, int y, int fontSize, string fontColor);
-    Task<bool> GuardarDisenoCompletoAsync(int idPlantilla, List<PlantillaDetalleDTO> detalles);
     Task<IEnumerable<PlantillaDetalleDTO>> ListarDetallesPlantillaAsync(int idPlantilla);
+    Task<bool> GuardarDisenoCompletoAsync(int idPlantilla, List<PlantillaDetalleDTO> detalles);
     Task<int> CambiarEstadoPlantillaAsync(int id);
     Task<int> EliminarPlantillaAsync(int id);
 }

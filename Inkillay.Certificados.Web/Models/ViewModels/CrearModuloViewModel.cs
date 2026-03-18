@@ -1,11 +1,11 @@
-using Inkillay.Certificados.Web.Models.Entities;
+using SIGEC.Certificados.Web.Models.Entities;
 
-namespace Inkillay.Certificados.Web.Models.ViewModels;
+namespace SIGEC.Certificados.Web.Models.ViewModels;
 
 public class CrearModuloViewModel
 {
     public IEnumerable<Curso> Cursos { get; set; } = Enumerable.Empty<Curso>();
-    public IEnumerable<Inkillay.Certificados.Web.Models.Entities.Usuarios> Docentes { get; set; } = Enumerable.Empty<Inkillay.Certificados.Web.Models.Entities.Usuarios>();
+    public IEnumerable<Usuarios> Docentes { get; set; } = Enumerable.Empty<Usuarios>();
     
     // Propiedades para el POST
     public int IdCurso { get; set; }

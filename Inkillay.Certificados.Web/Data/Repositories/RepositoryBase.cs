@@ -1,6 +1,6 @@
 using System.Security.Claims;
 
-namespace Inkillay.Certificados.Web.Data.Repositories;
+namespace SIGEC.Certificados.Web.Data.Repositories;
 
 /// <summary>
 /// Clase base para repositorios que implementa utilidades comunes de auditoría

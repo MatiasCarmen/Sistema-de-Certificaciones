@@ -1,4 +1,4 @@
-namespace Inkillay.Certificados.Web.Models.Entities;
+namespace SIGEC.Certificados.Web.Models.Entities;
 
 /// <summary>
 /// Entidad Opción de Seguridad según el estándar corporativo actualizado

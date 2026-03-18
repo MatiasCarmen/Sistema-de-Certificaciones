@@ -1,6 +1,6 @@
-using Inkillay.Certificados.Web.Models.Entities;
+using SIGEC.Certificados.Web.Models.Entities;
 
-namespace Inkillay.Certificados.Web.Data.Repositories;
+namespace SIGEC.Certificados.Web.Data.Repositories;
 
 public interface IModuloRepository
 {

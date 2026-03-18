@@ -1,4 +1,4 @@
-namespace Inkillay.Certificados.Web.Models.ViewModels;
+namespace SIGEC.Certificados.Web.Models.ViewModels;
 
 public class PlantillaDetalleDTO
 {

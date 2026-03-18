@@ -1,10 +1,10 @@
 using Xunit;
 using FluentAssertions;
-using Inkillay.Certificados.Web.Services;
+using SIGEC.Certificados.Web.Services;
 using Moq;
 using Microsoft.AspNetCore.Hosting;
 
-namespace Inkillay.Certificados.Tests;
+namespace SIGEC.Certificados.Tests;
 
 public class PdfGenerationTests
 {
